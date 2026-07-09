@@ -39,7 +39,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - `Gerichte Raptorjacht`: speler kiest doelwit zodra multiplayer of extra spelers bestaan; voor 2 spelers alvast tonen als aparte keuze-flow.
   - Check: beide voelen anders in UI en logtekst.
 
-- [ ] Stap 4: Maak `oracle` interactief.
+- [x] Stap 4: Maak `oracle` interactief.
   - Laat de speler de bovenste 3 kaarten zelf ordenen.
   - PC gebruikt een simpele strategie, bijvoorbeeld meteorieten verder weg leggen.
   - Check: `Tijdlijn Kneden` voelt anders dan alleen kijken met `Triceratops Blik`.
@@ -105,7 +105,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 
 ## Aanbevolen volgorde per kaarttype
 
-- [ ] `oracle`: grootste winst, omdat deze nu automatisch speelt terwijl de tekst een keuze suggereert.
+- [x] `oracle`: grootste winst, omdat deze nu automatisch speelt terwijl de tekst een keuze suggereert.
 - [ ] `fossil`: snel voelbaar beter als de speler bewuster steelt.
 - [ ] `nope`: belangrijk voor interactie en timing.
 - [ ] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.

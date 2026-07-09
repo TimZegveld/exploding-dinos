@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tijdlijn Kneden - kaartdesign opties</title>
+    <style>
+      :root {
+        --ink: #251d17;
+        --muted: #6e6258;
+        --paper: #fff9ec;
+        --line: #d8c8b3;
+        --green: #2f7d4f;
+        --amber: #d79b32;
+        --red: #b33b2e;
+        --blue: #2f6f89;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 8% 18%, rgba(215, 155, 50, 0.2), transparent 28%),
+          linear-gradient(135deg, #fbf4e6 0%, #f5f1e7 46%, #e6efe1 100%);
+      }
+
+      main {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #1f5a39;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin-bottom: 0;
+        font-size: clamp(2.2rem, 5vw, 4.6rem);
+        line-height: 0.95;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+        align-items: start;
+      }
+
+      .option {
+        min-width: 0;
+      }
+
+      .card {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        aspect-ratio: 5 / 7;
+        border: 3px solid var(--ink);
+        border-radius: 8px;
+        padding: 12px;
+        overflow: hidden;
+        background: var(--paper);
+        box-shadow: 0 14px 0 rgba(37, 29, 23, 0.16);
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border: 1px solid rgba(37, 29, 23, 0.18);
+        border-radius: 5px;
+        pointer-events: none;
+      }
+
+      .card-header {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 34px;
+        gap: 8px;
+        align-items: center;
+        border-radius: 6px;
+        padding: 9px 9px 8px;
+        color: #fffdf7;
+        background: var(--ink);
+      }
+
+      .card-title {
+        font-size: clamp(1rem, 2.2vw, 1.28rem);
+        font-weight: 950;
+        line-height: 1.02;
+      }
+
+      .card-icon {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(255, 253, 247, 0.72);
+        border-radius: 50%;
+        font-weight: 950;
+      }
+
+      .art {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        min-height: 0;
+        margin: 10px 0;
+        border: 2px solid rgba(37, 29, 23, 0.3);
+        border-radius: 7px;
+        overflow: hidden;
+      }
+
+      .art svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .effect {
+        position: relative;
+        z-index: 1;
+        min-height: 72px;
+        border-radius: 6px;
+        padding: 10px;
+        background: rgba(255, 253, 247, 0.9);
+        box-shadow: inset 0 0 0 1px rgba(37, 29, 23, 0.16);
+        color: var(--muted);
+        font-size: clamp(0.78rem, 1.45vw, 0.92rem);
+        font-weight: 720;
+        line-height: 1.28;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        margin-top: 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        background: rgba(255, 250, 240, 0.82);
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .notes {
+        margin: 12px 0 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .amber {
+        --theme: #d79b32;
+        --deep: #7b4128;
+        --glow: #f8c957;
+      }
+
+      .amber .card {
+        background:
+          linear-gradient(180deg, rgba(255, 246, 216, 0.98), rgba(252, 225, 151, 0.9)),
+          var(--paper);
+      }
+
+      .amber .card-header {
+        background: linear-gradient(135deg, #7b4128, #b4662f);
+      }
+
+      .amber .art {
+        background:
+          radial-gradient(circle at 50% 50%, rgba(248, 201, 87, 0.64), transparent 34%),
+          linear-gradient(180deg, #ffe7a3 0%, #c87837 100%);
+      }
+
+      .jungle {
+        --theme: #2f7d4f;
+        --deep: #1f5a39;
+        --glow: #8ed36c;
+      }
+
+      .jungle .card {
+        background:
+          linear-gradient(180deg, rgba(237, 247, 219, 0.98), rgba(199, 225, 166, 0.9)),
+          var(--paper);
+      }
+
+      .jungle .card-header {
+        background: linear-gradient(135deg, #1f5a39, #2f7d4f);
+      }
+
+      .jungle .art {
+        background:
+          radial-gradient(circle at 50% 54%, rgba(142, 211, 108, 0.52), transparent 36%),
+          linear-gradient(180deg, #dff0b8 0%, #6e9b68 100%);
+      }
+
+      .night {
+        --theme: #2f6f89;
+        --deep: #24364a;
+        --glow: #f2c86b;
+      }
+
+      .night .card {
+        background:
+          linear-gradient(180deg, rgba(234, 242, 247, 0.98), rgba(186, 210, 218, 0.9)),
+          var(--paper);
+      }
+
+      .night .card-header {
+        background: linear-gradient(135deg, #24364a, #2f6f89);
+      }
+
+      .night .art {
+        background:
+          radial-gradient(circle at 50% 45%, rgba(242, 200, 107, 0.44), transparent 32%),
+          linear-gradient(180deg, #b9d6df 0%, #3d6d78 100%);
+      }
+
+      @media (max-width: 920px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .cards {
+          grid-template-columns: 1fr;
+          max-width: 390px;
+          margin: 0 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">Exploding Dinos kaartfront proef</p>
+          <h1>Tijdlijn Kneden</h1>
+        </div>
+      </header>
+
+      <section class="cards" aria-label="Kaartdesign opties">
+        <article class="option amber">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Tijdlijn Kneden</div>
+              <div class="card-icon">↻</div>
+            </div>
+            <div class="art" aria-hidden="true">
+              <svg viewBox="0 0 320 390" role="img">
+                <path d="M0 312 C52 282 76 335 126 304 C177 272 202 326 320 284 L320 390 L0 390 Z" fill="#7a4a2e" opacity=".26"/>
+                <path d="M40 270 C88 206 126 230 154 172 C181 116 228 112 278 70" fill="none" stroke="#fff7d6" stroke-width="24" stroke-linecap="round"/>
+                <path d="M40 270 C88 206 126 230 154 172 C181 116 228 112 278 70" fill="none" stroke="#f8c957" stroke-width="12" stroke-linecap="round"/>
+                <circle cx="72" cy="242" r="12" fill="#fff7d6"/>
+                <circle cx="151" cy="178" r="12" fill="#fff7d6"/>
+                <circle cx="234" cy="106" r="12" fill="#fff7d6"/>
+                <path d="M121 256 C95 242 88 200 116 177 C140 158 181 166 195 198 C210 232 186 267 152 270" fill="#6fba6a" stroke="#251d17" stroke-width="8" stroke-linejoin="round"/>
+                <path d="M179 174 C215 158 251 172 266 204 C229 202 204 214 192 244" fill="#6fba6a" stroke="#251d17" stroke-width="8" stroke-linejoin="round"/>
+                <circle cx="149" cy="213" r="7" fill="#251d17"/>
+                <path d="M109 288 C132 302 163 302 190 286" fill="none" stroke="#251d17" stroke-width="8" stroke-linecap="round"/>
+                <path d="M98 153 C67 132 66 95 95 78 C125 60 167 85 158 126" fill="#9fd36d" stroke="#251d17" stroke-width="8"/>
+                <path d="M100 118 C117 125 134 126 151 117" fill="none" stroke="#251d17" stroke-width="6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="effect">Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.</div>
+          </div>
+          <span class="badge">Optie A: amber magie</span>
+          <p class="notes">Meest direct leesbaar als actiekaart. Past goed bij “tijdlijn” en voelt warm, snel en tactisch.</p>
+        </article>
+
+        <article class="option jungle">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Tijdlijn Kneden</div>
+              <div class="card-icon">⟲</div>
+            </div>
+            <div class="art" aria-hidden="true">
+              <svg viewBox="0 0 320 390" role="img">
+                <path d="M0 288 C42 262 73 289 109 266 C152 239 196 266 230 231 C260 200 294 201 320 213 L320 390 L0 390 Z" fill="#2c5f3d" opacity=".28"/>
+                <path d="M50 246 C82 220 102 181 132 164 C178 138 218 165 256 116" fill="none" stroke="#f5efd7" stroke-width="22" stroke-linecap="round"/>
+                <path d="M50 246 C82 220 102 181 132 164 C178 138 218 165 256 116" fill="none" stroke="#8ed36c" stroke-width="10" stroke-linecap="round"/>
+                <path d="M62 104 C86 74 126 79 143 113 C160 146 135 178 103 174 C73 170 43 137 62 104 Z" fill="#b8db72" stroke="#251d17" stroke-width="8"/>
+                <path d="M134 128 C166 104 210 107 239 137 C204 138 181 153 169 184" fill="#8fc15c" stroke="#251d17" stroke-width="8" stroke-linejoin="round"/>
+                <circle cx="101" cy="124" r="7" fill="#251d17"/>
+                <path d="M84 155 C99 164 118 165 134 154" fill="none" stroke="#251d17" stroke-width="6" stroke-linecap="round"/>
+                <path d="M85 255 C128 281 182 279 232 247" fill="none" stroke="#251d17" stroke-width="9" stroke-linecap="round"/>
+                <path d="M57 260 L76 276 M110 276 L125 294 M166 276 L181 294 M219 259 L239 273" stroke="#251d17" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="78" cy="230" r="9" fill="#fff7d6"/>
+                <circle cx="146" cy="159" r="9" fill="#fff7d6"/>
+                <circle cx="236" cy="128" r="9" fill="#fff7d6"/>
+              </svg>
+            </div>
+            <div class="effect">Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.</div>
+          </div>
+          <span class="badge">Optie B: fossielspoor</span>
+          <p class="notes">Meer bordspelachtig en minder magisch. Sterk als we het hele spel aardser en fossiel-achtig willen houden.</p>
+        </article>
+
+        <article class="option night">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Tijdlijn Kneden</div>
+              <div class="card-icon">⌁</div>
+            </div>
+            <div class="art" aria-hidden="true">
+              <svg viewBox="0 0 320 390" role="img">
+                <path d="M0 300 C55 266 108 296 153 261 C196 228 252 240 320 202 L320 390 L0 390 Z" fill="#24364a" opacity=".34"/>
+                <circle cx="258" cy="74" r="25" fill="#f7d783"/>
+                <path d="M42 222 C82 189 105 210 136 164 C167 118 208 147 269 105" fill="none" stroke="#fff2bc" stroke-width="20" stroke-linecap="round"/>
+                <path d="M42 222 C82 189 105 210 136 164 C167 118 208 147 269 105" fill="none" stroke="#f2c86b" stroke-width="9" stroke-linecap="round"/>
+                <path d="M86 246 C107 221 142 224 158 251 C174 279 151 312 119 309 C89 307 66 270 86 246 Z" fill="#7ec0a2" stroke="#251d17" stroke-width="8"/>
+                <path d="M151 244 C173 213 214 206 246 229 C212 239 193 260 190 294" fill="#68a890" stroke="#251d17" stroke-width="8" stroke-linejoin="round"/>
+                <circle cx="118" cy="265" r="7" fill="#251d17"/>
+                <path d="M96 291 C112 302 135 304 155 293" fill="none" stroke="#251d17" stroke-width="6" stroke-linecap="round"/>
+                <path d="M62 111 L77 118 L92 111 L85 126 L92 141 L77 134 L62 141 L69 126 Z" fill="#fff7d6"/>
+                <path d="M189 73 L199 78 L209 73 L204 84 L209 95 L199 90 L189 95 L194 84 Z" fill="#fff7d6"/>
+                <path d="M228 164 L236 168 L244 164 L240 172 L244 180 L236 176 L228 180 L232 172 Z" fill="#fff7d6"/>
+              </svg>
+            </div>
+            <div class="effect">Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.</div>
+          </div>
+          <span class="badge">Optie C: maan-tijdlijn</span>
+          <p class="notes">Het meest mystiek en onderscheidend. Mooi voor speciale actiekaarten, maar iets minder “prehistorisch daglicht”.</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

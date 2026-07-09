@@ -39,9 +39,14 @@ const cardCatalog = {
   },
   oracle: {
     name: "Tijdlijn Kneden",
-    text: "Bekijk de bovenste 3 kaarten en leg gevaar achteraan.",
+    text: "Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "oracle",
+      icon: "↻",
+      image: "assets/cards/illustrations/oracle.svg"
+    }
   },
   volcano: {
     name: "Vulkaan Shuffle",
@@ -135,6 +140,7 @@ const initialState = {
   nopeShield: { player: false, pc: false },
   pendingDraw: null,
   pendingMeteorPlacement: null,
+  pendingOracle: null,
   gameOver: false
 };
 
@@ -288,7 +294,7 @@ function renderPlayerHand() {
     button.type = "button";
     button.dataset.kind = card.kind;
     button.disabled = !canPlayCard("player", card) || state.current !== "player" || state.gameOver || isInteractionBlocked();
-    button.innerHTML = `<strong>${card.name}</strong><span>${card.text}${card.hasPaw ? " | dino-poot" : ""}</span>`;
+    renderCardFace(button, card);
     button.addEventListener("click", () => playCard("player", card.id));
     els.playerHand.append(button);
   });
@@ -296,9 +302,10 @@ function renderPlayerHand() {
 
 function renderReveal() {
   const pendingPlacement = state.pendingMeteorPlacement;
+  const pendingOracle = state.pendingOracle;
   const pendingDraw = state.pendingDraw;
 
-  if (!pendingPlacement && !pendingDraw && !activeReveal) {
+  if (!pendingPlacement && !pendingOracle && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealButton.disabled = false;
@@ -313,12 +320,26 @@ function renderReveal() {
 
   if (activeReveal) {
     els.revealEyebrow.textContent = activeReveal.title;
-    renderRevealCards(activeReveal.cards, {
-      faceDown: activeReveal.faceDown,
-      shaking: activeReveal.shaking
-    });
+    if (activeReveal.cards.length === 1 && !activeReveal.faceDown) {
+      renderOpenRevealCard(activeReveal.cards[0], activeReveal.shaking);
+    } else {
+      renderRevealCards(activeReveal.cards, {
+        faceDown: activeReveal.faceDown,
+        shaking: activeReveal.shaking
+      });
+    }
     els.revealText.textContent = activeReveal.text;
     els.revealButton.textContent = activeReveal.buttonText ?? "Verder";
+    return;
+  }
+
+  if (pendingOracle) {
+    els.revealEyebrow.textContent = "Tijdlijn Kneden";
+    renderOracleCards(pendingOracle);
+    els.revealText.textContent = pendingOracle.cards.length
+      ? "Leg links de kaart die bovenop moet liggen. Bevestig daarna de nieuwe tijdlijn."
+      : "De trekstapel is leeg, dus er valt niets te kneden.";
+    els.revealButton.textContent = "Tijdlijn vastleggen";
     return;
   }
 
@@ -369,11 +390,7 @@ function renderOpenRevealCard(card, isShaking = false) {
     els.revealCard.classList.add("is-shaking");
   }
 
-  const title = document.createElement("strong");
-  title.textContent = card.name;
-  const text = document.createElement("span");
-  text.textContent = card.text;
-  els.revealCard.append(title, text);
+  renderCardFace(els.revealCard, card, { large: true });
 }
 
 function renderRevealCards(cards, options = {}) {
@@ -391,11 +408,93 @@ function renderRevealCards(cards, options = {}) {
         item.classList.add("is-shaking");
       }
 
-      const title = document.createElement("strong");
-      title.textContent = card.name;
-      const text = document.createElement("span");
-      text.textContent = card.text;
-      item.append(title, text);
+      renderCardFace(item, card, { mini: true });
+    }
+
+    els.revealCard.append(item);
+  });
+}
+
+function renderCardFace(element, card, options = {}) {
+  element.dataset.kind = card.kind;
+  element.replaceChildren();
+
+  if (!card.design) {
+    const title = document.createElement("strong");
+    title.textContent = card.name;
+    const text = document.createElement("span");
+    text.textContent = `${card.text}${card.hasPaw && !options.hidePaw ? " | dino-poot" : ""}`;
+    element.append(title, text);
+    return;
+  }
+
+  element.dataset.tone = card.design.tone;
+  element.classList.add("card-face");
+  if (options.mini) element.classList.add("card-face--mini");
+  if (options.large) element.classList.add("card-face--large");
+
+  const header = document.createElement("div");
+  header.className = "card-face__header";
+
+  const title = document.createElement("strong");
+  title.className = "card-face__title";
+  title.textContent = card.name;
+
+  const icon = document.createElement("span");
+  icon.className = "card-face__icon";
+  icon.textContent = card.design.icon;
+  icon.setAttribute("aria-hidden", "true");
+
+  header.append(title, icon);
+
+  const art = document.createElement("div");
+  art.className = "card-face__art";
+
+  const image = document.createElement("img");
+  image.src = card.design.image;
+  image.alt = "";
+  image.loading = "lazy";
+  art.append(image);
+
+  const text = document.createElement("span");
+  text.className = "card-face__text";
+  text.textContent = `${card.text}${card.hasPaw && !options.hidePaw ? " | dino-poot" : ""}`;
+
+  element.append(header, art, text);
+}
+
+function renderOracleCards(pendingOracle) {
+  els.revealCard.classList.add("is-multi", "is-oracle");
+  pendingOracle.cards.forEach((card, index) => {
+    const item = document.createElement("div");
+    item.className = "draw-reveal__mini-card";
+    item.classList.add(`is-${card.kind}`);
+
+    const position = document.createElement("small");
+    position.textContent = index === 0 ? "Bovenop" : `Plek ${index + 1}`;
+
+    item.append(position);
+    renderCardFace(item, card, { mini: true, hidePaw: true });
+    item.prepend(position);
+
+    if (pendingOracle.owner === "player" && pendingOracle.cards.length > 1) {
+      const controls = document.createElement("div");
+      controls.className = "oracle-controls";
+
+      const leftButton = document.createElement("button");
+      leftButton.type = "button";
+      leftButton.textContent = "Links";
+      leftButton.disabled = index === 0;
+      leftButton.addEventListener("click", () => moveOracleCard(index, -1));
+
+      const rightButton = document.createElement("button");
+      rightButton.type = "button";
+      rightButton.textContent = "Rechts";
+      rightButton.disabled = index === pendingOracle.cards.length - 1;
+      rightButton.addEventListener("click", () => moveOracleCard(index, 1));
+
+      controls.append(leftButton, rightButton);
+      item.append(controls);
     }
 
     els.revealCard.append(item);
@@ -556,13 +655,44 @@ function consumeNopeShield(owner, card) {
 }
 
 function alterFuture(owner) {
-  const topCards = state.deck.splice(Math.max(0, state.deck.length - 3));
-  const saferOrder = [...topCards].sort((a, b) => Number(b.type === "meteor") - Number(a.type === "meteor"));
-  state.deck.push(...saferOrder);
-  const visible = saferOrder.slice().reverse().map((item) => item.name).join(", ");
-  setAction(owner === "player"
-    ? `Je kneedt de tijdlijn. Nieuwe top: ${visible || "geen kaarten"}.`
-    : "De pc rommelt met de prehistorische tijdlijn.");
+  const topCards = state.deck.splice(Math.max(0, state.deck.length - 3)).reverse();
+
+  if (owner === "pc") {
+    const saferOrder = [...topCards].sort((a, b) => Number(a.type === "meteor") - Number(b.type === "meteor"));
+    state.deck.push(...saferOrder.slice().reverse());
+    setAction("De pc rommelt met de prehistorische tijdlijn.");
+    return;
+  }
+
+  state.pendingOracle = { owner, cards: topCards };
+  setAction("Je pakt de bovenste 3 kaarten uit de tijdlijn en kiest de nieuwe volgorde.");
+  render();
+}
+
+function moveOracleCard(index, direction) {
+  const pendingOracle = state.pendingOracle;
+  if (!pendingOracle || pendingOracle.owner !== "player") return;
+
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= pendingOracle.cards.length) return;
+
+  [pendingOracle.cards[index], pendingOracle.cards[targetIndex]] = [pendingOracle.cards[targetIndex], pendingOracle.cards[index]];
+  render();
+}
+
+function confirmOracleOrder() {
+  const pendingOracle = state.pendingOracle;
+  if (!pendingOracle) return;
+
+  state.deck.push(...pendingOracle.cards.slice().reverse());
+  state.pendingOracle = null;
+
+  const visible = pendingOracle.cards.map((item) => item.name).join(", ");
+  log(`${label(pendingOracle.owner)} legt de tijdlijn opnieuw neer.`);
+  setAction(visible ? `Nieuwe bovenkant: ${visible}.` : "De tijdlijn blijft leeg.");
+  render();
+
+  continueAfterPause();
 }
 
 function drawCard(owner, from = "top") {
@@ -728,7 +858,7 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || activeReveal);
 }
 
 function continueAfterPause() {
@@ -759,6 +889,11 @@ els.revealButton.addEventListener("click", () => {
 
   if (state.pendingMeteorPlacement) {
     confirmMeteorPlacement();
+    return;
+  }
+
+  if (state.pendingOracle) {
+    confirmOracleOrder();
     return;
   }
 
