@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Exploding Dinos</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Nederlandse dino-editie</p>
+          <h1>Exploding Dinos</h1>
+        </div>
+        <div class="status-pill" id="turnStatus">Jouw beurt</div>
+      </section>
+
+      <section class="table">
+        <div class="opponent-zone">
+          <div class="player-label">
+            <span>PC paleontoloog</span>
+            <strong id="pcCardCount">0 kaarten</strong>
+          </div>
+          <div class="pc-hand" id="pcHand"></div>
+        </div>
+
+        <div class="center-zone">
+          <button class="deck" id="drawButton" type="button">
+            <span class="deck-count" id="deckCount">0</span>
+            <span>Trek kaart</span>
+          </button>
+
+          <div class="discard">
+            <span>Aflegstapel</span>
+            <strong id="discardTop">Nog leeg</strong>
+          </div>
+        </div>
+
+        <div class="player-zone">
+          <div class="player-label">
+            <span>Jij</span>
+            <strong id="playerHint">Speel een kaart of trek</strong>
+          </div>
+          <div class="hand" id="playerHand"></div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <div class="panel-section">
+          <h2>Actie</h2>
+          <p id="actionText">Welkom bij de eerste speelbare versie.</p>
+          <button id="newGameButton" type="button">Nieuw spel</button>
+        </div>
+
+        <div class="panel-section">
+          <h2>Logboek</h2>
+          <ol class="log" id="gameLog"></ol>
+        </div>
+      </aside>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
