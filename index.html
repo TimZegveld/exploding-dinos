@@ -58,6 +58,23 @@
           <ol class="log" id="gameLog"></ol>
         </div>
       </aside>
+
+      <section class="draw-reveal is-hidden" id="drawReveal" aria-live="polite">
+        <div class="draw-reveal__panel">
+          <p class="eyebrow" id="revealEyebrow">Kaart getrokken</p>
+          <div class="draw-reveal__card" id="revealCard"></div>
+          <p class="draw-reveal__text" id="revealText"></p>
+          <div class="placement is-hidden" id="placementControls">
+            <label for="placementSlider">Geheime plek in de trekstapel</label>
+            <input id="placementSlider" type="range" min="0" max="0" value="0">
+            <div class="placement__labels">
+              <span>Onderin</span>
+              <span>Bovenop</span>
+            </div>
+          </div>
+          <button id="revealButton" type="button">Verder</button>
+        </div>
+      </section>
     </main>
 
     <script src="game.js"></script>
