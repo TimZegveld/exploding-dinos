@@ -14,7 +14,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `trike` | Triceratops Blik | Bovenste kaarten bekijken | Werkt als informatiekaart. |
 | `oracle` | Tijdlijn Kneden | Bovenste kaarten manipuleren | Werkt automatisch; speler kiest nog niet zelf. |
 | `volcano` | Vulkaan Shuffle | Stapel schudden | Heeft een zichtbare shuffle-flow en laat de speler daarna de nieuwe bovenste kaart bekijken. |
-| `dig` | Diep Graven | Onderste kaart trekken | Werkt met eigen trekbron. |
+| `dig` | Diep Graven | Bodemkaart inspecteren met risico-keuze | Laat de speler onderop kijken en daarna onderop nemen of blind van boven trekken. |
 | `fossil` | Fossielgraaier | Kaart stelen | Speler kiest bewust een gesloten handpositie; pc kiest willekeurig. |
 | `nope` | Brul Terug | Actie blokkeren | Werkt als reactie op een actiekaart van de ander. |
 | `feral` | Wilde Dino | Joker voor soortkaarten | Werkt als paar-joker. |
@@ -64,10 +64,11 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Extra nuance: bij raptorstress verwijdert `Dino Sprint` naast de huidige beurt ook 1 pending extra beurt.
   - Check: kaart is duidelijk defensief en niet hetzelfde als een aanvalskaart.
 
-- [ ] Stap 9: Geef `dig` een risico-beloning.
-  - Basis blijft: onderste kaart trekken.
-  - Overweeg dat de onderste kaart open of gesloten wordt onthuld, of dat `dig` niet alle beurt-effecten hetzelfde consumeert.
-  - Check: onderste kaart trekken voelt als een andere gok dan normale trek.
+- [x] Stap 9: Geef `dig` een risico-beloning.
+  - Basis blijft: de onderste kaart is relevant.
+  - De speler onthult de onderste kaart en kiest daarna: neem die kaart, of laat hem liggen en trek blind van boven.
+  - PC neemt de onderste kaart tenzij die een onveilige meteoriet is.
+  - Check: onderste kaart trekken voelt als een bewust risico in plaats van een normale trek met andere bron.
 
 - [ ] Stap 10: Ontwerp unieke soortkaart-paarbeloningen.
   - `miniRaptor`: snel stelen, bijvoorbeeld willekeurig 1 kaart.
@@ -110,7 +111,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 - [x] `nope`: belangrijk voor interactie en timing.
 - [x] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.
-- [ ] `dig`: daarna aanscherpen voor extra tactische kleur.
+- [x] `dig`: daarna aanscherpen voor extra tactische kleur.
 - [x] `volcano`: zichtbaar schudden plus een glimp van de nieuwe bovenste kaart.
 - [ ] `meteor`, `shelter`, `feral`: bestaande basis behouden en finetunen rond de nieuwe flows.
 

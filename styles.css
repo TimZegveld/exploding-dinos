@@ -346,6 +346,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="dig"] {
+  --face-accent: #d98f2d;
+  --face-header: #70401f;
+  background:
+    linear-gradient(180deg, rgba(255, 236, 182, 0.98), rgba(175, 103, 45, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -368,6 +376,10 @@ h2 {
 
 .card-face[data-tone="volcano"] .card-face__header {
   background: linear-gradient(135deg, #642a1f, #b64525);
+}
+
+.card-face[data-tone="dig"] .card-face__header {
+  background: linear-gradient(135deg, #5f351d, #9b5a27);
 }
 
 .card-face__header {
@@ -405,7 +417,8 @@ h2 {
 .card-face__icon--timeline,
 .card-face__icon--fossil,
 .card-face__icon--roar,
-.card-face__icon--volcano {
+.card-face__icon--volcano,
+.card-face__icon--dig {
   position: relative;
   overflow: hidden;
 }
@@ -415,7 +428,8 @@ h2 {
 .card-face__icon--timeline span,
 .card-face__icon--fossil span,
 .card-face__icon--roar span,
-.card-face__icon--volcano span {
+.card-face__icon--volcano span,
+.card-face__icon--dig span {
   display: block;
   background: currentColor;
 }
@@ -580,6 +594,39 @@ h2 {
   box-shadow: -5px 3px 0 currentColor, 5px 2px 0 currentColor;
 }
 
+.card-face__icon--dig span {
+  position: absolute;
+  left: 11px;
+  top: 4px;
+  width: 3px;
+  height: 17px;
+  border-radius: 999px;
+  transform: rotate(32deg);
+}
+
+.card-face__icon--dig span::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  bottom: -2px;
+  width: 12px;
+  height: 7px;
+  border-radius: 2px 2px 7px 7px;
+  background: currentColor;
+}
+
+.card-face__icon--dig span::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 8px;
+  width: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-64deg);
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -617,6 +664,10 @@ h2 {
 
 .card-face[data-tone="volcano"] .card-face__art img {
   object-position: 50% 42%;
+}
+
+.card-face[data-tone="dig"] .card-face__art img {
+  object-position: 50% 58%;
 }
 
 .card-face__text {
@@ -911,6 +962,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="volcano"] .card-face__art img {
   object-position: 50% 43%;
+}
+
+.draw-reveal__card.card-face[data-tone="dig"] .card-face__art img {
+  object-position: 50% 56%;
 }
 
 .draw-reveal__card strong {

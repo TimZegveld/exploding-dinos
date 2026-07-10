@@ -35,7 +35,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - `Triceratops Blik` x6 totaal: bekijk de bovenste drie kaarten.
 - `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.
 - `Vulkaan Shuffle` x6 totaal: schud de trekstapel en bekijk daarna de nieuwe bovenste kaart.
-- `Diep Graven` x7 totaal: trek de onderste kaart.
+- `Diep Graven` x7 totaal: bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven.
 - `Fossielgraaier` x6 totaal: kies een gesloten kaart van de ander en steel die.
 - `Brul Terug` x9 totaal: reageer op een actiekaart van de ander en blokkeer die.
 - `Wilde Dino` x6 totaal: joker voor soortkaarten.

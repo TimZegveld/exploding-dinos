@@ -76,9 +76,14 @@ const cardCatalog = {
   },
   dig: {
     name: "Diep Graven",
-    text: "Trek de onderste kaart om je beurt te eindigen.",
+    text: "Bekijk onderop. Neem die kaart, of trek blind van boven.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "dig",
+      icon: "dig",
+      image: "assets/cards/illustrations/diep-graven.png"
+    }
   },
   fossil: {
     name: "Fossielgraaier",
@@ -172,6 +177,7 @@ const initialState = {
   pendingDraw: null,
   pendingMeteorPlacement: null,
   pendingOracle: null,
+  pendingDigChoice: null,
   pendingFossilChoice: null,
   pendingStealTarget: null,
   pendingNopeReaction: null,
@@ -415,16 +421,17 @@ function renderReveal() {
   const pendingCardDetail = state.pendingCardDetail;
   const pendingPlacement = state.pendingMeteorPlacement;
   const pendingOracle = state.pendingOracle;
+  const pendingDigChoice = state.pendingDigChoice;
   const pendingFossilChoice = state.pendingFossilChoice;
   const pendingStealTarget = state.pendingStealTarget;
   const pendingNopeReaction = state.pendingNopeReaction;
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
+  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -481,6 +488,16 @@ function renderReveal() {
       ? "Leg links de kaart die bovenop moet liggen. Bevestig daarna de nieuwe tijdlijn."
       : "De trekstapel is leeg, dus er valt niets te kneden.";
     els.revealButton.textContent = "Tijdlijn vastleggen";
+    return;
+  }
+
+  if (pendingDigChoice) {
+    els.revealEyebrow.textContent = "Diep Graven";
+    renderOpenRevealCard(pendingDigChoice.bottomCard);
+    els.revealText.textContent = "Je ziet de onderste kaart. Neem hem om je beurt te eindigen, of laat hem liggen en trek blind van boven.";
+    els.revealButton.textContent = "Neem onderste kaart";
+    els.revealSecondaryButton.textContent = "Trek van boven";
+    els.revealSecondaryButton.classList.remove("is-hidden");
     return;
   }
 
@@ -674,7 +691,7 @@ function createPawMarker() {
 }
 
 function renderCardTypeIcon(icon, type) {
-  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano"];
+  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig"];
   if (!supportedIcons.includes(type)) {
     icon.textContent = type;
     return;
@@ -1058,7 +1075,7 @@ function resolveCard(owner, card, context = {}) {
   }
 
   if (card.type === "dig") {
-    drawCard(owner, "bottom");
+    startDigChoice(owner);
     return;
   }
 
@@ -1366,6 +1383,36 @@ function eruptVolcano(owner) {
       return false;
     }
   });
+}
+
+function startDigChoice(owner) {
+  const bottomCard = state.deck.at(0);
+  if (!bottomCard) {
+    drawCard(owner, "bottom");
+    return;
+  }
+
+  if (owner !== "player") {
+    const hasShelter = getHand(owner).some((card) => card.type === "shelter");
+    const from = bottomCard.type === "meteor" && !hasShelter ? "top" : "bottom";
+    setAction(`${label(owner)} graaft diep en kiest ${from === "bottom" ? "de onderste kaart" : "een blinde trek van boven"}.`);
+    drawCard(owner, from);
+    return;
+  }
+
+  state.pendingDigChoice = { owner, bottomCard };
+  setAction("Diep Graven laat je eerst onder de stapel kijken.");
+  render();
+}
+
+function confirmDigChoice(takeBottom) {
+  const pendingDigChoice = state.pendingDigChoice;
+  if (!pendingDigChoice) return;
+
+  state.pendingDigChoice = null;
+  const from = takeBottom ? "bottom" : "top";
+  log(`${label(pendingDigChoice.owner)} laat Diep Graven ${takeBottom ? "onderop toeslaan" : "toch van boven eindigen"}.`);
+  drawCard(pendingDigChoice.owner, from);
 }
 
 function stealFossilCard(owner, target) {
@@ -1682,15 +1729,15 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function isGameplayBlockedForPlay() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
 }
 
 function isHandClickBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function continueAfterPause() {
@@ -1782,6 +1829,11 @@ els.revealButton.addEventListener("click", () => {
     return;
   }
 
+  if (state.pendingDigChoice) {
+    confirmDigChoice(true);
+    return;
+  }
+
   if (state.pendingFossilChoice) {
     state.pendingFossilChoice = null;
     render();
@@ -1824,6 +1876,11 @@ els.revealSecondaryButton.addEventListener("click", () => {
 
   if (state.pendingNopeReaction) {
     resolveNopeReaction(true);
+    return;
+  }
+
+  if (state.pendingDigChoice) {
+    confirmDigChoice(false);
   }
 });
 
