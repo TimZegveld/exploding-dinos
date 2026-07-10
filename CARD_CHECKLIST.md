@@ -27,7 +27,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `feral` | Wilde Dino | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis | Jokerrol definitief vastleggen en kaartfront/artwork toevoegen. |
 | `miniRaptor` | Mini-Raptor | Speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | Varianten/balans later. |
 | `stegoSnack` | Stego Snack | Speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar | Varianten/balans later. |
-| `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | spel klaar | Eigen kaartfront/artwork toevoegen. |
+| `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar | Varianten/balans later. |
 | `triceraTuk` | Tricera-Tuk | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
 | `pteroPret` | Ptero Pret | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
 
@@ -37,7 +37,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [ ] Werk `feral` definitief uit: volledige soortbeloning of zwakkere joker-beloning.
 - [x] Geef `miniRaptor` een unieke paarbeloning en kaartfront.
 - [x] Geef `stegoSnack` een unieke paarbeloning en kaartfront.
-- [ ] Geef `brontoBuik` een kaartfront en crop/tweak.
+- [x] Geef `brontoBuik` een kaartfront en crop/tweak.
 - [ ] Geef `triceraTuk` een unieke paarbeloning en kaartfront.
 - [ ] Geef `pteroPret` een unieke paarbeloning en kaartfront.
 - [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor`, `trike` en `feral`.

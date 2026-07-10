@@ -133,7 +133,12 @@ const cardCatalog = {
     name: "Bronto Buik",
     text: "Speel als paar. Bekijk bovenop; laat liggen of schuif onderop.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "bronto-buik",
+      icon: "leaf",
+      image: "assets/cards/illustrations/bronto-buik-belly-card.png"
+    }
   },
   triceraTuk: {
     name: "Tricera-Tuk",
