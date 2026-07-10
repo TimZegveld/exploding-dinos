@@ -19,11 +19,14 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
 2. Pick one card when the user asks to continue card work.
    - Prefer unchecked items in `CARD_PLAYSTYLE_CHECKLIST.md`.
    - Choose the smallest card that creates meaningful play difference.
+   - Default order: unfinished species pair rewards, missing artwork from the 5-card proof set, missing base illustrations, variants/balance.
    - Explain why that card is next before editing.
 
 3. Define the card rule.
    - Specify when it can be played, whether it targets a player/card/deck position, whether it ends the turn, whether `Brul Terug` can block it, and what the PC should do.
    - Keep card text short enough for the in-game card face.
+   - Use this compact effect matrix before editing:
+     `timing`, `target`, `player choice`, `effect`, `ends turn`, `blocked by Brul Terug`, `PC rule`, `README text`, `card text`.
 
 4. Implement the function in the game.
    - Follow existing state and modal patterns in `game.js`.
@@ -37,8 +40,10 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
      `C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe`
    - Always run:
      `& 'C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --check 'game.js'`
+   - Then run the bundled smoke harness when present:
+     `& 'C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' '.codex/skills/exploding-dinos-card-designer/scripts/smoke_dom.js'`
    - Use a browser smoke test only when Playwright is already available in the active tool/runtime. Do not spend time installing dependencies just for this static HTML app unless the user asks.
-   - If a browser test is blocked by sandbox/profile/module-path issues, use a lightweight DOM harness to load `game.js` and verify startup, event binding, and modal references. This catches common regressions such as missing elements after `index.html` changes.
+   - If a browser test is blocked by sandbox/profile/module-path issues, use the bundled smoke harness instead. It loads `game.js` and verifies startup, event binding, and modal references.
    - Report any test that could not be completed.
 
 6. Create the visual prompt.
@@ -48,18 +53,21 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
 
 7. Apply user-provided artwork.
    - Use only a newly uploaded/attached image that is intended for the selected card; never reuse an image that already exists in the repo as a shortcut.
-   - Before copying, compare filenames and file hashes against existing `assets/cards/illustrations/` images when practical; if it matches an existing card, stop and ask for the correct image.
+   - Before copying, compare filename, byte size, and SHA-256 hash against existing `assets/cards/illustrations/` images when practical; if it matches an existing card, stop and ask for the correct image.
    - Copy only the selected image into `assets/cards/illustrations/`; do not commit `.codex-remote-attachments/`.
    - Use descriptive filenames such as `oracle-timeline.jpg`.
    - Update `cardCatalog[type].design.image`.
-   - Tune CSS for cropping/readability, especially hand card, reveal card, and mini-card states.
+   - Add or update `cardCatalog[type].design.tone` and a CSS tone block when the card needs its own color/crop.
+   - Tune CSS `object-position` for hand card, reveal card, and mini-card states.
    - After the design process, remove uploaded attachment files from `.codex-remote-attachments/` so they cannot be accidentally reused later.
    - Keep previous generated/source assets unless the user explicitly asks to remove them.
 
 8. Update project documentation before calling the card finished.
    - Update `README.md` whenever a card's gameplay, design, or visual tweak status changes.
    - Keep the card table status aligned with `CARD_PLAYSTYLE_CHECKLIST.md`, `CARD_DESIGN_TODO.md`, current `cardCatalog` design metadata, and available assets.
-   - Mark `Gameplay`, `Design`, and `Tweak` separately; do not mark a card as fully done just because one track is finished.
+   - Mark `Gameplay` as `klaar` only when the rule, UI flow, and PC behavior are implemented or consciously unchanged.
+   - Mark `Design` as `klaar` only when `cardCatalog[type].design.image` points to an existing asset.
+   - Mark `Tweak` as `klaar` only when CSS/readability has been checked for hand, reveal, and mini-card contexts.
    - Update checklist files when their task status changed during the work.
 
 9. Commit and push only when the user asks.
