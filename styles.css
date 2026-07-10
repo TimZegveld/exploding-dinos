@@ -409,6 +409,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="trike"] {
+  --face-accent: #8ea83c;
+  --face-header: #4f6829;
+  background:
+    linear-gradient(180deg, rgba(255, 239, 178, 0.98), rgba(126, 151, 55, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="volcano"] {
   --face-accent: #e8662b;
   --face-header: #7b2f20;
@@ -483,6 +491,10 @@ h2 {
 
 .card-face[data-tone="sprint"] .card-face__header {
   background: linear-gradient(135deg, #71411d, #b85f25);
+}
+
+.card-face[data-tone="trike"] .card-face__header {
+  background: linear-gradient(135deg, #405923, #879a2f);
 }
 
 .card-face[data-tone="volcano"] .card-face__header {
@@ -824,6 +836,10 @@ h2 {
 
 .card-face[data-tone="sprint"] .card-face__art img {
   object-position: 57% 64%;
+}
+
+.card-face[data-tone="trike"] .card-face__art img {
+  object-position: 50% 48%;
 }
 
 .card-face[data-tone="volcano"] .card-face__art img {
@@ -1426,6 +1442,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="sprint"] .card-face__art img {
   object-position: 56% 58%;
+}
+
+.draw-reveal__card.card-face[data-tone="trike"] .card-face__art img {
+  object-position: 50% 45%;
 }
 
 .draw-reveal__card.card-face[data-tone="volcano"] .card-face__art img {

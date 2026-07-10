@@ -1161,18 +1161,7 @@ function resolveCard(owner, card, context = {}) {
   }
 
   if (card.type === "trike") {
-    const peek = state.deck.slice(-3).reverse();
-    const text = peek.length
-      ? `Bovenop liggen: ${peek.map((item) => item.name).join(", ")}.`
-      : "De trekstapel is leeg.";
-    showCardMoment({
-      title: "Triceratops Blik",
-      cards: peek,
-      text: owner === "player" ? text : `${label(owner)} bekijkt de bovenste 3 kaarten.`,
-      buttonText: "OK",
-      faceDown: owner !== "player",
-      owner
-    });
+    startTrikePeek(owner);
     return;
   }
 
@@ -1446,6 +1435,36 @@ function resolveTriceraTuk(owner) {
   }
 
   setAction(`${label(owner)} tukt veilig door de beurt heen en trekt niet.`);
+}
+
+function startTrikePeek(owner) {
+  const peek = state.deck.slice(-3).reverse();
+  const dangerIndex = peek.findIndex((item) => item.type === "meteor");
+  const shelterIndex = peek.findIndex((item) => item.type === "shelter");
+  const visibleText = describeTrikePeek(peek, dangerIndex, shelterIndex);
+
+  showCardMoment({
+    title: "Triceratops Blik",
+    cards: peek,
+    text: owner === "player" ? visibleText : `${label(owner)} tuurt naar de bovenste 3 kaarten van de trekstapel.`,
+    buttonText: "OK",
+    faceDown: owner !== "player",
+    owner
+  });
+}
+
+function describeTrikePeek(cards, dangerIndex, shelterIndex) {
+  if (cards.length === 0) return "De trekstapel is leeg.";
+
+  const list = cards.map((item, index) => `${index + 1}. ${item.name}`).join(" | ");
+  const warning = dangerIndex === -1
+    ? "Geen meteoriet in beeld."
+    : `Waarschuwing: Meteorietinslag ligt op plek ${dangerIndex + 1} van boven.`;
+  const shelter = shelterIndex === -1
+    ? "Geen Schuilgrot in beeld."
+    : `Schuilgrot ligt op plek ${shelterIndex + 1} van boven.`;
+
+  return `Bovenop liggen: ${list}. ${warning} ${shelter}`;
 }
 
 function alterFuture(owner) {
@@ -2061,6 +2080,11 @@ function choosePcCard(owner) {
   const volcano = hand.find((card) => card.type === "volcano");
   if (volcano && state.deck.length <= 6 && Math.random() < 0.78) {
     return volcano;
+  }
+
+  const trike = hand.find((card) => card.type === "trike");
+  if (trike && ((state.pendingTurns[owner] ?? 1) > 1 || state.deck.length <= 8) && Math.random() < 0.74) {
+    return trike;
   }
 
   const playable = hand.filter((card) => card.playable);

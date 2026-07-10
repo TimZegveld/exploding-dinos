@@ -18,7 +18,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `raptor` | Raptor Aanval | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 | `targetedRaptor` | Gerichte Raptorjacht | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar | Varianten/balans later. |
 | `sprint` | Dino Sprint | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar | Varianten/balans later. |
-| `trike` | Triceratops Blik | Bekijk de bovenste 3 kaarten van de trekstapel. | basis | Unieker effect of bewust als simpele informatiekaart vastleggen; artwork toevoegen. |
+| `trike` | Triceratops Blik | Bekijk de bovenste 3 kaarten; Meteorietinslag en Schuilgrot worden expliciet gemeld. | klaar | Varianten/balans later. |
 | `oracle` | Tijdlijn Kneden | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar | Varianten/balans later. |
 | `volcano` | Vulkaan Shuffle | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar | Varianten/balans later. |
 | `dig` | Diep Graven | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar | Varianten/balans later. |
@@ -33,7 +33,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 
 ## Open kaartwerk
 
-- [ ] Bepaal of `trike` bewust simpel blijft of een uniekere informatieflow krijgt.
+- [x] Bepaal of `trike` bewust simpel blijft of een uniekere informatieflow krijgt.
 - [ ] Werk `feral` definitief uit: volledige soortbeloning of zwakkere joker-beloning.
 - [x] Geef `miniRaptor` een unieke paarbeloning en kaartfront.
 - [x] Geef `stegoSnack` een unieke paarbeloning en kaartfront.
@@ -41,7 +41,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Geef `triceraTuk` een kaartfront en crop/tweak.
 - [x] Geef `pteroPret` een unieke paarbeloning.
 - [x] Geef `pteroPret` een kaartfront en crop/tweak.
-- [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor`, `trike` en `feral`.
+- [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor` en `feral`.
 - [ ] Voeg resterende basisillustraties toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
 - [ ] Doe een balansronde nadat de soortkaartbeloningen helder zijn.

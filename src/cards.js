@@ -42,9 +42,14 @@ const cardCatalog = {
   },
   trike: {
     name: "Triceratops Blik",
-    text: "Bekijk de bovenste 3 kaarten van de trekstapel.",
+    text: "Bekijk de bovenste 3. Meteorietinslag en Schuilgrot worden gemeld.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "trike",
+      icon: "timeline",
+      image: "assets/cards/illustrations/triceratops-blik-peek.png"
+    }
   },
   oracle: {
     name: "Tijdlijn Kneden",
