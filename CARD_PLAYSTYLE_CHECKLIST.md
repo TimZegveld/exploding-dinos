@@ -17,8 +17,8 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `dig` | Diep Graven | Bodemkaart inspecteren met risico-keuze | Laat de speler onderop kijken en daarna onderop nemen of blind van boven trekken. |
 | `fossil` | Fossielgraaier | Kaart stelen | Speler kiest bewust een gesloten handpositie; pc kiest willekeurig. |
 | `nope` | Brul Terug | Actie blokkeren | Werkt als reactie op een actiekaart van de ander. |
-| `feral` | Wilde Dino | Joker voor soortkaarten | Werkt als paar-joker. |
-| `miniRaptor` | Mini-Raptor | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
+| `feral` | Wilde Dino | Joker voor soortkaarten | Activeert de beloning van de andere soortkaart in het paar. |
+| `miniRaptor` | Mini-Raptor | Soortkaart | Heeft een snelle paarbeloning en eigen kaartfront: kies een doelwit en steel 1 willekeurige kaart. |
 | `stegoSnack` | Stego Snack | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
 | `brontoBuik` | Bronto Buik | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
 | `triceraTuk` | Tricera-Tuk | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
@@ -71,7 +71,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Check: onderste kaart trekken voelt als een bewust risico in plaats van een normale trek met andere bron.
 
 - [ ] Stap 10: Ontwerp unieke soortkaart-paarbeloningen.
-  - `miniRaptor`: snel stelen, bijvoorbeeld willekeurig 1 kaart.
+  - [x] `miniRaptor`: snel stelen, kies een doelwit en steel willekeurig 1 kaart.
   - `stegoSnack`: neem 1 kaart terug uit aflegstapel of bescherm tegen stelen.
   - `brontoBuik`: trek 1 extra kaart en houd hem veilig als hij geen meteoriet is.
   - `triceraTuk`: laat tegenstander volgende beurt minder keuze hebben of verplicht trekken.
@@ -114,6 +114,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 - [x] `dig`: daarna aanscherpen voor extra tactische kleur.
 - [x] `volcano`: zichtbaar schudden plus een glimp van de nieuwe bovenste kaart.
 - [ ] `meteor`, `shelter`, `feral`: bestaande basis behouden en finetunen rond de nieuwe flows.
+- [x] `miniRaptor`: eerste unieke soortkaart-paarbeloning, als patroon voor de rest.
 
 ## Per sessie afvinken
 

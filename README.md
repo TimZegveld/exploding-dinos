@@ -46,8 +46,8 @@ Statuslegenda:
 | `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar | klaar | klaar |
 | `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar | klaar | klaar |
 | `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar | klaar | klaar |
-| `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert nu nog hetzelfde paar-effect. | basis | te doen | te doen |
-| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis | te doen | te doen |
+| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | klaar | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |

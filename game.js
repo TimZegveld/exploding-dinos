@@ -109,15 +109,20 @@ const cardCatalog = {
   },
   feral: {
     name: "Wilde Dino",
-    text: "Joker voor dino-soortkaarten. Speel als paar om te stelen.",
+    text: "Joker voor dino-soortkaarten. Activeert de andere soortbeloning.",
     kind: "set",
     playable: false
   },
   miniRaptor: {
     name: "Mini-Raptor",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
+    text: "Speel als paar. Kies een doelwit en steel snel 1 willekeurige kaart.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "mini-raptor",
+      icon: "claw",
+      image: "assets/cards/illustrations/mini-raptor-quick-steal.png"
+    }
   },
   stegoSnack: {
     name: "Stego Snack",
@@ -989,6 +994,8 @@ function playSetPair(owner, card) {
   const hand = getHand(owner);
   const pair = findPairForCard(hand, card);
   if (pair.length !== 2) return;
+  const rewardType = getSetPairRewardType(pair, card);
+  const target = chooseStealTarget(owner);
 
   pair.forEach((pairCard) => {
     const index = hand.findIndex((item) => item.id === pairCard.id);
@@ -997,17 +1004,40 @@ function playSetPair(owner, card) {
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
   state.activity = { owner, type: "play" };
-  const target = chooseStealTarget(owner);
   showCardMoment({
     title: `${label(owner)} speelt een paar`,
     cards: pair,
-    text: target
-      ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
-      : "Dit paar mag een gesloten kaart van een ander stelen.",
+    text: getSetPairPreviewText(owner, rewardType, target),
     buttonText: "OK",
     owner,
-    onClose: () => startPairSteal(owner, target)
+    onClose: () => startSetPairReward(owner, rewardType, target)
   });
+}
+
+function getSetPairRewardType(pair, selectedCard) {
+  if (selectedCard.type !== "feral") return selectedCard.type;
+  return pair.find((item) => item.type !== "feral")?.type ?? "feral";
+}
+
+function getSetPairPreviewText(owner, rewardType, target) {
+  if (rewardType === "miniRaptor") {
+    return target
+      ? `${label(owner)} kiest een doelwit en graait daar razendsnel 1 willekeurige kaart.`
+      : "Mini-Raptor steelt snel 1 willekeurige kaart, als iemand kaarten heeft.";
+  }
+
+  return target
+    ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
+    : "Dit paar mag een gesloten kaart van een ander stelen.";
+}
+
+function startSetPairReward(owner, rewardType, initialTarget = null) {
+  if (rewardType === "miniRaptor") {
+    startMiniRaptorSteal(owner, initialTarget);
+    return;
+  }
+
+  startPairSteal(owner, initialTarget);
 }
 
 function findPairForCard(hand, card) {
@@ -1476,6 +1506,30 @@ function startPairSteal(owner, initialTarget = null) {
   render();
 }
 
+function startMiniRaptorSteal(owner, initialTarget = null) {
+  const targets = activeOpponentsOf(owner).filter((target) => getHand(target).length > 0);
+  if (targets.length === 0) {
+    setAction("Niemand heeft kaarten voor de Mini-Raptor om te graaien.");
+    return;
+  }
+
+  if (owner !== "player") {
+    const target = initialTarget && targets.includes(initialTarget) ? initialTarget : choosePcTarget(owner, targets);
+    stealRandomCard(owner, target);
+    return;
+  }
+
+  state.pendingStealTarget = {
+    owner,
+    title: "Mini-Raptor graait",
+    targets,
+    selectedTarget: initialTarget && targets.includes(initialTarget) ? initialTarget : targets[0],
+    reward: "randomSteal"
+  };
+  setAction("Kies wie de Mini-Raptor snel 1 willekeurige kaart laat graaien.");
+  render();
+}
+
 function selectStealTarget(target) {
   const pendingStealTarget = state.pendingStealTarget;
   if (!pendingStealTarget || !pendingStealTarget.targets.includes(target)) return;
@@ -1491,6 +1545,13 @@ function confirmStealTarget() {
   const target = pendingStealTarget.selectedTarget;
   state.pendingStealTarget = null;
   if (!target) {
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  if (pendingStealTarget.reward === "randomSteal") {
+    stealRandomCard(pendingStealTarget.owner, target);
     render();
     continueAfterPause();
     return;

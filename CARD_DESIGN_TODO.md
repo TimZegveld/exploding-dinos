@@ -195,7 +195,7 @@ Kaarten:
 - `shelter`
 - `sprint`
 - `feral`
-- `miniRaptor`
+- `miniRaptor` - klaar als `assets/cards/illustrations/mini-raptor-quick-steal.png`
 
 Bestanden:
 
