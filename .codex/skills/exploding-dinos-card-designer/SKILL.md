@@ -56,7 +56,13 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
    - After the design process, remove uploaded attachment files from `.codex-remote-attachments/` so they cannot be accidentally reused later.
    - Keep previous generated/source assets unless the user explicitly asks to remove them.
 
-8. Commit and push only when the user asks.
+8. Update project documentation before calling the card finished.
+   - Update `README.md` whenever a card's gameplay, design, or visual tweak status changes.
+   - Keep the card table status aligned with `CARD_PLAYSTYLE_CHECKLIST.md`, `CARD_DESIGN_TODO.md`, current `cardCatalog` design metadata, and available assets.
+   - Mark `Gameplay`, `Design`, and `Tweak` separately; do not mark a card as fully done just because one track is finished.
+   - Update checklist files when their task status changed during the work.
+
+9. Commit and push only when the user asks.
    - Stage only relevant files.
    - Mention if the user is not fully satisfied with visuals so future iterations are expected.
 

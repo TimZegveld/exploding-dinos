@@ -27,19 +27,31 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 
 ## Kaarten
 
-- `Meteorietinslag` x9 totaal: gevaarlijke kaart.
-- `Schuilgrot` x10 totaal: verdediging tegen de meteoriet.
-- `Raptor Aanval` x5 totaal: eindig je beurt; de ander neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door.
-- `Gerichte Raptorjacht` x5 totaal: kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander.
-- `Dino Sprint` x10 totaal: sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt.
-- `Triceratops Blik` x6 totaal: bekijk de bovenste drie kaarten.
-- `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.
-- `Vulkaan Shuffle` x6 totaal: schud de trekstapel en bekijk daarna de nieuwe bovenste kaart.
-- `Diep Graven` x7 totaal: bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven.
-- `Fossielgraaier` x6 totaal: kies een gesloten kaart van de ander en steel die.
-- `Brul Terug` x9 totaal: reageer op een actiekaart van de ander en blokkeer die.
-- `Wilde Dino` x6 totaal: joker voor soortkaarten.
-- Dino-soortkaarten x35 totaal: speel paren om een tegenstander en daarna een gesloten kaart te kiezen.
+Statuslegenda:
+
+- Gameplay: `klaar` betekent dat de kaart een eigen flow of bewust vastgelegde basisflow heeft. `basis` betekent speelbaar, maar nog niet uniek genoeg uitgewerkt.
+- Design: `klaar` betekent dat de kaart een eigen frontdesign met illustratie in de game heeft.
+- Tweak: `klaar` betekent dat het kaartfront ook specifiek is bijgesteld voor hand-, reveal- en miniweergave.
+
+| Type | Kaart | Aantal | Regel in deze iteratie | Gameplay | Design | Tweak |
+|---|---:|---:|---|---|---|---|
+| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | klaar | te doen | te doen |
+| `shelter` | Schuilgrot | 10 | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | klaar | te doen | te doen |
+| `raptor` | Raptor Aanval | 5 | Eindig je beurt; de volgende speler neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door. | klaar | te doen | te doen |
+| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander. | klaar | klaar | klaar |
+| `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar | klaar | klaar |
+| `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten van de trekstapel. | basis | te doen | te doen |
+| `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar | klaar | klaar |
+| `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar | klaar | klaar |
+| `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar | klaar | klaar |
+| `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar | klaar | klaar |
+| `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar | klaar | klaar |
+| `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert nu nog hetzelfde paar-effect. | basis | te doen | te doen |
+| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
 
 ## Mogelijke volgende iteraties
 
