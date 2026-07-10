@@ -29,29 +29,29 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 
 Statuslegenda:
 
-- Gameplay: `klaar` betekent dat de kaart een eigen flow of bewust vastgelegde basisflow heeft. `basis` betekent speelbaar, maar nog niet uniek genoeg uitgewerkt.
-- Design: `klaar` betekent dat de kaart een eigen frontdesign met illustratie in de game heeft.
-- Tweak: `klaar` betekent dat het kaartfront ook specifiek is bijgesteld voor hand-, reveal- en miniweergave.
+- `klaar`: eigen gameplay en eigen kaartfront zijn klaar en getweakt.
+- `spel klaar`: gameplay is klaar, maar kaartfront/artwork mist nog.
+- `basis`: speelbaar of bruikbaar, maar nog niet uniek genoeg uitgewerkt.
 
-| Type | Kaart | Aantal | Regel in deze iteratie | Gameplay | Design | Tweak |
-|---|---:|---:|---|---|---|---|
-| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | klaar | te doen | te doen |
-| `shelter` | Schuilgrot | 10 | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | klaar | te doen | te doen |
-| `raptor` | Raptor Aanval | 5 | Eindig je beurt; de volgende speler neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door. | klaar | te doen | te doen |
-| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander. | klaar | klaar | klaar |
-| `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar | klaar | klaar |
-| `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten van de trekstapel. | basis | te doen | te doen |
-| `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar | klaar | klaar |
-| `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar | klaar | klaar |
-| `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar | klaar | klaar |
-| `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar | klaar | klaar |
-| `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar | klaar | klaar |
-| `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis | te doen | te doen |
-| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | klaar | klaar |
-| `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
-| `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
-| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
-| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om een kaart te stelen. Unieke paarbeloning staat nog open. | basis | te doen | te doen |
+| Type | Kaart | Aantal | Regel in deze iteratie | Status |
+|---|---:|---:|---|---|
+| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | spel klaar |
+| `shelter` | Schuilgrot | 10 | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | spel klaar |
+| `raptor` | Raptor Aanval | 5 | Eindig je beurt; de volgende speler neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door. | spel klaar |
+| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander. | klaar |
+| `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
+| `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten van de trekstapel. | basis |
+| `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar |
+| `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar |
+| `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar |
+| `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar |
+| `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar |
+| `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis |
+| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar |
+| `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar |
+| `brontoBuik` | Bronto Buik | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
+| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
 
 ## Mogelijke volgende iteraties
 

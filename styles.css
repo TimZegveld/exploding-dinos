@@ -362,6 +362,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="stego-snack"] {
+  --face-accent: #91aa3e;
+  --face-header: #526d25;
+  background:
+    linear-gradient(180deg, rgba(244, 238, 168, 0.98), rgba(133, 159, 55, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -392,6 +400,10 @@ h2 {
 
 .card-face[data-tone="mini-raptor"] .card-face__header {
   background: linear-gradient(135deg, #31551f, #6f982f);
+}
+
+.card-face[data-tone="stego-snack"] .card-face__header {
+  background: linear-gradient(135deg, #40591f, #8b7c2d);
 }
 
 .card-face__header {
@@ -430,7 +442,8 @@ h2 {
 .card-face__icon--fossil,
 .card-face__icon--roar,
 .card-face__icon--volcano,
-.card-face__icon--dig {
+.card-face__icon--dig,
+.card-face__icon--leaf {
   position: relative;
   overflow: hidden;
 }
@@ -441,7 +454,8 @@ h2 {
 .card-face__icon--fossil span,
 .card-face__icon--roar span,
 .card-face__icon--volcano span,
-.card-face__icon--dig span {
+.card-face__icon--dig span,
+.card-face__icon--leaf span {
   display: block;
   background: currentColor;
 }
@@ -639,6 +653,37 @@ h2 {
   transform: rotate(-64deg);
 }
 
+.card-face__icon--leaf span {
+  position: absolute;
+  width: 12px;
+  height: 16px;
+  border-radius: 12px 0 12px 0;
+  transform: rotate(42deg);
+}
+
+.card-face__icon--leaf span:nth-child(1) {
+  left: 5px;
+  top: 5px;
+}
+
+.card-face__icon--leaf span:nth-child(2) {
+  right: 5px;
+  bottom: 5px;
+  transform: rotate(222deg);
+}
+
+.card-face__icon--leaf::after {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 5px;
+  width: 3px;
+  height: 16px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(36deg);
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -684,6 +729,10 @@ h2 {
 
 .card-face[data-tone="mini-raptor"] .card-face__art img {
   object-position: 52% 66%;
+}
+
+.card-face[data-tone="stego-snack"] .card-face__art img {
+  object-position: 49% 64%;
 }
 
 .card-face__text {
@@ -986,6 +1035,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="mini-raptor"] .card-face__art img {
   object-position: 52% 58%;
+}
+
+.draw-reveal__card.card-face[data-tone="stego-snack"] .card-face__art img {
+  object-position: 50% 54%;
 }
 
 .draw-reveal__card strong {

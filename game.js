@@ -126,9 +126,14 @@ const cardCatalog = {
   },
   stegoSnack: {
     name: "Stego Snack",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
+    text: "Speel als paar. Neem 1 oudere niet-meteor kaart terug uit de aflegstapel.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "stego-snack",
+      icon: "leaf",
+      image: "assets/cards/illustrations/stego-snack-discard.png"
+    }
   },
   brontoBuik: {
     name: "Bronto Buik",
@@ -184,6 +189,7 @@ const initialState = {
   pendingOracle: null,
   pendingDigChoice: null,
   pendingFossilChoice: null,
+  pendingDiscardChoice: null,
   pendingStealTarget: null,
   pendingNopeReaction: null,
   pendingAttackReaction: null,
@@ -428,15 +434,16 @@ function renderReveal() {
   const pendingOracle = state.pendingOracle;
   const pendingDigChoice = state.pendingDigChoice;
   const pendingFossilChoice = state.pendingFossilChoice;
+  const pendingDiscardChoice = state.pendingDiscardChoice;
   const pendingStealTarget = state.pendingStealTarget;
   const pendingNopeReaction = state.pendingNopeReaction;
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
+  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -514,6 +521,17 @@ function renderReveal() {
       : `${label(pendingFossilChoice.target)} heeft geen kaarten om te stelen.`;
     els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
     els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
+    return;
+  }
+
+  if (pendingDiscardChoice) {
+    els.revealEyebrow.textContent = "Stego Snack";
+    renderDiscardChoices(pendingDiscardChoice);
+    els.revealText.textContent = pendingDiscardChoice.cards.length
+      ? "Kies welke oudere kaart de Stego uit de aflegstapel terug snackt."
+      : "Er ligt geen oudere niet-meteor kaart klaar voor Stego Snack.";
+    els.revealButton.textContent = pendingDiscardChoice.cards.length ? "Kies kaart" : "Verder";
+    els.revealButton.disabled = pendingDiscardChoice.cards.length > 0;
     return;
   }
 
@@ -696,14 +714,14 @@ function createPawMarker() {
 }
 
 function renderCardTypeIcon(icon, type) {
-  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig"];
+  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig", "leaf"];
   if (!supportedIcons.includes(type)) {
     icon.textContent = type;
     return;
   }
 
   icon.classList.add(`card-face__icon--${type}`);
-  const parts = type === "claw" ? 3 : type === "speed" ? 4 : 1;
+  const parts = type === "claw" ? 3 : type === "speed" ? 4 : type === "leaf" ? 2 : 1;
   for (let i = 0; i < parts; i += 1) {
     icon.append(document.createElement("span"));
   }
@@ -756,6 +774,20 @@ function renderFossilChoices(pendingFossilChoice) {
     button.type = "button";
     button.textContent = `Kaart ${index + 1}`;
     button.addEventListener("click", () => confirmFossilChoice(index));
+    els.revealCard.append(button);
+  });
+}
+
+function renderDiscardChoices(pendingDiscardChoice) {
+  els.revealCard.classList.add("is-multi", "is-discard-choice");
+
+  pendingDiscardChoice.cards.forEach((card, index) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card";
+    button.type = "button";
+    button.classList.add(`is-${card.kind}`);
+    renderCardFace(button, card, { mini: true });
+    button.addEventListener("click", () => confirmDiscardChoice(index));
     els.revealCard.append(button);
   });
 }
@@ -996,6 +1028,7 @@ function playSetPair(owner, card) {
   if (pair.length !== 2) return;
   const rewardType = getSetPairRewardType(pair, card);
   const target = chooseStealTarget(owner);
+  const pairIds = pair.map((pairCard) => pairCard.id);
 
   pair.forEach((pairCard) => {
     const index = hand.findIndex((item) => item.id === pairCard.id);
@@ -1010,7 +1043,7 @@ function playSetPair(owner, card) {
     text: getSetPairPreviewText(owner, rewardType, target),
     buttonText: "OK",
     owner,
-    onClose: () => startSetPairReward(owner, rewardType, target)
+    onClose: () => startSetPairReward(owner, rewardType, target, pairIds)
   });
 }
 
@@ -1026,14 +1059,23 @@ function getSetPairPreviewText(owner, rewardType, target) {
       : "Mini-Raptor steelt snel 1 willekeurige kaart, als iemand kaarten heeft.";
   }
 
+  if (rewardType === "stegoSnack") {
+    return "Stego Snack neemt 1 oudere niet-meteor kaart terug uit de aflegstapel.";
+  }
+
   return target
     ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
     : "Dit paar mag een gesloten kaart van een ander stelen.";
 }
 
-function startSetPairReward(owner, rewardType, initialTarget = null) {
+function startSetPairReward(owner, rewardType, initialTarget = null, playedPairIds = []) {
   if (rewardType === "miniRaptor") {
     startMiniRaptorSteal(owner, initialTarget);
+    return;
+  }
+
+  if (rewardType === "stegoSnack") {
+    startStegoSnack(owner, playedPairIds);
     return;
   }
 
@@ -1530,6 +1572,77 @@ function startMiniRaptorSteal(owner, initialTarget = null) {
   render();
 }
 
+function startStegoSnack(owner, playedPairIds = []) {
+  const cards = getStegoSnackOptions(playedPairIds);
+  if (cards.length === 0) {
+    setAction("Stego Snack snuffelt rond, maar vindt geen oudere niet-meteor kaart in de aflegstapel.");
+    return;
+  }
+
+  if (owner !== "player") {
+    const card = choosePcDiscardSnack(cards);
+    reclaimDiscardCard(owner, card.id);
+    return;
+  }
+
+  state.pendingDiscardChoice = {
+    owner,
+    cards
+  };
+  setAction("Stego Snack laat je 1 oudere niet-meteor kaart uit de aflegstapel terugnemen.");
+  render();
+}
+
+function getStegoSnackOptions(excludedIds = []) {
+  const excluded = new Set(excludedIds);
+  return state.discard
+    .filter((card) => card.type !== "meteor" && !excluded.has(card.id))
+    .slice()
+    .reverse();
+}
+
+function choosePcDiscardSnack(cards) {
+  const priority = ["shelter", "nope", "sprint", "dig", "volcano", "oracle", "fossil", "targetedRaptor", "raptor"];
+  for (const type of priority) {
+    const card = cards.find((item) => item.type === type);
+    if (card) return card;
+  }
+
+  return cards[0];
+}
+
+function confirmDiscardChoice(index) {
+  const pendingDiscardChoice = state.pendingDiscardChoice;
+  if (!pendingDiscardChoice) return;
+
+  const card = pendingDiscardChoice.cards[index];
+  state.pendingDiscardChoice = null;
+  if (card) {
+    reclaimDiscardCard(pendingDiscardChoice.owner, card.id);
+  }
+  render();
+  continueAfterPause();
+}
+
+function reclaimDiscardCard(owner, cardId) {
+  const index = state.discard.findIndex((card) => card.id === cardId);
+  if (index === -1) {
+    setAction("Die kaart ligt niet meer in de aflegstapel.");
+    return;
+  }
+
+  const [card] = state.discard.splice(index, 1);
+  getHand(owner).push(card);
+  setAction(`${label(owner)} snackt ${card.name} terug uit de aflegstapel.`);
+  showCardMoment({
+    title: "Stego Snack",
+    cards: card,
+    text: `${label(owner)} neemt ${card.name} terug in de hand.`,
+    buttonText: owner === "player" ? "Leg in hand" : "OK",
+    owner
+  });
+}
+
 function selectStealTarget(target) {
   const pendingStealTarget = state.pendingStealTarget;
   if (!pendingStealTarget || !pendingStealTarget.targets.includes(target)) return;
@@ -1790,15 +1903,15 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function isGameplayBlockedForPlay() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
 }
 
 function isHandClickBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function continueAfterPause() {
@@ -1897,6 +2010,13 @@ els.revealButton.addEventListener("click", () => {
 
   if (state.pendingFossilChoice) {
     state.pendingFossilChoice = null;
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  if (state.pendingDiscardChoice) {
+    state.pendingDiscardChoice = null;
     render();
     continueAfterPause();
     return;

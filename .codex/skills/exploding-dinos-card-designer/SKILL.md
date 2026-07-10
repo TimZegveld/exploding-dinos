@@ -10,14 +10,13 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
 ## Workflow
 
 1. Read the local project context before deciding:
-   - `CARD_PLAYSTYLE_CHECKLIST.md`
-   - `CARD_DESIGN_TODO.md`
+   - `CARD_CHECKLIST.md`
    - `CARD_DESIGN_PLAN.md`
    - `README.md`
    - relevant code in `game.js`, `styles.css`, and `index.html`
 
 2. Pick one card when the user asks to continue card work.
-   - Prefer unchecked items in `CARD_PLAYSTYLE_CHECKLIST.md`.
+   - Prefer unchecked items in `CARD_CHECKLIST.md`.
    - Choose the smallest card that creates meaningful play difference.
    - Default order: unfinished species pair rewards, missing artwork from the 5-card proof set, missing base illustrations, variants/balance.
    - Explain why that card is next before editing.
@@ -64,11 +63,11 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
 
 8. Update project documentation before calling the card finished.
    - Update `README.md` whenever a card's gameplay, design, or visual tweak status changes.
-   - Keep the card table status aligned with `CARD_PLAYSTYLE_CHECKLIST.md`, `CARD_DESIGN_TODO.md`, current `cardCatalog` design metadata, and available assets.
-   - Mark `Gameplay` as `klaar` only when the rule, UI flow, and PC behavior are implemented or consciously unchanged.
-   - Mark `Design` as `klaar` only when `cardCatalog[type].design.image` points to an existing asset.
-   - Mark `Tweak` as `klaar` only when CSS/readability has been checked for hand, reveal, and mini-card contexts.
-   - Update checklist files when their task status changed during the work.
+   - Keep the README status aligned with `CARD_CHECKLIST.md`, current `cardCatalog` design metadata, and available assets.
+   - Use one combined status: `klaar` only when gameplay, PC behavior, cardfront/artwork, CSS crop/tweak, and docs are all done.
+   - Use `spel klaar` when gameplay is implemented but cardfront/artwork or visual tuning still needs work.
+   - Use `basis` when the card is playable or useful but the rule or reward is not unique enough yet.
+   - Update `CARD_CHECKLIST.md` whenever a card's status, next step, or rule changes.
 
 9. Commit and push only when the user asks.
    - Stage only relevant files.
