@@ -13,7 +13,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `sprint` | Dino Sprint | Defensieve skip | Slaat de trek over en schudt bij extra beurten 1 extra pending beurt af. |
 | `trike` | Triceratops Blik | Bovenste kaarten bekijken | Werkt als informatiekaart. |
 | `oracle` | Tijdlijn Kneden | Bovenste kaarten manipuleren | Werkt automatisch; speler kiest nog niet zelf. |
-| `volcano` | Vulkaan Shuffle | Stapel schudden | Werkt als simpele reset. |
+| `volcano` | Vulkaan Shuffle | Stapel schudden | Heeft een zichtbare shuffle-flow en laat de speler daarna de nieuwe bovenste kaart bekijken. |
 | `dig` | Diep Graven | Onderste kaart trekken | Werkt met eigen trekbron. |
 | `fossil` | Fossielgraaier | Kaart stelen | Speler kiest bewust een gesloten handpositie; pc kiest willekeurig. |
 | `nope` | Brul Terug | Actie blokkeren | Werkt als reactie op een actiekaart van de ander. |
@@ -44,9 +44,9 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - PC gebruikt een simpele strategie, bijvoorbeeld meteorieten verder weg leggen.
   - Check: `Tijdlijn Kneden` voelt anders dan alleen kijken met `Triceratops Blik`.
 
-- [ ] Stap 5: Geef `volcano` een spannender shuffle-flow.
+- [x] Stap 5: Geef `volcano` een spannender shuffle-flow.
   - Voeg een zichtbaar shuffle-moment toe.
-  - Overweeg een klein gevolg, zoals daarna 1 kaart mogen bekijken of juist verplicht trekken.
+  - Gevolg: de speler mag daarna de nieuwe bovenste kaart bekijken.
   - Check: kaart voelt niet als alleen een technische reset.
 
 - [x] Stap 6: Maak `fossil` minder willekeurig of duidelijker bewust.
@@ -110,7 +110,8 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 - [x] `nope`: belangrijk voor interactie en timing.
 - [x] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.
-- [ ] `volcano`, `dig`: daarna aanscherpen voor extra tactische kleur.
+- [ ] `dig`: daarna aanscherpen voor extra tactische kleur.
+- [x] `volcano`: zichtbaar schudden plus een glimp van de nieuwe bovenste kaart.
 - [ ] `meteor`, `shelter`, `feral`: bestaande basis behouden en finetunen rond de nieuwe flows.
 
 ## Per sessie afvinken

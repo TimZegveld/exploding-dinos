@@ -338,6 +338,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="volcano"] {
+  --face-accent: #e8662b;
+  --face-header: #7b2f20;
+  background:
+    linear-gradient(180deg, rgba(255, 225, 164, 0.98), rgba(218, 93, 39, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -356,6 +364,10 @@ h2 {
 
 .card-face[data-tone="sprint"] .card-face__header {
   background: linear-gradient(135deg, #71411d, #b85f25);
+}
+
+.card-face[data-tone="volcano"] .card-face__header {
+  background: linear-gradient(135deg, #642a1f, #b64525);
 }
 
 .card-face__header {
@@ -392,7 +404,8 @@ h2 {
 .card-face__icon--speed,
 .card-face__icon--timeline,
 .card-face__icon--fossil,
-.card-face__icon--roar {
+.card-face__icon--roar,
+.card-face__icon--volcano {
   position: relative;
   overflow: hidden;
 }
@@ -401,7 +414,8 @@ h2 {
 .card-face__icon--speed span,
 .card-face__icon--timeline span,
 .card-face__icon--fossil span,
-.card-face__icon--roar span {
+.card-face__icon--roar span,
+.card-face__icon--volcano span {
   display: block;
   background: currentColor;
 }
@@ -545,6 +559,27 @@ h2 {
   height: 21px;
 }
 
+.card-face__icon--volcano span {
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  width: 15px;
+  height: 12px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.card-face__icon--volcano span::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 5px;
+  width: 5px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: -5px 3px 0 currentColor, 5px 2px 0 currentColor;
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -578,6 +613,10 @@ h2 {
 
 .card-face[data-tone="sprint"] .card-face__art img {
   object-position: 57% 64%;
+}
+
+.card-face[data-tone="volcano"] .card-face__art img {
+  object-position: 50% 42%;
 }
 
 .card-face__text {
@@ -868,6 +907,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="sprint"] .card-face__art img {
   object-position: 56% 58%;
+}
+
+.draw-reveal__card.card-face[data-tone="volcano"] .card-face__art img {
+  object-position: 50% 43%;
 }
 
 .draw-reveal__card strong {

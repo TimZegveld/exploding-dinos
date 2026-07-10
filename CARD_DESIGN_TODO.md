@@ -253,6 +253,7 @@ Status: te doen
 Doel:
 
 - Alle resterende kaarttypes krijgen 1 basisillustratie.
+- `volcano` is inmiddels toegevoegd als `assets/cards/illustrations/volcano-shuffle.png`.
 
 Kaarten:
 
@@ -260,7 +261,6 @@ Kaarten:
 - `targetedRaptor`
 - `trike`
 - `oracle`
-- `volcano`
 - `dig`
 - `fossil`
 - `nope`

@@ -34,7 +34,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - `Dino Sprint` x10 totaal: sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt.
 - `Triceratops Blik` x6 totaal: bekijk de bovenste drie kaarten.
 - `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.
-- `Vulkaan Shuffle` x6 totaal: schud de trekstapel.
+- `Vulkaan Shuffle` x6 totaal: schud de trekstapel en bekijk daarna de nieuwe bovenste kaart.
 - `Diep Graven` x7 totaal: trek de onderste kaart.
 - `Fossielgraaier` x6 totaal: kies een gesloten kaart van de ander en steel die.
 - `Brul Terug` x9 totaal: reageer op een actiekaart van de ander en blokkeer die.

@@ -65,9 +65,14 @@ const cardCatalog = {
   },
   volcano: {
     name: "Vulkaan Shuffle",
-    text: "Schud de trekstapel.",
+    text: "Schud de trekstapel en bekijk daarna de bovenste kaart.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "volcano",
+      icon: "volcano",
+      image: "assets/cards/illustrations/volcano-shuffle.png"
+    }
   },
   dig: {
     name: "Diep Graven",
@@ -669,7 +674,7 @@ function createPawMarker() {
 }
 
 function renderCardTypeIcon(icon, type) {
-  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar"];
+  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano"];
   if (!supportedIcons.includes(type)) {
     icon.textContent = type;
     return;
@@ -1048,8 +1053,7 @@ function resolveCard(owner, card, context = {}) {
   }
 
   if (card.type === "volcano") {
-    state.deck = shuffle(state.deck);
-    setAction("De trekstapel is geschud door de vulkaan.");
+    eruptVolcano(owner);
     return;
   }
 
@@ -1325,6 +1329,45 @@ function confirmOracleOrder() {
   continueAfterPause();
 }
 
+function eruptVolcano(owner) {
+  state.deck = shuffle(state.deck);
+  const topCards = state.deck.slice(-3).reverse();
+  const topCard = state.deck.at(-1);
+
+  showCardMoment({
+    title: "Vulkaan Shuffle",
+    cards: topCards,
+    text: topCards.length
+      ? "De vulkaan schudt de trekstapel door elkaar. De nieuwe bovenkant gloeit even op."
+      : "De vulkaan rommelt, maar de trekstapel is leeg.",
+    buttonText: topCards.length ? "Kijk naar de gloed" : "OK",
+    faceDown: true,
+    shaking: true,
+    owner,
+    onClose: () => {
+      if (!topCard) {
+        setAction("De trekstapel blijft leeg na de vulkaan.");
+        return;
+      }
+
+      showCardMoment({
+        title: "Lavagloed",
+        cards: topCard,
+        text: owner === "player"
+          ? `Je ziet na de shuffle bovenop: ${topCard.name}.`
+          : `${label(owner)} ziet na de shuffle kort de bovenste kaart.`,
+        buttonText: "OK",
+        faceDown: owner !== "player",
+        owner,
+        onClose: () => {
+          setAction(`${label(owner)} schudt de trekstapel en vangt een glimp van de nieuwe bovenkant.`);
+        }
+      });
+      return false;
+    }
+  });
+}
+
 function stealFossilCard(owner, target) {
   const targetHand = getHand(target);
   if (targetHand.length === 0) {
@@ -1577,6 +1620,11 @@ function choosePcCard(owner) {
 
   const playablePair = hand.find((card) => isSetCard(card) && findPairForCard(hand, card).length === 2);
   if (playablePair && Math.random() < 0.34) return playablePair;
+
+  const volcano = hand.find((card) => card.type === "volcano");
+  if (volcano && state.deck.length <= 6 && Math.random() < 0.78) {
+    return volcano;
+  }
 
   const playable = hand.filter((card) => card.playable);
   if (playable.length === 0) return null;
