@@ -9,7 +9,7 @@
   --danger: #b33b2e;
   --gold: #d79b32;
   --card: #fffdf7;
-  --card-back: url("assets/cards/card-back.svg");
+  --card-back: url("assets/cards/card-back.jpg");
   --card-ratio: 5 / 7;
   --hand-card-width: 126px;
   --table-card-width: 150px;
@@ -394,9 +394,7 @@ h2 {
   line-height: 1;
   text-align: center;
   text-shadow: 0 2px 0 rgba(37, 29, 23, 0.4);
-  background:
-    linear-gradient(rgba(37, 29, 23, 0), rgba(37, 29, 23, 0.56)),
-    var(--card-back) center / cover no-repeat;
+  background: var(--card-back) center / cover no-repeat;
 }
 
 .side-panel {
@@ -548,9 +546,7 @@ h2 {
   display: grid;
   place-items: end center;
   color: #fffdf7;
-  background:
-    linear-gradient(rgba(37, 29, 23, 0), rgba(37, 29, 23, 0.5)),
-    var(--card-back) center / cover no-repeat;
+  background: var(--card-back) center / cover no-repeat;
   font-size: 2rem;
   font-weight: 900;
   text-align: center;
@@ -646,13 +642,17 @@ h2 {
   display: grid;
   place-items: end center;
   color: #fffdf7;
-  background:
-    linear-gradient(rgba(37, 29, 23, 0), rgba(37, 29, 23, 0.5)),
-    var(--card-back) center / cover no-repeat;
+  background: var(--card-back) center / cover no-repeat;
   font-size: 1.25rem;
   font-weight: 900;
   text-align: center;
   text-shadow: 0 2px 0 rgba(37, 29, 23, 0.4);
+}
+
+.draw-reveal__mini-card.is-back.fossil-choice {
+  background:
+    linear-gradient(rgba(37, 29, 23, 0), rgba(37, 29, 23, 0.5)),
+    var(--card-back) center / cover no-repeat;
 }
 
 .draw-reveal__mini-card.is-danger {

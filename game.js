@@ -287,7 +287,7 @@ function renderPcHand() {
   state.pcHand.forEach(() => {
     const card = document.createElement("div");
     card.className = "card-back";
-    card.textContent = "Dino";
+    card.setAttribute("aria-label", "Gesloten dino kaart");
     els.pcHand.append(card);
   });
 }
@@ -383,7 +383,7 @@ function renderReveal() {
     renderOpenRevealCard(card, isMeteor);
   } else {
     els.revealCard.classList.add("is-back");
-    els.revealCard.textContent = "Dino kaart";
+    els.revealCard.setAttribute("aria-label", "Gesloten dino kaart");
   }
 
   if (isMeteor) {
@@ -419,7 +419,7 @@ function renderRevealCards(cards, options = {}) {
 
     if (options.faceDown) {
       item.classList.add("is-back");
-      item.textContent = "Dino kaart";
+      item.setAttribute("aria-label", "Gesloten dino kaart");
     } else {
       item.classList.add(`is-${card.kind}`);
       if (options.shaking) {
