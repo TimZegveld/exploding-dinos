@@ -1,3 +1,4 @@
+(() => {
 const cardCatalog = {
   meteor: {
     name: "Meteorietinslag",
@@ -222,3 +223,4 @@ globalThis.ExplodingDinosCards = {
   makeCard,
   shuffle
 };
+})();

@@ -1,3 +1,7 @@
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+
 class ClassList {
   constructor() {
     this.values = new Set();
@@ -95,9 +99,15 @@ globalThis.crypto = {
   randomUUID: () => Math.random().toString(16).slice(2)
 };
 
-require("../../../../src/cards.js");
-require("../../../../src/players.js");
-require("../../../../game.js");
+function runBrowserScript(relativePath) {
+  const filePath = path.resolve(__dirname, "../../../../", relativePath);
+  const source = fs.readFileSync(filePath, "utf8");
+  vm.runInThisContext(source, { filename: relativePath });
+}
+
+runBrowserScript("src/cards.js");
+runBrowserScript("src/players.js");
+runBrowserScript("game.js");
 
 const result = {
   handCards: getSelector("#playerHand").children.length,

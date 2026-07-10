@@ -1,3 +1,4 @@
+(() => {
 const MIN_OPPONENTS = 1;
 const MAX_OPPONENTS = 4;
 const DEFAULT_OPPONENTS = 1;
@@ -35,3 +36,4 @@ globalThis.ExplodingDinosPlayers = {
   opponentPersonas,
   createPlayers
 };
+})();
