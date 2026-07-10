@@ -29,7 +29,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - `Schuilgrot` x10 totaal: verdediging tegen de meteoriet.
 - `Raptor Aanval` x5 totaal: eindig je beurt; de ander neemt straks 2 beurten.
 - `Gerichte Raptorjacht` x5 totaal: kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander.
-- `Dino Sprint` x10 totaal: sla je beurt over.
+- `Dino Sprint` x10 totaal: sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt.
 - `Triceratops Blik` x6 totaal: bekijk de bovenste drie kaarten.
 - `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.
 - `Vulkaan Shuffle` x6 totaal: schud de trekstapel.

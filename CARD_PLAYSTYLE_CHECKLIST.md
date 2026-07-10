@@ -10,7 +10,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `shelter` | Schuilgrot | Automatische redding | Heeft eigen flow met terugplaatsen van meteoriet. |
 | `raptor` | Raptor Aanval | Vaste aanval op tegenstander | Heeft eigen directe aanval-flow en eindigt de beurt. |
 | `targetedRaptor` | Gerichte Raptorjacht | Kies doelwit voor extra beurt | Heeft eigen doelwit-flow; in 2 spelers wordt de pc bewust bevestigd als doelwit. |
-| `sprint` | Dino Sprint | Beurt overslaan | Werkt als simpele skip. |
+| `sprint` | Dino Sprint | Defensieve skip | Slaat de trek over en schudt bij extra beurten 1 extra pending beurt af. |
 | `trike` | Triceratops Blik | Bovenste kaarten bekijken | Werkt als informatiekaart. |
 | `oracle` | Tijdlijn Kneden | Bovenste kaarten manipuleren | Werkt automatisch; speler kiest nog niet zelf. |
 | `volcano` | Vulkaan Shuffle | Stapel schudden | Werkt als simpele reset. |
@@ -59,9 +59,9 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Interrupt-flow gebouwd: tegenstander speelt actie, speler mag `Brul Terug` inzetten.
   - Check: kaart voelt als timing/reactie, niet als schild dat je vooraf neerlegt.
 
-- [ ] Stap 8: Geef `sprint` een eigen tactische keuze.
+- [x] Stap 8: Geef `sprint` een eigen tactische keuze.
   - Basis blijft: beurt eindigen zonder trekken.
-  - Overweeg extra nuance: ook 1 pending extra beurt verwijderen, of alleen bruikbaar als je moet trekken.
+  - Extra nuance: bij raptorstress verwijdert `Dino Sprint` naast de huidige beurt ook 1 pending extra beurt.
   - Check: kaart is duidelijk defensief en niet hetzelfde als een aanvalskaart.
 
 - [ ] Stap 9: Geef `dig` een risico-beloning.
@@ -110,7 +110,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 - [x] `nope`: belangrijk voor interactie en timing.
 - [x] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.
-- [ ] `volcano`, `sprint`, `dig`: daarna aanscherpen voor extra tactische kleur.
+- [ ] `volcano`, `dig`: daarna aanscherpen voor extra tactische kleur.
 - [ ] `meteor`, `shelter`, `feral`: bestaande basis behouden en finetunen rond de nieuwe flows.
 
 ## Per sessie afvinken

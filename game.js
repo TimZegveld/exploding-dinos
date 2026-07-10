@@ -35,9 +35,14 @@ const cardCatalog = {
   },
   sprint: {
     name: "Dino Sprint",
-    text: "Sla je huidige beurt over zonder te trekken.",
+    text: "Sla je beurt over. Bij extra beurten sprint je er 1 extra kwijt.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "sprint",
+      icon: "S",
+      image: "assets/cards/illustrations/dino-sprint.jpg"
+    }
   },
   trike: {
     name: "Triceratops Blik",
@@ -755,8 +760,7 @@ function resolveCard(owner, card) {
   const target = chooseDefaultTarget(owner);
 
   if (card.type === "sprint") {
-    consumeTurn(owner);
-    setAction(`${label(owner)} sprint weg en trekt niet.`);
+    resolveSprint(owner);
     return;
   }
 
@@ -916,6 +920,26 @@ function resolveRaptorTarget(owner, target) {
   consumeTurn(owner);
   log(`${label(owner)} stuurt de raptor op ${label(target)} af.`);
   setAction(`${label(target)} is het doelwit en moet straks 2 beurten overleven.`);
+}
+
+function resolveSprint(owner) {
+  const turnsBeforeSprint = state.pendingTurns[owner] ?? 1;
+
+  if (turnsBeforeSprint > 1) {
+    state.pendingTurns[owner] = Math.max(0, turnsBeforeSprint - 2);
+    if (state.pendingTurns[owner] <= 0) {
+      state.pendingTurns[owner] = 1;
+      state.current = nextActivePlayer(owner);
+      setAction(`${label(owner)} sprint door de raptorstress heen en hoeft niet te trekken.`);
+      return;
+    }
+
+    setAction(`${label(owner)} sprint weg zonder te trekken. Nog ${state.pendingTurns[owner]} beurt te gaan.`);
+    return;
+  }
+
+  consumeTurn(owner);
+  setAction(`${label(owner)} sprint weg en trekt niet.`);
 }
 
 function alterFuture(owner) {
@@ -1139,6 +1163,11 @@ function pcTurn() {
 
 function choosePcCard(owner) {
   const hand = getHand(owner);
+  const sprint = hand.find((card) => card.type === "sprint");
+  if ((state.pendingTurns[owner] ?? 1) > 1 && sprint && Math.random() < 0.86) {
+    return sprint;
+  }
+
   const playablePair = hand.find((card) => isSetCard(card) && findPairForCard(hand, card).length === 2);
   if (playablePair && Math.random() < 0.34) return playablePair;
 
