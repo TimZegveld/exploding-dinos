@@ -45,7 +45,7 @@ const cardCatalog = {
     design: {
       tone: "oracle",
       icon: "↻",
-      image: "assets/cards/illustrations/oracle.svg"
+      image: "assets/cards/illustrations/oracle-timeline.jpg"
     }
   },
   volcano: {
