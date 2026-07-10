@@ -155,7 +155,12 @@ const cardCatalog = {
     name: "Ptero Pret",
     text: "Speel als paar. Bekijk bovenste 2; leg 1 bovenop en 1 onderop.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "ptero-pret",
+      icon: "speed",
+      image: "assets/cards/illustrations/ptero-pret-sky-sort.png"
+    }
   }
 };
 

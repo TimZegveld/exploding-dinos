@@ -457,6 +457,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="ptero-pret"] {
+  --face-accent: #5ba6c9;
+  --face-header: #287096;
+  background:
+    linear-gradient(180deg, rgba(220, 244, 255, 0.98), rgba(87, 168, 204, 0.74)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -499,6 +507,10 @@ h2 {
 
 .card-face[data-tone="tricera-tuk"] .card-face__header {
   background: linear-gradient(135deg, #3a5721, #8b7f27);
+}
+
+.card-face[data-tone="ptero-pret"] .card-face__header {
+  background: linear-gradient(135deg, #1f5c80, #4aa4c9);
 }
 
 .card-face__header {
@@ -836,6 +848,10 @@ h2 {
 
 .card-face[data-tone="tricera-tuk"] .card-face__art img {
   object-position: 50% 58%;
+}
+
+.card-face[data-tone="ptero-pret"] .card-face__art img {
+  object-position: 50% 43%;
 }
 
 .card-face__text {
@@ -1434,6 +1450,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="tricera-tuk"] .card-face__art img {
   object-position: 50% 54%;
+}
+
+.draw-reveal__card.card-face[data-tone="ptero-pret"] .card-face__art img {
+  object-position: 50% 45%;
 }
 
 .draw-reveal__card strong {
