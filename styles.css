@@ -385,6 +385,163 @@ h2 {
   font-weight: 950;
 }
 
+.card-face__icon--claw,
+.card-face__icon--speed,
+.card-face__icon--timeline,
+.card-face__icon--fossil,
+.card-face__icon--roar {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-face__icon--claw span,
+.card-face__icon--speed span,
+.card-face__icon--timeline span,
+.card-face__icon--fossil span,
+.card-face__icon--roar span {
+  display: block;
+  background: currentColor;
+}
+
+.card-face__icon--claw span {
+  position: absolute;
+  top: 5px;
+  width: 4px;
+  height: 15px;
+  border-radius: 999px;
+  transform: rotate(22deg);
+}
+
+.card-face__icon--claw span:nth-child(1) {
+  left: 7px;
+}
+
+.card-face__icon--claw span:nth-child(2) {
+  left: 12px;
+  top: 4px;
+}
+
+.card-face__icon--claw span:nth-child(3) {
+  left: 17px;
+}
+
+.card-face__icon--speed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.card-face__icon--speed span {
+  height: 3px;
+  border-radius: 999px;
+}
+
+.card-face__icon--speed span:nth-child(1) {
+  width: 9px;
+}
+
+.card-face__icon--speed span:nth-child(2) {
+  width: 16px;
+}
+
+.card-face__icon--speed span:nth-child(3) {
+  width: 13px;
+}
+
+.card-face__icon--speed span:nth-child(4) {
+  width: 6px;
+}
+
+.card-face__icon--timeline span {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border: 3px solid currentColor;
+  border-left-color: transparent;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.card-face__icon--timeline span::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+  transform: rotate(34deg);
+}
+
+.card-face__icon--fossil span {
+  position: relative;
+  width: 15px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-24deg);
+}
+
+.card-face__icon--fossil span::before,
+.card-face__icon--fossil span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translateY(-50%);
+  box-shadow: 0 5px 0 currentColor;
+}
+
+.card-face__icon--fossil span::before {
+  left: -3px;
+}
+
+.card-face__icon--fossil span::after {
+  right: -3px;
+}
+
+.card-face__icon--roar span {
+  position: relative;
+  width: 7px;
+  height: 15px;
+  border: 3px solid currentColor;
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+  background: transparent;
+  transform: translateX(-4px);
+}
+
+.card-face__icon--roar span::before,
+.card-face__icon--roar span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  border: 3px solid currentColor;
+  border-left: 0;
+  border-radius: 0 14px 14px 0;
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+.card-face__icon--roar span::before {
+  left: 5px;
+  width: 7px;
+  height: 17px;
+}
+
+.card-face__icon--roar span::after {
+  left: 12px;
+  width: 7px;
+  height: 21px;
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -431,6 +588,60 @@ h2 {
   font-size: 0.62rem;
   font-weight: 720;
   line-height: 1.2;
+}
+
+.card-paw-marker {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 4px);
+  grid-template-rows: 4px 4px 7px;
+  gap: 1px;
+  width: 16px;
+  height: 17px;
+  margin-left: 5px;
+  vertical-align: -4px;
+  place-content: center;
+}
+
+.card-paw-marker::after,
+.card-paw-marker span {
+  content: "";
+  display: block;
+  background: var(--face-header, #8f4d2c);
+}
+
+.card-paw-marker::after {
+  grid-column: 1 / 4;
+  grid-row: 3;
+  width: 10px;
+  height: 7px;
+  justify-self: center;
+  border-radius: 7px 7px 5px 5px;
+}
+
+.card-paw-marker span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.card-paw-marker span:nth-child(1) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.card-paw-marker span:nth-child(2) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.card-paw-marker span:nth-child(3) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.card-paw-marker span:nth-child(4) {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .card-button strong {
@@ -903,6 +1114,12 @@ h2 {
   background: var(--danger);
   cursor: pointer;
   font-weight: 900;
+}
+
+#revealButton:disabled,
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .secondary-action {

@@ -29,7 +29,7 @@ const cardCatalog = {
     playable: true,
     design: {
       tone: "targeted-raptor",
-      icon: "R",
+      icon: "claw",
       image: "assets/cards/illustrations/targeted-raptor-hunt.jpg"
     }
   },
@@ -40,7 +40,7 @@ const cardCatalog = {
     playable: true,
     design: {
       tone: "sprint",
-      icon: "S",
+      icon: "speed",
       image: "assets/cards/illustrations/dino-sprint.jpg"
     }
   },
@@ -57,7 +57,7 @@ const cardCatalog = {
     playable: true,
     design: {
       tone: "oracle",
-      icon: "↻",
+      icon: "timeline",
       image: "assets/cards/illustrations/oracle-timeline.jpg"
     }
   },
@@ -80,7 +80,7 @@ const cardCatalog = {
     playable: true,
     design: {
       tone: "fossil",
-      icon: "F",
+      icon: "fossil",
       image: "assets/cards/illustrations/fossil-grazer.jpg"
     }
   },
@@ -91,7 +91,7 @@ const cardCatalog = {
     playable: false,
     design: {
       tone: "nope",
-      icon: "!",
+      icon: "roar",
       image: "assets/cards/illustrations/brul-terug-roar.jpg"
     }
   },
@@ -419,6 +419,7 @@ function renderReveal() {
   els.placementControls.classList.add("is-hidden");
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
+  els.revealSecondaryButton.disabled = false;
 
   if (activeReveal) {
     els.revealEyebrow.textContent = activeReveal.title;
@@ -432,6 +433,11 @@ function renderReveal() {
     }
     els.revealText.textContent = activeReveal.text;
     els.revealButton.textContent = activeReveal.buttonText ?? "Verder";
+    if (activeReveal.secondaryButtonText) {
+      els.revealSecondaryButton.textContent = activeReveal.secondaryButtonText;
+      els.revealSecondaryButton.disabled = Boolean(activeReveal.secondaryDisabled);
+      els.revealSecondaryButton.classList.remove("is-hidden");
+    }
     return;
   }
 
@@ -554,7 +560,10 @@ function renderCardFace(element, card, options = {}) {
     const title = document.createElement("strong");
     title.textContent = card.name;
     const text = document.createElement("span");
-    text.textContent = `${card.text}${card.hasPaw && !options.hidePaw ? " | dino-poot" : ""}`;
+    text.textContent = card.text;
+    if (card.hasPaw && !options.hidePaw) {
+      text.append(createPawMarker());
+    }
     element.append(title, text);
     return;
   }
@@ -573,8 +582,8 @@ function renderCardFace(element, card, options = {}) {
 
   const icon = document.createElement("span");
   icon.className = "card-face__icon";
-  icon.textContent = card.design.icon;
   icon.setAttribute("aria-hidden", "true");
+  renderCardTypeIcon(icon, card.design.icon);
 
   header.append(title, icon);
 
@@ -589,9 +598,41 @@ function renderCardFace(element, card, options = {}) {
 
   const text = document.createElement("span");
   text.className = "card-face__text";
-  text.textContent = `${card.text}${card.hasPaw && !options.hidePaw ? " | dino-poot" : ""}`;
+  text.textContent = card.text;
+  if (card.hasPaw && !options.hidePaw) {
+    text.append(createPawMarker());
+  }
 
   element.append(header, art, text);
+}
+
+function createPawMarker() {
+  const marker = document.createElement("span");
+  marker.className = "card-paw-marker";
+  marker.setAttribute("aria-label", "Dino-poot");
+  marker.setAttribute("title", "Dino-poot");
+
+  for (let i = 0; i < 4; i += 1) {
+    const toe = document.createElement("span");
+    toe.setAttribute("aria-hidden", "true");
+    marker.append(toe);
+  }
+
+  return marker;
+}
+
+function renderCardTypeIcon(icon, type) {
+  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar"];
+  if (!supportedIcons.includes(type)) {
+    icon.textContent = type;
+    return;
+  }
+
+  icon.classList.add(`card-face__icon--${type}`);
+  const parts = type === "claw" ? 3 : type === "speed" ? 4 : 1;
+  for (let i = 0; i < parts; i += 1) {
+    icon.append(document.createElement("span"));
+  }
 }
 
 function renderOracleCards(pendingOracle) {
@@ -660,26 +701,49 @@ function renderRaptorTargetChoices(pendingRaptorTarget) {
   });
 }
 
-function showCardMoment({ title, cards, text, buttonText = "Verder", faceDown = false, shaking = false, owner = null, onClose = null }) {
+function showCardMoment({
+  title,
+  cards,
+  text,
+  buttonText = "Verder",
+  secondaryButtonText = null,
+  secondaryDisabled = false,
+  faceDown = false,
+  shaking = false,
+  owner = null,
+  onClose = null,
+  onSecondary = null
+}) {
   activeReveal = {
     title,
     cards: Array.isArray(cards) ? cards : [cards],
     text,
     buttonText,
+    secondaryButtonText,
+    secondaryDisabled,
     faceDown,
     shaking,
     owner,
-    onClose
+    onClose,
+    onSecondary
   };
   render();
 }
 
-function closeActiveReveal() {
+function closeActiveReveal(useSecondary = false) {
   if (!activeReveal) return;
 
   const reveal = activeReveal;
   activeReveal = null;
-  reveal.onClose?.();
+  let callbackResult;
+  if (useSecondary && reveal.onSecondary) {
+    callbackResult = reveal.onSecondary();
+  } else {
+    callbackResult = reveal.onClose?.();
+  }
+  if (callbackResult === false) {
+    return;
+  }
   render();
   continueAfterPause();
 }
@@ -707,16 +771,47 @@ function playCard(owner, cardId) {
   state.discard.push(card);
   state.activity = { owner, type: "play" };
   log(`${label(owner)} speelt ${card.name}.`);
+  const preview = getActionPreview(owner, card);
+  const playerCanReact = owner !== "player" && canReactWithNope(card) && activeOpponentsOf(owner).includes("player");
+  const playerNope = playerCanReact ? getHand("player").find((item) => item.type === "nope") : null;
   showCardMoment({
     title: `${label(owner)} speelt`,
     cards: card,
-    text: "Klik verder om het effect van deze kaart uit te voeren.",
-    buttonText: "Speel kaart",
+    text: preview.text,
+    buttonText: playerCanReact ? "OK" : "Speel kaart",
+    secondaryButtonText: playerCanReact ? "Speel Brul Terug" : null,
+    secondaryDisabled: playerCanReact && !playerNope,
     owner,
     onClose: () => {
-      offerNopeReaction(owner, card);
+      offerNopeReaction(owner, card, { skipPlayer: playerCanReact, target: preview.target });
+    },
+    onSecondary: () => {
+      resolvePlayerNopeReaction(owner, card, playerNope?.id);
     }
   });
+}
+
+function getActionPreview(owner, card) {
+  const target = chooseDefaultTarget(owner);
+
+  if (card.type === "fossil" && target) {
+    return {
+      target,
+      text: `${label(owner)} speelt ${card.name} op ${label(target)} en wil een gesloten kaart stelen.`
+    };
+  }
+
+  if (card.type === "raptor" && target) {
+    return {
+      target,
+      text: `${label(owner)} speelt ${card.name} op ${label(target)}.`
+    };
+  }
+
+  return {
+    target: null,
+    text: "Klik verder om het effect van deze kaart uit te voeren."
+  };
 }
 
 function playSetPair(owner, card) {
@@ -756,8 +851,8 @@ function findPairForCard(hand, card) {
   return feral ? [card, feral] : [];
 }
 
-function resolveCard(owner, card) {
-  const target = chooseDefaultTarget(owner);
+function resolveCard(owner, card, context = {}) {
+  const target = context.target ?? chooseDefaultTarget(owner);
 
   if (card.type === "sprint") {
     resolveSprint(owner);
@@ -807,21 +902,21 @@ function resolveCard(owner, card) {
   }
 }
 
-function offerNopeReaction(actor, card) {
-  const reactor = chooseNopeReactor(actor);
+function offerNopeReaction(actor, card, context = {}) {
+  const reactor = chooseNopeReactor(actor, { skipPlayer: context.skipPlayer });
   if (!reactor) {
-    resolveCard(actor, card);
+    resolveCard(actor, card, context);
     return;
   }
   const nopeCard = getHand(reactor).find((item) => item.type === "nope");
 
   if (!canReactWithNope(card) || !nopeCard) {
-    resolveCard(actor, card);
+    resolveCard(actor, card, context);
     return;
   }
 
   if (reactor !== "player") {
-    state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id };
+    state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id, context };
     const shouldBlock = choosePcNopeReaction(card);
     if (shouldBlock) {
       resolveNopeReaction(true);
@@ -833,7 +928,7 @@ function offerNopeReaction(actor, card) {
     return;
   }
 
-  state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id };
+  state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id, context };
   setAction(`${label(actor)} speelt ${card.name}. Je kunt reageren met Brul Terug.`);
   render();
 }
@@ -848,6 +943,17 @@ function choosePcNopeReaction(card) {
   return Math.random() < 0.68;
 }
 
+function resolvePlayerNopeReaction(actor, card, nopeCardId) {
+  if (!nopeCardId) {
+    offerNopeReaction(actor, card, { skipPlayer: true });
+    return;
+  }
+
+  state.pendingNopeReaction = { actor, reactor: "player", card, nopeCardId };
+  resolveNopeReaction(true);
+  return false;
+}
+
 function resolveNopeReaction(useNope) {
   const pending = state.pendingNopeReaction;
   if (!pending) return;
@@ -855,7 +961,7 @@ function resolveNopeReaction(useNope) {
   state.pendingNopeReaction = null;
 
   if (!useNope) {
-    resolveCard(pending.actor, pending.card);
+    resolveCard(pending.actor, pending.card, pending.context);
     render();
     continueAfterPause();
     return;
@@ -864,7 +970,7 @@ function resolveNopeReaction(useNope) {
   const hand = getHand(pending.reactor);
   const index = hand.findIndex((card) => card.id === pending.nopeCardId);
   if (index === -1) {
-    resolveCard(pending.actor, pending.card);
+    resolveCard(pending.actor, pending.card, pending.context);
     render();
     continueAfterPause();
     return;
@@ -1267,8 +1373,11 @@ function choosePcTarget(owner, targets = activeOpponentsOf(owner)) {
   return targets[Math.floor(Math.random() * targets.length)];
 }
 
-function chooseNopeReactor(actor) {
-  const candidates = activeOpponentsOf(actor).filter((id) => getHand(id).some((card) => card.type === "nope"));
+function chooseNopeReactor(actor, options = {}) {
+  const candidates = activeOpponentsOf(actor).filter((id) => {
+    if (options.skipPlayer && id === "player") return false;
+    return getHand(id).some((card) => card.type === "nope");
+  });
   if (candidates.length === 0) return null;
   if (candidates.includes("player")) return "player";
   return candidates[0];
