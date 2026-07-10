@@ -1,0 +1,4 @@
+interface:
+  display_name: "Exploding Dinos Card Designer"
+  short_description: "Design and implement one Exploding Dinos card"
+  default_prompt: "Use $exploding-dinos-card-designer to design and implement the next Exploding Dinos card."

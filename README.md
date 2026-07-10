@@ -6,6 +6,10 @@ Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireer
 
 Open `index.html` in je browser. Er is geen build-step nodig.
 
+## Project-skill
+
+Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
+
 ## Regels in deze iteratie
 
 - Jij speelt tegen de pc.
