@@ -29,7 +29,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `stegoSnack` | Stego Snack | Speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar | Varianten/balans later. |
 | `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar | Varianten/balans later. |
 | `triceraTuk` | Tricera-Tuk | Speel een paar om 1 open beurt weg te dutten zonder te trekken. | klaar | Varianten/balans later. |
-| `pteroPret` | Ptero Pret | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
+| `pteroPret` | Ptero Pret | Speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 
 ## Open kaartwerk
 
@@ -39,7 +39,8 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Geef `stegoSnack` een unieke paarbeloning en kaartfront.
 - [x] Geef `brontoBuik` een kaartfront en crop/tweak.
 - [x] Geef `triceraTuk` een kaartfront en crop/tweak.
-- [ ] Geef `pteroPret` een unieke paarbeloning en kaartfront.
+- [x] Geef `pteroPret` een unieke paarbeloning.
+- [ ] Geef `pteroPret` een kaartfront en crop/tweak.
 - [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor`, `trike` en `feral`.
 - [ ] Voeg resterende basisillustraties toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
