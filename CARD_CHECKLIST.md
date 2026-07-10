@@ -15,8 +15,8 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 |---|---|---|---|---|
 | `meteor` | Meteorietinslag | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 | `shelter` | Schuilgrot | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | spel klaar | Eigen kaartfront/artwork toevoegen. |
-| `raptor` | Raptor Aanval | Eindig je beurt; de volgende speler neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door. | spel klaar | Eigen kaartfront/artwork toevoegen. |
-| `targetedRaptor` | Gerichte Raptorjacht | Kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander. | klaar | Varianten/balans later. |
+| `raptor` | Raptor Aanval | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | spel klaar | Eigen kaartfront/artwork toevoegen. |
+| `targetedRaptor` | Gerichte Raptorjacht | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar | Varianten/balans later. |
 | `sprint` | Dino Sprint | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar | Varianten/balans later. |
 | `trike` | Triceratops Blik | Bekijk de bovenste 3 kaarten van de trekstapel. | basis | Unieker effect of bewust als simpele informatiekaart vastleggen; artwork toevoegen. |
 | `oracle` | Tijdlijn Kneden | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar | Varianten/balans later. |
@@ -27,7 +27,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `feral` | Wilde Dino | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis | Jokerrol definitief vastleggen en kaartfront/artwork toevoegen. |
 | `miniRaptor` | Mini-Raptor | Speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | Varianten/balans later. |
 | `stegoSnack` | Stego Snack | Speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar | Varianten/balans later. |
-| `brontoBuik` | Bronto Buik | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
+| `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 | `triceraTuk` | Tricera-Tuk | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
 | `pteroPret` | Ptero Pret | Soortkaart; unieke paarbeloning staat nog open. | basis | Unieke paarbeloning en kaartfront/artwork uitwerken. |
 
@@ -37,13 +37,25 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [ ] Werk `feral` definitief uit: volledige soortbeloning of zwakkere joker-beloning.
 - [x] Geef `miniRaptor` een unieke paarbeloning en kaartfront.
 - [x] Geef `stegoSnack` een unieke paarbeloning en kaartfront.
-- [ ] Geef `brontoBuik` een unieke paarbeloning en kaartfront.
+- [ ] Geef `brontoBuik` een kaartfront en crop/tweak.
 - [ ] Geef `triceraTuk` een unieke paarbeloning en kaartfront.
 - [ ] Geef `pteroPret` een unieke paarbeloning en kaartfront.
 - [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor`, `trike` en `feral`.
 - [ ] Voeg resterende basisillustraties toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
 - [ ] Doe een balansronde nadat de soortkaartbeloningen helder zijn.
+
+## Persona-portretten
+
+- [ ] Genereer portret voor Rex de Archeoloog (man): dino met monocle en veldhoed tussen fossielen.
+- [ ] Genereer portret voor Nova de Vulkaanwachter (vrouw): dino met veiligheidsbril en gloeiende lavalantaarn.
+- [ ] Genereer portret voor Kiki de Bottenfluisteraar (vrouw): dino met bottenketting en slimme glimlach.
+- [ ] Genereer portret voor Bram Brulbaard (man): dino met nette baard, sjerp en grote operahouding.
+- [ ] Genereer portret voor Luna de Tijdlijnkundige (vrouw): dino met sterrenmantel en zandloper.
+- [ ] Genereer portret voor Otto de Kaartkapitein (man): dino met kapiteinspet en stapel kaarten.
+- [ ] Genereer portret voor Mira de Mosridder (vrouw): dino met mosmantel en houten schild.
+- [ ] Genereer portret voor Puck de Pootafdrukker (man): dino met inktpot en pootafdrukstempels.
+- [ ] Genereer portret voor Tara de Trucjager (vrouw): dino met jagershoedje en kaarttrucs.
 
 ## Per kaart afronden
 

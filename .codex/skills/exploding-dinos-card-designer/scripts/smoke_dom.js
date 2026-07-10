@@ -95,6 +95,8 @@ globalThis.crypto = {
   randomUUID: () => Math.random().toString(16).slice(2)
 };
 
+require("../../../../src/cards.js");
+require("../../../../src/players.js");
 require("../../../../game.js");
 
 const result = {

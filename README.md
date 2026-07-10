@@ -6,13 +6,22 @@ Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireer
 
 Open `index.html` in je browser. Er is geen build-step nodig.
 
+## Code-indeling
+
+- `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
+- `src/players.js`: pc-persona's, spelerkleuren en speler-aanmaak.
+- `game.js`: huidige spelstate, beurtregels, pc-keuzes, renderlogica en event handlers.
+- `styles.css`: tafel, kaartfronts, modals, persona- en eindschermstyling.
+
+De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
+
 ## Project-skill
 
 Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
 
 ## Regels in deze iteratie
 
-- Jij speelt tegen 1 tot 4 benoemde pc-tegenspelers; kies het aantal voor je een nieuw spel start.
+- Jij speelt tegen 1 tot 4 benoemde pc-tegenspelers met eigen persona, gender en kleuraccent; kies het aantal voor je een nieuw spel start.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
@@ -21,8 +30,10 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld. Het effect gaat pas door nadat je klikt.
-- Gestolen kaarten verschijnen ook groot in beeld voordat ze in de nieuwe hand verdwijnen.
-- Als iemand jou aanvalt, zie je je hand als reactie-keuze. `Brul Terug` blokkeert de aanval; een eigen raptoraanval schuift de aanval door en stapelt de beurten.
+- Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
+- Als iemand jou aanvalt, zie je je hand als reactie-keuze. `Brul Terug` blokkeert de aanval; een eigen raptoraanval schuift de aanval door en stapelt de beurten. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
+- Een aanval wordt meteen uitgevochten: het doelwit moet het openstaande aantal kaarten trekken, met ruimte voor acties tussen meerdere trekken. Na de laatste verplichte trek is die beurt voorbij en gaat het spel terug naar de speler die de aanval inzette.
+- Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop en keuze voor het aantal pc-tegenspelers.
 - Trekt iemand een `Meteorietinslag`, dan schudt de kaart zichtbaar. Met `Schuilgrot` kiest de speler geheim waar de meteoriet teruggaat in de stapel; jij kiest daarbij een genummerde positie.
 
 ## Kaarten
@@ -37,8 +48,8 @@ Statuslegenda:
 |---|---:|---:|---|---|
 | `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | spel klaar |
 | `shelter` | Schuilgrot | 10 | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | spel klaar |
-| `raptor` | Raptor Aanval | 5 | Eindig je beurt; de volgende speler neemt straks 2 beurten. Als reactie op een aanval schuift hij de aanval door. | spel klaar |
-| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander. | klaar |
+| `raptor` | Raptor Aanval | 5 | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | spel klaar |
+| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |
 | `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
 | `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten van de trekstapel. | basis |
 | `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar |
@@ -49,7 +60,7 @@ Statuslegenda:
 | `feral` | Wilde Dino | 6 | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis |
 | `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar |
-| `brontoBuik` | Bronto Buik | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
+| `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | spel klaar |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
 | `pteroPret` | Ptero Pret | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
 

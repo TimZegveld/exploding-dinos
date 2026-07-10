@@ -1,179 +1,18 @@
-const MIN_OPPONENTS = 1;
-const MAX_OPPONENTS = 4;
-const DEFAULT_OPPONENTS = 1;
-const playerColors = ["#2f7d4f", "#d45d32", "#2d6f9f", "#b36a22", "#7a56a6"];
-const opponentNames = ["Rex", "Nova", "Kiki", "Bram"];
 const RAPTOR_TURN_LOAD = 2;
-
-const cardCatalog = {
-  meteor: {
-    name: "Meteorietinslag",
-    text: "Trek je deze zonder Schuilgrot, dan ben je uitgeschakeld.",
-    kind: "danger",
-    playable: false
-  },
-  shelter: {
-    name: "Schuilgrot",
-    text: "Redt je automatisch van een Meteorietinslag.",
-    kind: "defuse",
-    playable: false
-  },
-  raptor: {
-    name: "Raptor Aanval",
-    text: "Eindig je beurt. De ander neemt straks 2 beurten.",
-    kind: "action",
-    playable: true
-  },
-  targetedRaptor: {
-    name: "Gerichte Raptorjacht",
-    text: "Kies je doelwit. Die speler neemt straks 2 beurten.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "targeted-raptor",
-      icon: "claw",
-      image: "assets/cards/illustrations/targeted-raptor-hunt.jpg"
-    }
-  },
-  sprint: {
-    name: "Dino Sprint",
-    text: "Sla je beurt over. Bij extra beurten sprint je er 1 extra kwijt.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "sprint",
-      icon: "speed",
-      image: "assets/cards/illustrations/dino-sprint.jpg"
-    }
-  },
-  trike: {
-    name: "Triceratops Blik",
-    text: "Bekijk de bovenste 3 kaarten van de trekstapel.",
-    kind: "action",
-    playable: true
-  },
-  oracle: {
-    name: "Tijdlijn Kneden",
-    text: "Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "oracle",
-      icon: "timeline",
-      image: "assets/cards/illustrations/oracle-timeline.jpg"
-    }
-  },
-  volcano: {
-    name: "Vulkaan Shuffle",
-    text: "Schud de trekstapel en bekijk daarna de bovenste kaart.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "volcano",
-      icon: "volcano",
-      image: "assets/cards/illustrations/volcano-shuffle.png"
-    }
-  },
-  dig: {
-    name: "Diep Graven",
-    text: "Bekijk onderop. Neem die kaart, of trek blind van boven.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "dig",
-      icon: "dig",
-      image: "assets/cards/illustrations/diep-graven.png"
-    }
-  },
-  fossil: {
-    name: "Fossielgraaier",
-    text: "Kies een gesloten kaart van de ander en steel die.",
-    kind: "action",
-    playable: true,
-    design: {
-      tone: "fossil",
-      icon: "fossil",
-      image: "assets/cards/illustrations/fossil-grazer.jpg"
-    }
-  },
-  nope: {
-    name: "Brul Terug",
-    text: "Reageer op een actiekaart van de ander en blokkeer die.",
-    kind: "action",
-    playable: false,
-    design: {
-      tone: "nope",
-      icon: "roar",
-      image: "assets/cards/illustrations/brul-terug-roar.jpg"
-    }
-  },
-  feral: {
-    name: "Wilde Dino",
-    text: "Joker voor dino-soortkaarten. Activeert de andere soortbeloning.",
-    kind: "set",
-    playable: false
-  },
-  miniRaptor: {
-    name: "Mini-Raptor",
-    text: "Speel als paar. Kies een doelwit en steel snel 1 willekeurige kaart.",
-    kind: "set",
-    playable: false,
-    design: {
-      tone: "mini-raptor",
-      icon: "claw",
-      image: "assets/cards/illustrations/mini-raptor-quick-steal.png"
-    }
-  },
-  stegoSnack: {
-    name: "Stego Snack",
-    text: "Speel als paar. Neem 1 oudere niet-meteor kaart terug uit de aflegstapel.",
-    kind: "set",
-    playable: false,
-    design: {
-      tone: "stego-snack",
-      icon: "leaf",
-      image: "assets/cards/illustrations/stego-snack-discard.png"
-    }
-  },
-  brontoBuik: {
-    name: "Bronto Buik",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
-    kind: "set",
-    playable: false
-  },
-  triceraTuk: {
-    name: "Tricera-Tuk",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
-    kind: "set",
-    playable: false
-  },
-  pteroPret: {
-    name: "Ptero Pret",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
-    kind: "set",
-    playable: false
-  }
-};
-
-const partyPackDistribution = {
-  meteor: { total: 9, paw: 0 },
-  shelter: { total: 10, paw: 3 },
-  raptor: { total: 5, paw: 2 },
-  targetedRaptor: { total: 5, paw: 2 },
-  sprint: { total: 10, paw: 4 },
-  trike: { total: 6, paw: 3 },
-  oracle: { total: 6, paw: 2 },
-  volcano: { total: 6, paw: 2 },
-  dig: { total: 7, paw: 3 },
-  fossil: { total: 6, paw: 2 },
-  nope: { total: 9, paw: 4 },
-  feral: { total: 6, paw: 2 },
-  miniRaptor: { total: 7, paw: 3 },
-  stegoSnack: { total: 7, paw: 3 },
-  brontoBuik: { total: 7, paw: 3 },
-  triceraTuk: { total: 7, paw: 3 },
-  pteroPret: { total: 7, paw: 3 }
-};
+const {
+  MIN_OPPONENTS,
+  MAX_OPPONENTS,
+  DEFAULT_OPPONENTS,
+  playerColors,
+  createPlayers
+} = globalThis.ExplodingDinosPlayers;
+const {
+  partyPackDistribution,
+  buildCardPool,
+  deckModeForPlayers,
+  makeCard,
+  shuffle
+} = globalThis.ExplodingDinosCards;
 
 const initialState = {
   players: [],
@@ -190,11 +29,13 @@ const initialState = {
   pendingDigChoice: null,
   pendingFossilChoice: null,
   pendingDiscardChoice: null,
+  pendingBrontoChoice: null,
   pendingStealTarget: null,
   pendingNopeReaction: null,
   pendingAttackReaction: null,
   pendingRaptorTarget: null,
   pendingCardDetail: null,
+  attackReturn: null,
   gameOver: false
 };
 
@@ -224,69 +65,9 @@ const els = {
   placementHint: document.querySelector("#placementHint")
 };
 
-function makeCard(type, hasPaw = false) {
-  return {
-    id: crypto.randomUUID(),
-    type,
-    hasPaw,
-    ...cardCatalog[type]
-  };
-}
-
-function shuffle(cards) {
-  const copy = [...cards];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function buildCardPool(playerCount) {
-  const mode = deckModeForPlayers(playerCount);
-  const cards = [];
-
-  Object.entries(partyPackDistribution).forEach(([type, counts]) => {
-    if (type === "meteor" || type === "shelter") return;
-
-    const amount = mode === "paw"
-      ? counts.paw
-      : mode === "standard"
-        ? counts.total - counts.paw
-        : counts.total;
-
-    for (let i = 0; i < amount; i += 1) {
-      cards.push(makeCard(type, mode === "paw"));
-    }
-  });
-
-  return shuffle(cards);
-}
-
-function deckModeForPlayers(players) {
-  if (players <= 3) return "paw";
-  if (players <= 7) return "standard";
-  return "full";
-}
-
 function getOpponentCount() {
   const selected = Number(els.opponentCount?.value ?? DEFAULT_OPPONENTS);
   return Math.max(MIN_OPPONENTS, Math.min(MAX_OPPONENTS, selected));
-}
-
-function createPlayers(opponentCount) {
-  return [
-    { id: "player", name: "Jij", color: playerColors[0], isHuman: true },
-    ...Array.from({ length: opponentCount }, (_, index) => ({
-      id: `pc${index + 1}`,
-      name: opponentNames[index] ?? `Dino ${index + 1}`,
-      color: playerColors[index + 1],
-      isHuman: false,
-      profile: {
-        playStyle: "balanced"
-      }
-    }))
-  ];
 }
 
 function startGame() {
@@ -389,8 +170,22 @@ function renderOpponents() {
     const labelWrap = document.createElement("div");
     labelWrap.className = "player-label";
 
+    const identity = document.createElement("div");
+    identity.className = "player-identity";
+
+    const portrait = document.createElement("div");
+    portrait.className = "player-portrait";
+    portrait.setAttribute("aria-label", `Portret placeholder voor ${player.name}`);
+    portrait.textContent = player.initials ?? player.name.slice(0, 2);
+
+    const textWrap = document.createElement("div");
+    textWrap.className = "player-name-block";
+
     const name = document.createElement("span");
     name.textContent = player.name;
+
+    const role = document.createElement("small");
+    role.textContent = player.role ?? "Dino";
 
     const count = document.createElement("strong");
     count.textContent = state.eliminated[player.id]
@@ -406,7 +201,9 @@ function renderOpponents() {
       hand.append(card);
     });
 
-    labelWrap.append(name, count);
+    textWrap.append(name, role);
+    identity.append(portrait, textWrap);
+    labelWrap.append(identity, count);
     seat.append(labelWrap, hand);
     els.opponents.append(seat);
   });
@@ -435,15 +232,16 @@ function renderReveal() {
   const pendingDigChoice = state.pendingDigChoice;
   const pendingFossilChoice = state.pendingFossilChoice;
   const pendingDiscardChoice = state.pendingDiscardChoice;
+  const pendingBrontoChoice = state.pendingBrontoChoice;
   const pendingStealTarget = state.pendingStealTarget;
   const pendingNopeReaction = state.pendingNopeReaction;
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
+  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -475,7 +273,9 @@ function renderReveal() {
 
   if (activeReveal) {
     els.revealEyebrow.textContent = activeReveal.title;
-    if (activeReveal.cards.length === 1 && !activeReveal.faceDown) {
+    if (activeReveal.endGame) {
+      renderEndGameReveal(activeReveal);
+    } else if (activeReveal.cards.length === 1 && !activeReveal.faceDown) {
       renderOpenRevealCard(activeReveal.cards[0], activeReveal.shaking);
     } else {
       renderRevealCards(activeReveal.cards, {
@@ -532,6 +332,16 @@ function renderReveal() {
       : "Er ligt geen oudere niet-meteor kaart klaar voor Stego Snack.";
     els.revealButton.textContent = pendingDiscardChoice.cards.length ? "Kies kaart" : "Verder";
     els.revealButton.disabled = pendingDiscardChoice.cards.length > 0;
+    return;
+  }
+
+  if (pendingBrontoChoice) {
+    els.revealEyebrow.textContent = "Bronto Buik";
+    renderOpenRevealCard(pendingBrontoChoice.topCard);
+    els.revealText.textContent = "Je ziet de bovenste kaart van de trekstapel. Laat hem liggen, of schuif hem onderop in de Bronto-buik.";
+    els.revealButton.textContent = "Laat bovenop";
+    els.revealSecondaryButton.textContent = "Schuif onderop";
+    els.revealSecondaryButton.classList.remove("is-hidden");
     return;
   }
 
@@ -606,7 +416,7 @@ function renderReveal() {
   } else {
     els.revealText.textContent = owner === "player"
       ? "Lees de kaart rustig. Klik daarna om hem aan je hand toe te voegen."
-      : `${label(owner)} trekt een gesloten kaart. De beurt gaat zo verder.`;
+      : `${label(owner)} trekt een gesloten kaart. ${subjectPronoun(owner, true)} houdt hem geheim.`;
     els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : "OK";
   }
 
@@ -839,6 +649,49 @@ function renderRaptorTargetChoices(pendingRaptorTarget) {
   });
 }
 
+function renderEndGameReveal(reveal) {
+  els.revealCard.classList.add("end-card", reveal.winner === "player" ? "is-win" : "is-loss");
+  els.revealCard.replaceChildren();
+
+  const title = document.createElement("strong");
+  title.textContent = reveal.winner === "player" ? "Gefeliciteerd" : reveal.winner ? "Jammer" : "Einde";
+
+  const scene = document.createElement("div");
+  scene.className = "end-card__scene";
+  scene.setAttribute("aria-hidden", "true");
+
+  const dino = document.createElement("span");
+  dino.className = "end-card__dino";
+
+  const burst = document.createElement("span");
+  burst.className = "end-card__burst";
+
+  scene.append(burst, dino);
+
+  const setup = document.createElement("label");
+  setup.className = "end-card__setup";
+  setup.setAttribute("for", "endOpponentCount");
+
+  const setupText = document.createElement("span");
+  setupText.textContent = "Tegenspelers";
+
+  const select = document.createElement("select");
+  select.id = "endOpponentCount";
+  for (let count = MIN_OPPONENTS; count <= MAX_OPPONENTS; count += 1) {
+    const option = document.createElement("option");
+    option.value = String(count);
+    option.textContent = `${count} pc${count === 1 ? "" : "'s"}`;
+    select.append(option);
+  }
+  select.value = els.opponentCount.value;
+  select.addEventListener("change", () => {
+    els.opponentCount.value = select.value;
+  });
+
+  setup.append(setupText, select);
+  els.revealCard.append(title, scene, setup);
+}
+
 function renderPlacementOptions() {
   els.placementSelect.replaceChildren();
   const positions = state.deck.length + 1;
@@ -882,7 +735,9 @@ function showCardMoment({
   shaking = false,
   owner = null,
   onClose = null,
-  onSecondary = null
+  onSecondary = null,
+  endGame = false,
+  winner = null
 }) {
   activeReveal = {
     title,
@@ -895,7 +750,9 @@ function showCardMoment({
     shaking,
     owner,
     onClose,
-    onSecondary
+    onSecondary,
+    endGame,
+    winner
   };
   render();
 }
@@ -934,7 +791,7 @@ function closeCardDetail(playAfterClose = false) {
 
   state.pendingCardDetail = null;
   if (playAfterClose) {
-    playCard(detail.owner, detail.card.id);
+    playCard(detail.owner, detail.card.id, { skipPlayMoment: true });
     return;
   }
 
@@ -956,7 +813,7 @@ function canPlayCard(owner, card) {
   return false;
 }
 
-function playCard(owner, cardId) {
+function playCard(owner, cardId, options = {}) {
   if (state.gameOver || owner !== state.current || isInteractionBlocked()) return;
 
   const hand = getHand(owner);
@@ -966,7 +823,7 @@ function playCard(owner, cardId) {
   const card = hand[index];
   if (!canPlayCard(owner, card)) return;
   if (isSetCard(card)) {
-    playSetPair(owner, card);
+    playSetPair(owner, card, options);
     return;
   }
 
@@ -976,19 +833,30 @@ function playCard(owner, cardId) {
   log(`${label(owner)} speelt ${card.name}.`);
   const preview = getActionPreview(owner, card);
   const playerCanReactToAttack = owner !== "player" && isAttackCard(card) && preview.target === "player";
+  const resolvePlayedCard = () => {
+    if (playerCanReactToAttack) {
+      startAttackReaction(owner, card, preview.target);
+      return false;
+    }
+
+    offerNopeReaction(owner, card, { target: preview.target });
+    return true;
+  };
+
+  if (options.skipPlayMoment) {
+    resolvePlayedCard();
+    render();
+    continueAfterPause();
+    return;
+  }
+
   showCardMoment({
     title: `${label(owner)} speelt`,
     cards: card,
     text: preview.text,
     buttonText: "OK",
     owner,
-    onClose: () => {
-      if (playerCanReactToAttack) {
-        startAttackReaction(owner, card, preview.target);
-        return false;
-      }
-      offerNopeReaction(owner, card, { target: preview.target });
-    }
+    onClose: resolvePlayedCard
   });
 }
 
@@ -1022,7 +890,7 @@ function getActionPreview(owner, card) {
   };
 }
 
-function playSetPair(owner, card) {
+function playSetPair(owner, card, options = {}) {
   const hand = getHand(owner);
   const pair = findPairForCard(hand, card);
   if (pair.length !== 2) return;
@@ -1037,6 +905,13 @@ function playSetPair(owner, card) {
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
   state.activity = { owner, type: "play" };
+  if (options.skipPlayMoment) {
+    startSetPairReward(owner, rewardType, target, pairIds);
+    render();
+    continueAfterPause();
+    return;
+  }
+
   showCardMoment({
     title: `${label(owner)} speelt een paar`,
     cards: pair,
@@ -1063,6 +938,10 @@ function getSetPairPreviewText(owner, rewardType, target) {
     return "Stego Snack neemt 1 oudere niet-meteor kaart terug uit de aflegstapel.";
   }
 
+  if (rewardType === "brontoBuik") {
+    return "Bronto Buik bekijkt de bovenste kaart en mag die onderop schuiven.";
+  }
+
   return target
     ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
     : "Dit paar mag een gesloten kaart van een ander stelen.";
@@ -1076,6 +955,11 @@ function startSetPairReward(owner, rewardType, initialTarget = null, playedPairI
 
   if (rewardType === "stegoSnack") {
     startStegoSnack(owner, playedPairIds);
+    return;
+  }
+
+  if (rewardType === "brontoBuik") {
+    startBrontoBelly(owner);
     return;
   }
 
@@ -1107,16 +991,20 @@ function resolveCard(owner, card, context = {}) {
 
   if (card.type === "raptor") {
     if (!target) return;
-    resolveRaptorAttack(owner, target, context.attackLoad ?? RAPTOR_TURN_LOAD);
+    const returnTo = getAttackReturn(owner, context.returnTo);
+    const attackLoad = getAttackLoad(owner, context.attackLoad);
+    resolveRaptorAttack(owner, target, attackLoad, returnTo);
     return;
   }
 
   if (card.type === "targetedRaptor") {
+    const returnTo = getAttackReturn(owner, context.returnTo);
+    const attackLoad = getAttackLoad(owner, context.attackLoad);
     if (context.target) {
-      resolveRaptorTarget(owner, context.target, context.attackLoad ?? RAPTOR_TURN_LOAD);
+      resolveRaptorTarget(owner, context.target, attackLoad, returnTo);
       return;
     }
-    chooseRaptorTarget(owner, context.attackLoad ?? RAPTOR_TURN_LOAD);
+    chooseRaptorTarget(owner, attackLoad, returnTo);
     return;
   }
 
@@ -1196,7 +1084,7 @@ function startAttackReaction(actor, card, target) {
     card,
     target,
     attackLoad: currentLoad,
-    context: { target, attackLoad: currentLoad }
+    context: { target, attackLoad: currentLoad, returnTo: actor }
   };
   setAction(`${label(actor)} valt je aan. Kies een reactie uit je hand of doe niets.`);
   render();
@@ -1227,14 +1115,30 @@ function resolveAttackReactionWithCard(cardId) {
   }
 
   const shiftedLoad = pending.attackLoad + RAPTOR_TURN_LOAD;
+  const returnTo = pending.context?.returnTo ?? pending.actor;
   log(`Jij schuift de aanval terug met ${reactionCard.name}.`);
+
+  if (reactionCard.type === "targetedRaptor") {
+    state.pendingRaptorTarget = {
+      owner: "player",
+      targets: activeOpponentsOf("player"),
+      selectedTarget: activeOpponentsOf("player").includes(pending.actor) ? pending.actor : activeOpponentsOf("player")[0],
+      attackLoad: shiftedLoad,
+      returnTo,
+      isReaction: true
+    };
+    setAction("Gerichte Raptorjacht kaatst de aanval door. Kies wie de hele stapel beurten krijgt.");
+    render();
+    return;
+  }
+
   showCardMoment({
     title: "Tegenaanval",
     cards: reactionCard,
-    text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet straks ${shiftedLoad} beurten overleven.`,
+    text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet nu ${shiftedLoad} kaarten trekken, tenzij die zich verdedigt.`,
     buttonText: "OK",
     owner: "player",
-    onClose: () => resolveRaptorAttack(pending.actor, pending.actor, shiftedLoad)
+    onClose: () => resolveRaptorAttack("player", pending.actor, shiftedLoad, returnTo)
   });
 }
 
@@ -1306,12 +1210,12 @@ function resolveNopeReaction(useNope) {
   continueAfterPause();
 }
 
-function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD) {
+function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
   const targets = activeOpponentsOf(owner);
   if (targets.length === 0) return;
 
   if (owner !== "player") {
-    resolveRaptorTarget(owner, choosePcTarget(owner, targets), attackLoad);
+    resolveRaptorTarget(owner, choosePcTarget(owner, targets), attackLoad, returnTo);
     return;
   }
 
@@ -1319,7 +1223,8 @@ function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD) {
     owner,
     targets,
     selectedTarget: targets[0],
-    attackLoad
+    attackLoad,
+    returnTo
   };
   setAction("Gerichte Raptorjacht laat je eerst bewust een doelwit aanwijzen.");
   render();
@@ -1338,23 +1243,25 @@ function confirmRaptorTarget() {
   if (!pendingRaptorTarget) return;
 
   state.pendingRaptorTarget = null;
-  resolveRaptorTarget(pendingRaptorTarget.owner, pendingRaptorTarget.selectedTarget, pendingRaptorTarget.attackLoad);
+  resolveRaptorTarget(pendingRaptorTarget.owner, pendingRaptorTarget.selectedTarget, pendingRaptorTarget.attackLoad, pendingRaptorTarget.returnTo);
   render();
   continueAfterPause();
 }
 
-function resolveRaptorTarget(owner, target, attackLoad = RAPTOR_TURN_LOAD) {
+function resolveRaptorTarget(owner, target, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
   if (!target || state.eliminated[target]) return;
-  resolveRaptorAttack(owner, target, attackLoad);
+  resolveRaptorAttack(owner, target, attackLoad, returnTo);
   log(`${label(owner)} stuurt de raptor op ${objectLabel(target)} af.`);
 }
 
-function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD) {
+function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
   if (!target || state.eliminated[target]) return;
-  const turnsAfterOwnerConsumes = target === owner ? attackLoad + 1 : attackLoad;
-  state.pendingTurns[target] = Math.max(state.pendingTurns[target] ?? 1, turnsAfterOwnerConsumes);
-  consumeTurn(owner);
-  setAction(`${label(target)} is het doelwit en moet straks ${attackLoad} beurten overleven.`);
+  state.attackReturn = { target, returnTo };
+  state.pendingTurns[target] = Math.max(1, attackLoad);
+  state.current = target;
+  setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} kaart(en) trekken voordat ${label(returnTo)} verdergaat.`);
+  render();
+  continueAfterPause();
 }
 
 function resolveSprint(owner) {
@@ -1364,7 +1271,7 @@ function resolveSprint(owner) {
     state.pendingTurns[owner] = Math.max(0, turnsBeforeSprint - 2);
     if (state.pendingTurns[owner] <= 0) {
       state.pendingTurns[owner] = 1;
-      state.current = nextActivePlayer(owner);
+      finishOwnerTurns(owner);
       setAction(`${label(owner)} sprint door de raptorstress heen en hoeft niet te trekken.`);
       return;
     }
@@ -1624,6 +1531,45 @@ function confirmDiscardChoice(index) {
   continueAfterPause();
 }
 
+function startBrontoBelly(owner) {
+  const topCard = state.deck.at(-1);
+  if (!topCard) {
+    setAction("Bronto Buik rommelt tevreden, maar de trekstapel is leeg.");
+    return;
+  }
+
+  if (owner !== "player") {
+    const shouldMove = topCard.type === "meteor" || (topCard.type === "raptor" && Math.random() < 0.42);
+    if (shouldMove) {
+      state.deck.unshift(state.deck.pop());
+    }
+    setAction(`${label(owner)} laat Bronto Buik de bovenste kaart ${shouldMove ? "onderop schuiven" : "bewaren waar hij ligt"}.`);
+    return;
+  }
+
+  state.pendingBrontoChoice = { owner, topCard };
+  setAction("Bronto Buik laat je de bovenste kaart bekijken voordat je trekt.");
+  render();
+}
+
+function confirmBrontoChoice(moveToBottom) {
+  const pendingBrontoChoice = state.pendingBrontoChoice;
+  if (!pendingBrontoChoice) return;
+
+  const currentTopCard = state.deck.at(-1);
+  if (moveToBottom && currentTopCard?.id === pendingBrontoChoice.topCard.id) {
+    state.deck.unshift(state.deck.pop());
+  }
+
+  state.pendingBrontoChoice = null;
+  log(`${label(pendingBrontoChoice.owner)} laat Bronto Buik ${moveToBottom ? `${pendingBrontoChoice.topCard.name} onderop schuiven` : `${pendingBrontoChoice.topCard.name} bovenop laten liggen`}.`);
+  setAction(moveToBottom
+    ? `${pendingBrontoChoice.topCard.name} verdwijnt onderin de Bronto-buik.`
+    : `${pendingBrontoChoice.topCard.name} blijft bovenop de trekstapel liggen.`);
+  render();
+  continueAfterPause();
+}
+
 function reclaimDiscardCard(owner, cardId) {
   const index = state.discard.findIndex((card) => card.id === cardId);
   if (index === -1) {
@@ -1778,8 +1724,34 @@ function consumeTurn(owner) {
   state.pendingTurns[owner] -= 1;
   if (state.pendingTurns[owner] <= 0) {
     state.pendingTurns[owner] = 1;
-    state.current = nextActivePlayer(owner);
+    finishOwnerTurns(owner);
   }
+}
+
+function finishOwnerTurns(owner) {
+  if (state.attackReturn?.target === owner) {
+    const returnTo = state.attackReturn.returnTo;
+    state.attackReturn = null;
+    state.current = !state.eliminated[returnTo] ? returnTo : nextActivePlayer(owner);
+    return;
+  }
+
+  state.current = nextActivePlayer(owner);
+}
+
+function getAttackLoad(owner, baseLoad = RAPTOR_TURN_LOAD) {
+  if (state.attackReturn?.target !== owner) return baseLoad;
+
+  const shiftedLoad = (state.pendingTurns[owner] ?? 1) + baseLoad;
+  state.pendingTurns[owner] = 1;
+  state.attackReturn = null;
+  return shiftedLoad;
+}
+
+function getAttackReturn(owner, fallback = owner) {
+  return state.attackReturn?.target === owner
+    ? state.attackReturn.returnTo
+    : fallback;
 }
 
 function stealRandomCard(owner, target) {
@@ -1803,12 +1775,16 @@ function stealCardAt(owner, target, index) {
   const boundedIndex = Math.max(0, Math.min(index, targetHand.length - 1));
   const [stolen] = targetHand.splice(boundedIndex, 1);
   getHand(owner).push(stolen);
+  const isPrivatePcSteal = owner !== "player" && target !== "player";
   setAction(`${label(owner)} steelt een kaart van ${objectLabel(target)}.`);
   showCardMoment({
     title: "Kaart gestolen",
     cards: stolen,
-    text: `${label(owner)} pakt ${stolen.name} van ${objectLabel(target)}.`,
+    text: isPrivatePcSteal
+      ? `${label(owner)} pakt een gesloten kaart van ${objectLabel(target)}. ${subjectPronoun(owner, true)} houdt geheim welke kaart het was.`
+      : `${label(owner)} pakt ${stolen.name} van ${objectLabel(target)}.`,
     buttonText: owner === "player" ? "Leg in hand" : "OK",
+    faceDown: isPrivatePcSteal,
     owner
   });
 }
@@ -1864,13 +1840,29 @@ function choosePcCard(owner) {
 function endGame(winner, reason) {
   state.gameOver = true;
   log(reason);
+  const title = winner === "player" ? "Gefeliciteerd!" : winner ? "Jammer!" : "Dino-patstelling";
+  const text = winner === "player"
+    ? `${reason} Jij wint deze prehistorische chaos.`
+    : winner
+      ? `${reason} ${label(winner)} wint.`
+      : reason;
   if (winner === "player") {
-    setAction(`${reason} Jij wint deze prehistorische chaos.`);
+    setAction(text);
   } else if (winner) {
-    setAction(`${reason} ${label(winner)} wint.`);
+    setAction(text);
   } else {
-    setAction(reason);
+    setAction(text);
   }
+  showCardMoment({
+    title,
+    cards: [],
+    text,
+    buttonText: "Nieuw potje",
+    endGame: true,
+    winner,
+    owner: winner ?? "player",
+    onClose: startGame
+  });
   render();
 }
 
@@ -1903,15 +1895,15 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function isGameplayBlockedForPlay() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
 }
 
 function isHandClickBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function continueAfterPause() {
@@ -1934,6 +1926,12 @@ function label(owner) {
 
 function objectLabel(owner) {
   return owner === "player" ? "jou" : label(owner);
+}
+
+function subjectPronoun(owner, capitalize = false) {
+  const player = getPlayer(owner);
+  const pronoun = player?.gender === "female" ? "zij" : player?.gender === "male" ? "hij" : "die";
+  return capitalize ? `${pronoun.charAt(0).toUpperCase()}${pronoun.slice(1)}` : pronoun;
 }
 
 function activePlayers() {
@@ -2022,6 +2020,11 @@ els.revealButton.addEventListener("click", () => {
     return;
   }
 
+  if (state.pendingBrontoChoice) {
+    confirmBrontoChoice(false);
+    return;
+  }
+
   if (state.pendingStealTarget) {
     confirmStealTarget();
     return;
@@ -2062,6 +2065,11 @@ els.revealSecondaryButton.addEventListener("click", () => {
 
   if (state.pendingDigChoice) {
     confirmDigChoice(false);
+    return;
+  }
+
+  if (state.pendingBrontoChoice) {
+    confirmBrontoChoice(true);
   }
 });
 
