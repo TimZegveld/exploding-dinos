@@ -34,7 +34,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - `Vulkaan Shuffle` x6 totaal: schud de trekstapel.
 - `Diep Graven` x7 totaal: trek de onderste kaart.
 - `Fossielgraaier` x6 totaal: kies een gesloten kaart van de ander en steel die.
-- `Brul Terug` x9 totaal: blokkeer een actie.
+- `Brul Terug` x9 totaal: reageer op een actiekaart van de ander en blokkeer die.
 - `Wilde Dino` x6 totaal: joker voor soortkaarten.
 - Dino-soortkaarten x35 totaal: speel paren om te stelen.
 

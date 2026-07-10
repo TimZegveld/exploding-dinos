@@ -73,9 +73,14 @@ const cardCatalog = {
   },
   nope: {
     name: "Brul Terug",
-    text: "Blokkeer de volgende actiekaart van de ander.",
+    text: "Reageer op een actiekaart van de ander en blokkeer die.",
     kind: "action",
-    playable: true
+    playable: false,
+    design: {
+      tone: "nope",
+      icon: "!",
+      image: "assets/cards/illustrations/brul-terug-roar.jpg"
+    }
   },
   feral: {
     name: "Wilde Dino",
@@ -142,11 +147,11 @@ const initialState = {
   pcHand: [],
   current: "player",
   pendingTurns: { player: 1, pc: 1 },
-  nopeShield: { player: false, pc: false },
   pendingDraw: null,
   pendingMeteorPlacement: null,
   pendingOracle: null,
   pendingFossilChoice: null,
+  pendingNopeReaction: null,
   gameOver: false
 };
 
@@ -170,6 +175,7 @@ const els = {
   revealCard: document.querySelector("#revealCard"),
   revealText: document.querySelector("#revealText"),
   revealButton: document.querySelector("#revealButton"),
+  revealSecondaryButton: document.querySelector("#revealSecondaryButton"),
   placementControls: document.querySelector("#placementControls"),
   placementSlider: document.querySelector("#placementSlider")
 };
@@ -310,11 +316,13 @@ function renderReveal() {
   const pendingPlacement = state.pendingMeteorPlacement;
   const pendingOracle = state.pendingOracle;
   const pendingFossilChoice = state.pendingFossilChoice;
+  const pendingNopeReaction = state.pendingNopeReaction;
   const pendingDraw = state.pendingDraw;
 
-  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingDraw && !activeReveal) {
+  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingNopeReaction && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
+    els.revealSecondaryButton.classList.add("is-hidden");
     els.revealButton.disabled = false;
     return;
   }
@@ -323,6 +331,7 @@ function renderReveal() {
   els.revealCard.className = "draw-reveal__card";
   els.revealCard.replaceChildren();
   els.placementControls.classList.add("is-hidden");
+  els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
 
   if (activeReveal) {
@@ -358,6 +367,16 @@ function renderReveal() {
       : "De pc heeft geen kaarten om te stelen.";
     els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
     els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
+    return;
+  }
+
+  if (pendingNopeReaction) {
+    els.revealEyebrow.textContent = "Brul Terug?";
+    renderOpenRevealCard(pendingNopeReaction.card);
+    els.revealText.textContent = `${label(pendingNopeReaction.actor)} speelt ${pendingNopeReaction.card.name}. Wil je Brul Terug inzetten om het effect te stoppen?`;
+    els.revealButton.textContent = "Brul terug";
+    els.revealSecondaryButton.textContent = "Laat doorgaan";
+    els.revealSecondaryButton.classList.remove("is-hidden");
     return;
   }
 
@@ -583,9 +602,7 @@ function playCard(owner, cardId) {
     text: "Klik verder om het effect van deze kaart uit te voeren.",
     buttonText: "Speel kaart",
     onClose: () => {
-      if (!consumeNopeShield(owner, card)) {
-        resolveCard(owner, card);
-      }
+      offerNopeReaction(owner, card);
     }
   });
 }
@@ -668,21 +685,73 @@ function resolveCard(owner, card) {
     stealFossilCard(owner, target);
     return;
   }
-
-  if (card.type === "nope") {
-    state.nopeShield[owner] = true;
-    setAction(`${label(owner)} staat klaar om de volgende actie van ${label(target)} weg te brullen.`);
-  }
 }
 
-function consumeNopeShield(owner, card) {
-  const target = other(owner);
-  if (!state.nopeShield[target] || !card.playable || card.type === "nope") return false;
+function offerNopeReaction(actor, card) {
+  const reactor = other(actor);
+  const nopeCard = getHand(reactor).find((item) => item.type === "nope");
 
-  state.nopeShield[target] = false;
-  log(`${label(target)} blokkeert ${card.name} met Brul Terug.`);
-  setAction(`${card.name} is weggebruld voordat het effect begon.`);
-  return true;
+  if (!canReactWithNope(card) || !nopeCard) {
+    resolveCard(actor, card);
+    return;
+  }
+
+  if (reactor === "pc") {
+    state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id };
+    const shouldBlock = choosePcNopeReaction(card);
+    if (shouldBlock) {
+      resolveNopeReaction(true);
+      return;
+    }
+
+    log("De pc houdt Brul Terug vast.");
+    resolveNopeReaction(false);
+    return;
+  }
+
+  state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id };
+  setAction(`${label(actor)} speelt ${card.name}. Je kunt reageren met Brul Terug.`);
+  render();
+}
+
+function canReactWithNope(card) {
+  return card.playable && card.type !== "nope";
+}
+
+function choosePcNopeReaction(card) {
+  if (card.type === "trike" || card.type === "volcano") return Math.random() < 0.28;
+  if (card.type === "sprint") return Math.random() < 0.42;
+  return Math.random() < 0.68;
+}
+
+function resolveNopeReaction(useNope) {
+  const pending = state.pendingNopeReaction;
+  if (!pending) return;
+
+  state.pendingNopeReaction = null;
+
+  if (!useNope) {
+    resolveCard(pending.actor, pending.card);
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  const hand = getHand(pending.reactor);
+  const index = hand.findIndex((card) => card.id === pending.nopeCardId);
+  if (index === -1) {
+    resolveCard(pending.actor, pending.card);
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  const [nopeCard] = hand.splice(index, 1);
+  state.discard.push(nopeCard);
+  log(`${label(pending.reactor)} blokkeert ${pending.card.name} met Brul Terug.`);
+  setAction(`${pending.card.name} is weggebruld voordat het effect begon.`);
+  render();
+  continueAfterPause();
 }
 
 function alterFuture(owner) {
@@ -932,7 +1001,7 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingNopeReaction || activeReveal);
 }
 
 function continueAfterPause() {
@@ -978,7 +1047,17 @@ els.revealButton.addEventListener("click", () => {
     return;
   }
 
+  if (state.pendingNopeReaction) {
+    resolveNopeReaction(true);
+    return;
+  }
+
   confirmPendingDraw();
+});
+els.revealSecondaryButton.addEventListener("click", () => {
+  if (state.pendingNopeReaction) {
+    resolveNopeReaction(false);
+  }
 });
 
 startGame();

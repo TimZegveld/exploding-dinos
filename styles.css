@@ -264,12 +264,24 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="nope"] {
+  --face-accent: #d45d32;
+  --face-header: #8c3027;
+  background:
+    linear-gradient(180deg, rgba(255, 234, 185, 0.98), rgba(215, 106, 52, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
 
 .card-face[data-tone="fossil"] .card-face__header {
   background: linear-gradient(135deg, #5f3a20, #9b612b);
+}
+
+.card-face[data-tone="nope"] .card-face__header {
+  background: linear-gradient(135deg, #6f251f, #b8482e);
 }
 
 .card-face__header {
@@ -323,6 +335,10 @@ h2 {
 
 .card-face[data-tone="fossil"] .card-face__art img {
   object-position: 54% 48%;
+}
+
+.card-face[data-tone="nope"] .card-face__art img {
+  object-position: 47% 46%;
 }
 
 .card-face__text {
@@ -527,6 +543,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="fossil"] .card-face__art img {
   object-position: 54% 46%;
+}
+
+.draw-reveal__card.card-face[data-tone="nope"] .card-face__art img {
+  object-position: 48% 45%;
 }
 
 .draw-reveal__card strong {
@@ -755,6 +775,22 @@ h2 {
   background: var(--danger);
   cursor: pointer;
   font-weight: 900;
+}
+
+.secondary-action {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--ink);
+  background: #fffdf7;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.secondary-action.is-hidden {
+  display: none;
 }
 
 @keyframes meteor-shake {

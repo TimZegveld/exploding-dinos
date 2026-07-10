@@ -16,7 +16,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `volcano` | Vulkaan Shuffle | Stapel schudden | Werkt als simpele reset. |
 | `dig` | Diep Graven | Onderste kaart trekken | Werkt met eigen trekbron. |
 | `fossil` | Fossielgraaier | Kaart stelen | Speler kiest bewust een gesloten handpositie; pc kiest willekeurig. |
-| `nope` | Brul Terug | Actie blokkeren | Werkt als vooraf gespeelde schildkaart. |
+| `nope` | Brul Terug | Actie blokkeren | Werkt als reactie op een actiekaart van de ander. |
 | `feral` | Wilde Dino | Joker voor soortkaarten | Werkt als paar-joker. |
 | `miniRaptor` | Mini-Raptor | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
 | `stegoSnack` | Stego Snack | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
@@ -54,9 +54,9 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Optie B: steel willekeurig, maar toon eerst hoeveel kaarten elke speler heeft per familie.
   - Check: speler heeft een herkenbare beslissing of duidelijke spanning.
 
-- [ ] Stap 7: Herwerk `nope` naar een echte reactie.
-  - Nu moet `Brul Terug` vooraf worden gespeeld; onderzoek of hij tijdens een actie als reactie kan verschijnen.
-  - Bouw een interrupt-flow: tegenstander speelt actie, speler mag `Brul Terug` inzetten.
+- [x] Stap 7: Herwerk `nope` naar een echte reactie.
+  - `Brul Terug` wordt niet meer vooraf gespeeld, maar verschijnt tijdens een actie als reactie.
+  - Interrupt-flow gebouwd: tegenstander speelt actie, speler mag `Brul Terug` inzetten.
   - Check: kaart voelt als timing/reactie, niet als schild dat je vooraf neerlegt.
 
 - [ ] Stap 8: Geef `sprint` een eigen tactische keuze.
@@ -107,7 +107,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 
 - [x] `oracle`: grootste winst, omdat deze nu automatisch speelt terwijl de tekst een keuze suggereert.
 - [x] `fossil`: snel voelbaar beter als de speler bewuster steelt.
-- [ ] `nope`: belangrijk voor interactie en timing.
+- [x] `nope`: belangrijk voor interactie en timing.
 - [ ] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.
 - [ ] `volcano`, `sprint`, `dig`: daarna aanscherpen voor extra tactische kleur.
