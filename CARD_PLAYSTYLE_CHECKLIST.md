@@ -8,8 +8,8 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 |---|---|---|---|
 | `meteor` | Meteorietinslag | Gevaar bij trekken | Heeft eigen flow met verlies of Schuilgrot. |
 | `shelter` | Schuilgrot | Automatische redding | Heeft eigen flow met terugplaatsen van meteoriet. |
-| `raptor` | Raptor Aanval | Extra beurt voor tegenstander | Werkt, maar deelt effect met `targetedRaptor`. |
-| `targetedRaptor` | Gerichte Raptorjacht | Kies speler voor extra beurt | Werkt technisch, maar is in 2 spelers bijna hetzelfde als `raptor`. |
+| `raptor` | Raptor Aanval | Vaste aanval op tegenstander | Heeft eigen directe aanval-flow en eindigt de beurt. |
+| `targetedRaptor` | Gerichte Raptorjacht | Kies doelwit voor extra beurt | Heeft eigen doelwit-flow; in 2 spelers wordt de pc bewust bevestigd als doelwit. |
 | `sprint` | Dino Sprint | Beurt overslaan | Werkt als simpele skip. |
 | `trike` | Triceratops Blik | Bovenste kaarten bekijken | Werkt als informatiekaart. |
 | `oracle` | Tijdlijn Kneden | Bovenste kaarten manipuleren | Werkt automatisch; speler kiest nog niet zelf. |
@@ -34,7 +34,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Vul per kaarttype in: wanneer speelbaar, doelwit, keuze van speler, effect, eindigt de beurt wel/niet, kan `Brul Terug` blokkeren.
   - Output: een tabel in dit document of in `README.md`.
 
-- [ ] Stap 3: Splits `raptor` en `targetedRaptor`.
+- [x] Stap 3: Splits `raptor` en `targetedRaptor`.
   - `Raptor Aanval`: vaste aanval op de volgende speler, direct 2 beurten.
   - `Gerichte Raptorjacht`: speler kiest doelwit zodra multiplayer of extra spelers bestaan; voor 2 spelers alvast tonen als aparte keuze-flow.
   - Check: beide voelen anders in UI en logtekst.
@@ -108,7 +108,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 - [x] `oracle`: grootste winst, omdat deze nu automatisch speelt terwijl de tekst een keuze suggereert.
 - [x] `fossil`: snel voelbaar beter als de speler bewuster steelt.
 - [x] `nope`: belangrijk voor interactie en timing.
-- [ ] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
+- [x] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.
 - [ ] `volcano`, `sprint`, `dig`: daarna aanscherpen voor extra tactische kleur.
 - [ ] `meteor`, `shelter`, `feral`: bestaande basis behouden en finetunen rond de nieuwe flows.

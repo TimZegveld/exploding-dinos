@@ -18,11 +18,7 @@
 
       <section class="table">
         <div class="opponent-zone">
-          <div class="player-label">
-            <span>PC paleontoloog</span>
-            <strong id="pcCardCount">0 kaarten</strong>
-          </div>
-          <div class="pc-hand" id="pcHand"></div>
+          <div class="opponents" id="opponents"></div>
         </div>
 
         <div class="center-zone">
@@ -50,6 +46,15 @@
         <div class="panel-section">
           <h2>Actie</h2>
           <p id="actionText">Welkom bij de eerste speelbare versie.</p>
+          <label class="setup-control" for="opponentCount">
+            <span>Tegenspelers</span>
+            <select id="opponentCount">
+              <option value="1">1 pc</option>
+              <option value="2">2 pc's</option>
+              <option value="3">3 pc's</option>
+              <option value="4">4 pc's</option>
+            </select>
+          </label>
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
 

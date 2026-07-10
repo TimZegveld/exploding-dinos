@@ -78,12 +78,13 @@ h2 {
 }
 
 .status-pill {
+  --player-color: var(--accent);
   min-width: 150px;
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 10px 16px;
   background: rgba(255, 250, 240, 0.86);
-  box-shadow: 0 8px 22px rgba(51, 36, 20, 0.08);
+  box-shadow: 0 8px 22px rgba(51, 36, 20, 0.08), 0 0 0 3px color-mix(in srgb, var(--player-color), transparent 72%);
   font-weight: 800;
   text-align: center;
 }
@@ -104,7 +105,42 @@ h2 {
 
 .opponent-zone,
 .player-zone {
+  --player-color: var(--accent);
   min-width: 0;
+}
+
+.opponents {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.opponent-seat,
+.player-zone {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 10px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.opponent-seat {
+  --player-color: var(--accent);
+  background: rgba(255, 253, 247, 0.42);
+}
+
+.opponent-seat.is-current,
+.player-zone.is-current {
+  border-color: var(--player-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 72%), 0 12px 26px rgba(37, 29, 23, 0.1);
+}
+
+.opponent-seat.is-acting,
+.player-zone.is-acting {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 58%), 0 0 24px color-mix(in srgb, var(--player-color), transparent 55%);
+}
+
+.opponent-seat.is-eliminated {
+  opacity: 0.48;
 }
 
 .player-label {
@@ -120,6 +156,17 @@ h2 {
   color: var(--ink);
   font-size: 1.05rem;
   font-weight: 900;
+}
+
+.player-label span::before {
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin-right: 0.45em;
+  border-radius: 50%;
+  background: var(--player-color);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--player-color), transparent 35%);
+  content: "";
 }
 
 .pc-hand,
@@ -272,6 +319,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="targeted-raptor"] {
+  --face-accent: #dc8a2f;
+  --face-header: #84401f;
+  background:
+    linear-gradient(180deg, rgba(255, 236, 179, 0.98), rgba(213, 120, 45, 0.78)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -282,6 +337,10 @@ h2 {
 
 .card-face[data-tone="nope"] .card-face__header {
   background: linear-gradient(135deg, #6f251f, #b8482e);
+}
+
+.card-face[data-tone="targeted-raptor"] .card-face__header {
+  background: linear-gradient(135deg, #64331e, #a84f27);
 }
 
 .card-face__header {
@@ -339,6 +398,10 @@ h2 {
 
 .card-face[data-tone="nope"] .card-face__art img {
   object-position: 47% 46%;
+}
+
+.card-face[data-tone="targeted-raptor"] .card-face__art img {
+  object-position: 45% 63%;
 }
 
 .card-face__text {
@@ -420,6 +483,26 @@ h2 {
   min-width: 0;
 }
 
+.setup-control {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.setup-control select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: #fffdf7;
+  font: inherit;
+  font-weight: 850;
+}
+
 .panel-section {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -494,7 +577,7 @@ h2 {
   border-radius: 8px;
   padding: 18px;
   background: var(--panel);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 72%);
   text-align: center;
 }
 
@@ -547,6 +630,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="nope"] .card-face__art img {
   object-position: 48% 45%;
+}
+
+.draw-reveal__card.card-face[data-tone="targeted-raptor"] .card-face__art img {
+  object-position: 46% 55%;
 }
 
 .draw-reveal__card strong {
@@ -703,6 +790,27 @@ h2 {
 }
 
 .fossil-choice:hover {
+  transform: translateY(-2px);
+}
+
+.raptor-target {
+  min-height: 136px;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 247, 0.96), color-mix(in srgb, var(--player-color), #fffdf7 34%)),
+    var(--card);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.raptor-target[data-selected="true"] {
+  outline: 4px solid color-mix(in srgb, var(--player-color), transparent 62%);
+  box-shadow: 0 7px 0 rgba(37, 29, 23, 0.14), inset 0 0 0 3px var(--player-color);
+}
+
+.raptor-target:hover {
   transform: translateY(-2px);
 }
 

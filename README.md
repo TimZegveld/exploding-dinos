@@ -12,11 +12,12 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 
 ## Regels in deze iteratie
 
-- Jij speelt tegen de pc.
+- Jij speelt tegen 1 tot 4 pc-tegenspelers; kies het aantal voor je een nieuw spel start.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Actiekaarten kun je voor het trekken spelen.
-- Bij 2 spelers gebruikt de game alleen de dino-pootafdruk kaarten en 1 `Meteorietinslag`.
+- Bij 2-3 spelers gebruikt de game alleen de dino-pootafdruk kaarten. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
+- Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld. Het effect gaat pas door nadat je klikt.
 - Gestolen kaarten verschijnen ook groot in beeld voordat ze in de nieuwe hand verdwijnen.
@@ -26,8 +27,8 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 
 - `Meteorietinslag` x9 totaal: gevaarlijke kaart.
 - `Schuilgrot` x10 totaal: verdediging tegen de meteoriet.
-- `Raptor Aanval` x5 totaal: volgende speler neemt 2 beurten.
-- `Gerichte Raptorjacht` x5 totaal: kies wie 2 beurten krijgt.
+- `Raptor Aanval` x5 totaal: eindig je beurt; de ander neemt straks 2 beurten.
+- `Gerichte Raptorjacht` x5 totaal: kies bewust een doelwit voor 2 beurten. In 2 spelers is dat de ander.
 - `Dino Sprint` x10 totaal: sla je beurt over.
 - `Triceratops Blik` x6 totaal: bekijk de bovenste drie kaarten.
 - `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.

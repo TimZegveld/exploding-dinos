@@ -1,4 +1,7 @@
-const PLAYER_COUNT = 2;
+const MIN_OPPONENTS = 1;
+const MAX_OPPONENTS = 4;
+const DEFAULT_OPPONENTS = 1;
+const playerColors = ["#2f7d4f", "#d45d32", "#2d6f9f", "#b36a22", "#7a56a6"];
 
 const cardCatalog = {
   meteor: {
@@ -15,15 +18,20 @@ const cardCatalog = {
   },
   raptor: {
     name: "Raptor Aanval",
-    text: "Eindig je beurt. De volgende speler neemt 2 beurten.",
+    text: "Eindig je beurt. De ander neemt straks 2 beurten.",
     kind: "action",
     playable: true
   },
   targetedRaptor: {
     name: "Gerichte Raptorjacht",
-    text: "Kies een speler voor 2 beurten. In deze versie is dat de ander.",
+    text: "Kies je doelwit. Die speler neemt straks 2 beurten.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "targeted-raptor",
+      icon: "R",
+      image: "assets/cards/illustrations/targeted-raptor-hunt.jpg"
+    }
   },
   sprint: {
     name: "Dino Sprint",
@@ -141,17 +149,20 @@ const partyPackDistribution = {
 };
 
 const initialState = {
+  players: [],
+  hands: {},
   deck: [],
   discard: [],
-  playerHand: [],
-  pcHand: [],
   current: "player",
-  pendingTurns: { player: 1, pc: 1 },
+  pendingTurns: {},
+  eliminated: {},
+  activity: null,
   pendingDraw: null,
   pendingMeteorPlacement: null,
   pendingOracle: null,
   pendingFossilChoice: null,
   pendingNopeReaction: null,
+  pendingRaptorTarget: null,
   gameOver: false
 };
 
@@ -160,14 +171,14 @@ let activeReveal = null;
 
 const els = {
   turnStatus: document.querySelector("#turnStatus"),
-  pcCardCount: document.querySelector("#pcCardCount"),
-  pcHand: document.querySelector("#pcHand"),
+  opponents: document.querySelector("#opponents"),
   deckCount: document.querySelector("#deckCount"),
   discardTop: document.querySelector("#discardTop"),
   playerHint: document.querySelector("#playerHint"),
   playerHand: document.querySelector("#playerHand"),
   drawButton: document.querySelector("#drawButton"),
   newGameButton: document.querySelector("#newGameButton"),
+  opponentCount: document.querySelector("#opponentCount"),
   actionText: document.querySelector("#actionText"),
   gameLog: document.querySelector("#gameLog"),
   drawReveal: document.querySelector("#drawReveal"),
@@ -198,8 +209,8 @@ function shuffle(cards) {
   return copy;
 }
 
-function buildCardPool() {
-  const mode = deckModeForPlayers(PLAYER_COUNT);
+function buildCardPool(playerCount) {
+  const mode = deckModeForPlayers(playerCount);
   const cards = [];
 
   Object.entries(partyPackDistribution).forEach(([type, counts]) => {
@@ -225,31 +236,63 @@ function deckModeForPlayers(players) {
   return "full";
 }
 
+function getOpponentCount() {
+  const selected = Number(els.opponentCount?.value ?? DEFAULT_OPPONENTS);
+  return Math.max(MIN_OPPONENTS, Math.min(MAX_OPPONENTS, selected));
+}
+
+function createPlayers(opponentCount) {
+  return [
+    { id: "player", name: "Jij", color: playerColors[0], isHuman: true },
+    ...Array.from({ length: opponentCount }, (_, index) => ({
+      id: `pc${index + 1}`,
+      name: `PC ${index + 1}`,
+      color: playerColors[index + 1],
+      isHuman: false
+    }))
+  ];
+}
+
 function startGame() {
+  const opponentCount = getOpponentCount();
+  const players = createPlayers(opponentCount);
+  const playerCount = players.length;
+
   state = structuredClone(initialState);
+  state.players = players;
+  state.hands = Object.fromEntries(players.map((player) => [player.id, [makeCard("shelter", true)]]));
+  state.pendingTurns = Object.fromEntries(players.map((player) => [player.id, 1]));
+  state.eliminated = Object.fromEntries(players.map((player) => [player.id, false]));
+  state.current = "player";
   activeReveal = null;
   els.gameLog.replaceChildren();
 
-  const pool = buildCardPool();
-  state.playerHand = [makeCard("shelter", true)];
-  state.pcHand = [makeCard("shelter", true)];
+  const pool = buildCardPool(playerCount);
 
   for (let i = 0; i < 7; i += 1) {
-    state.playerHand.push(pool.pop());
-    state.pcHand.push(pool.pop());
+    players.forEach((player) => {
+      const card = pool.pop();
+      if (card) state.hands[player.id].push(card);
+    });
   }
 
-  const extraDefuses = Math.max(0, partyPackDistribution.shelter.paw - PLAYER_COUNT);
-  const meteors = Math.max(1, PLAYER_COUNT - 1);
+  const mode = deckModeForPlayers(playerCount);
+  const shelterCount = mode === "paw"
+    ? partyPackDistribution.shelter.paw
+    : mode === "standard"
+      ? partyPackDistribution.shelter.total - partyPackDistribution.shelter.paw
+      : partyPackDistribution.shelter.total;
+  const extraDefuses = Math.max(0, shelterCount - playerCount);
+  const meteors = Math.max(1, playerCount - 1);
   const drawPile = [
     ...pool,
-    ...Array.from({ length: extraDefuses }, () => makeCard("shelter", true)),
+    ...Array.from({ length: extraDefuses }, () => makeCard("shelter", mode === "paw")),
     ...Array.from({ length: meteors }, () => makeCard("meteor", false))
   ];
 
   state.deck = shuffle(drawPile);
 
-  log("Nieuw Party Pack spel gestart met de 2-speler dino-pootafdruk set.");
+  log(`Nieuw Party Pack spel gestart met ${playerCount} spelers.`);
   log(`Stapel bevat ${meteors} Meteorietinslag en ${extraDefuses} extra Schuilgrot.`);
   setAction("Speel actiekaarten, maak paren met soortkaarten, of trek om je beurt te eindigen.");
   render();
@@ -269,38 +312,73 @@ function setAction(message) {
 }
 
 function render() {
+  const currentPlayer = getPlayer(state.current);
+  const playerZone = document.querySelector(".player-zone");
+  const playerColor = getPlayer("player")?.color ?? playerColors[0];
+
   els.turnStatus.textContent = state.gameOver
     ? "Spel afgelopen"
     : state.current === "player"
       ? "Jouw beurt"
-      : "PC denkt na";
+      : `${currentPlayer?.name ?? "PC"} denkt na`;
+  els.turnStatus.style.setProperty("--player-color", currentPlayer?.color ?? playerColor);
 
   els.deckCount.textContent = state.deck.length;
-  els.pcCardCount.textContent = `${state.pcHand.length} kaarten`;
   els.discardTop.textContent = state.discard.at(-1)?.name ?? "Nog leeg";
-  els.playerHint.textContent = state.current === "player" && !state.gameOver
-    ? `${state.pendingTurns.player} beurt(en) open`
-    : "Wacht op de pc";
+  els.playerHint.textContent = state.eliminated.player
+    ? "Uitgeschakeld"
+    : state.current === "player" && !state.gameOver
+      ? `${state.pendingTurns.player} beurt(en) open`
+      : "Wacht op de pc";
   els.drawButton.disabled = state.current !== "player" || state.gameOver || isInteractionBlocked();
+  playerZone.style.setProperty("--player-color", playerColor);
+  playerZone.classList.toggle("is-current", state.current === "player" && !state.gameOver);
+  playerZone.classList.toggle("is-acting", state.activity?.owner === "player");
 
-  renderPcHand();
+  renderOpponents();
   renderPlayerHand();
   renderReveal();
 }
 
-function renderPcHand() {
-  els.pcHand.replaceChildren();
-  state.pcHand.forEach(() => {
-    const card = document.createElement("div");
-    card.className = "card-back";
-    card.setAttribute("aria-label", "Gesloten dino kaart");
-    els.pcHand.append(card);
+function renderOpponents() {
+  els.opponents.replaceChildren();
+  state.players.filter((player) => !player.isHuman).forEach((player) => {
+    const seat = document.createElement("section");
+    seat.className = "opponent-seat";
+    seat.style.setProperty("--player-color", player.color);
+    seat.classList.toggle("is-current", state.current === player.id && !state.gameOver);
+    seat.classList.toggle("is-acting", state.activity?.owner === player.id);
+    seat.classList.toggle("is-eliminated", state.eliminated[player.id]);
+
+    const labelWrap = document.createElement("div");
+    labelWrap.className = "player-label";
+
+    const name = document.createElement("span");
+    name.textContent = player.name;
+
+    const count = document.createElement("strong");
+    count.textContent = state.eliminated[player.id]
+      ? "Uitgeschakeld"
+      : `${getHand(player.id).length} kaarten`;
+
+    const hand = document.createElement("div");
+    hand.className = "pc-hand";
+    getHand(player.id).forEach(() => {
+      const card = document.createElement("div");
+      card.className = "card-back";
+      card.setAttribute("aria-label", `Gesloten kaart van ${player.name}`);
+      hand.append(card);
+    });
+
+    labelWrap.append(name, count);
+    seat.append(labelWrap, hand);
+    els.opponents.append(seat);
   });
 }
 
 function renderPlayerHand() {
   els.playerHand.replaceChildren();
-  state.playerHand.forEach((card) => {
+  getHand("player").forEach((card) => {
     const button = document.createElement("button");
     button.className = "card-button";
     button.type = "button";
@@ -317,9 +395,12 @@ function renderReveal() {
   const pendingOracle = state.pendingOracle;
   const pendingFossilChoice = state.pendingFossilChoice;
   const pendingNopeReaction = state.pendingNopeReaction;
+  const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
+  const revealOwner = pendingDraw?.owner ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingPlacement?.owner ?? activeReveal?.owner;
+  els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingNopeReaction && !pendingDraw && !activeReveal) {
+  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingNopeReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -363,8 +444,8 @@ function renderReveal() {
     els.revealEyebrow.textContent = "Fossielgraaier";
     renderFossilChoices(pendingFossilChoice);
     els.revealText.textContent = pendingFossilChoice.cards.length
-      ? "Kies een gesloten kaart uit de hand van de pc."
-      : "De pc heeft geen kaarten om te stelen.";
+      ? `Kies een gesloten kaart uit de hand van ${label(pendingFossilChoice.target)}.`
+      : `${label(pendingFossilChoice.target)} heeft geen kaarten om te stelen.`;
     els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
     els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
     return;
@@ -377,6 +458,14 @@ function renderReveal() {
     els.revealButton.textContent = "Brul terug";
     els.revealSecondaryButton.textContent = "Laat doorgaan";
     els.revealSecondaryButton.classList.remove("is-hidden");
+    return;
+  }
+
+  if (pendingRaptorTarget) {
+    els.revealEyebrow.textContent = "Gerichte Raptorjacht";
+    renderRaptorTargetChoices(pendingRaptorTarget);
+    els.revealText.textContent = "Kies wie de raptor opjaagt.";
+    els.revealButton.textContent = "Bevestig jacht";
     return;
   }
 
@@ -396,7 +485,7 @@ function renderReveal() {
   const { owner, card } = pendingDraw;
   const isMeteor = card.type === "meteor";
   const isVisible = owner === "player" || isMeteor;
-  els.revealEyebrow.textContent = owner === "player" ? "Jij trekt" : "De pc trekt";
+  els.revealEyebrow.textContent = `${label(owner)} trekt`;
 
   if (isVisible) {
     renderOpenRevealCard(card, isMeteor);
@@ -414,11 +503,11 @@ function renderReveal() {
   } else {
     els.revealText.textContent = owner === "player"
       ? "Lees de kaart rustig. Klik daarna om hem aan je hand toe te voegen."
-      : "De pc trekt een gesloten kaart. De beurt gaat zo verder.";
-    els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : "PC neemt kaart";
+      : `${label(owner)} trekt een gesloten kaart. De beurt gaat zo verder.`;
+    els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : `${label(owner)} neemt kaart`;
   }
 
-  els.revealButton.disabled = owner === "pc";
+  els.revealButton.disabled = owner !== "player";
 }
 
 function renderOpenRevealCard(card, isShaking = false) {
@@ -551,7 +640,22 @@ function renderFossilChoices(pendingFossilChoice) {
   });
 }
 
-function showCardMoment({ title, cards, text, buttonText = "Verder", faceDown = false, shaking = false, onClose = null }) {
+function renderRaptorTargetChoices(pendingRaptorTarget) {
+  els.revealCard.classList.add("is-multi", "is-raptor-target");
+
+  pendingRaptorTarget.targets.forEach((target) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card raptor-target";
+    button.type = "button";
+    button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
+    button.dataset.selected = String(target === pendingRaptorTarget.selectedTarget);
+    button.textContent = label(target);
+    button.addEventListener("click", () => selectRaptorTarget(target));
+    els.revealCard.append(button);
+  });
+}
+
+function showCardMoment({ title, cards, text, buttonText = "Verder", faceDown = false, shaking = false, owner = null, onClose = null }) {
   activeReveal = {
     title,
     cards: Array.isArray(cards) ? cards : [cards],
@@ -559,6 +663,7 @@ function showCardMoment({ title, cards, text, buttonText = "Verder", faceDown = 
     buttonText,
     faceDown,
     shaking,
+    owner,
     onClose
   };
   render();
@@ -595,12 +700,14 @@ function playCard(owner, cardId) {
 
   hand.splice(index, 1);
   state.discard.push(card);
+  state.activity = { owner, type: "play" };
   log(`${label(owner)} speelt ${card.name}.`);
   showCardMoment({
     title: `${label(owner)} speelt`,
     cards: card,
     text: "Klik verder om het effect van deze kaart uit te voeren.",
     buttonText: "Speel kaart",
+    owner,
     onClose: () => {
       offerNopeReaction(owner, card);
     }
@@ -618,12 +725,14 @@ function playSetPair(owner, card) {
   });
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
+  state.activity = { owner, type: "play" };
   showCardMoment({
     title: `${label(owner)} speelt een paar`,
     cards: pair,
     text: "Dit paar mag een willekeurige kaart van de ander stelen.",
     buttonText: "Pak kaart",
-    onClose: () => stealRandomCard(owner, other(owner))
+    owner,
+    onClose: () => stealRandomCard(owner, chooseDefaultTarget(owner))
   });
 }
 
@@ -643,7 +752,7 @@ function findPairForCard(hand, card) {
 }
 
 function resolveCard(owner, card) {
-  const target = other(owner);
+  const target = chooseDefaultTarget(owner);
 
   if (card.type === "sprint") {
     consumeTurn(owner);
@@ -651,17 +760,23 @@ function resolveCard(owner, card) {
     return;
   }
 
-  if (card.type === "raptor" || card.type === "targetedRaptor") {
+  if (card.type === "raptor") {
+    if (!target) return;
     state.pendingTurns[target] += 1;
     consumeTurn(owner);
-    setAction(`${label(target)} moet straks 2 beurten overleven.`);
+    setAction(`De raptor valt meteen aan. ${label(target)} moet straks 2 beurten overleven.`);
+    return;
+  }
+
+  if (card.type === "targetedRaptor") {
+    chooseRaptorTarget(owner);
     return;
   }
 
   if (card.type === "trike") {
     const peek = state.deck.slice(-3).reverse().map((item) => item.name);
     const text = peek.length ? peek.join(", ") : "de stapel is leeg";
-    setAction(owner === "player" ? `Bovenop liggen: ${text}.` : "De pc bekijkt de bovenste 3 kaarten.");
+    setAction(owner === "player" ? `Bovenop liggen: ${text}.` : `${label(owner)} bekijkt de bovenste 3 kaarten.`);
     return;
   }
 
@@ -682,13 +797,18 @@ function resolveCard(owner, card) {
   }
 
   if (card.type === "fossil") {
+    if (!target) return;
     stealFossilCard(owner, target);
     return;
   }
 }
 
 function offerNopeReaction(actor, card) {
-  const reactor = other(actor);
+  const reactor = chooseNopeReactor(actor);
+  if (!reactor) {
+    resolveCard(actor, card);
+    return;
+  }
   const nopeCard = getHand(reactor).find((item) => item.type === "nope");
 
   if (!canReactWithNope(card) || !nopeCard) {
@@ -696,7 +816,7 @@ function offerNopeReaction(actor, card) {
     return;
   }
 
-  if (reactor === "pc") {
+  if (reactor !== "player") {
     state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id };
     const shouldBlock = choosePcNopeReaction(card);
     if (shouldBlock) {
@@ -704,7 +824,7 @@ function offerNopeReaction(actor, card) {
       return;
     }
 
-    log("De pc houdt Brul Terug vast.");
+    log(`${label(reactor)} houdt Brul Terug vast.`);
     resolveNopeReaction(false);
     return;
   }
@@ -754,13 +874,57 @@ function resolveNopeReaction(useNope) {
   continueAfterPause();
 }
 
+function chooseRaptorTarget(owner) {
+  const targets = activeOpponentsOf(owner);
+  if (targets.length === 0) return;
+
+  if (owner !== "player") {
+    resolveRaptorTarget(owner, choosePcTarget(owner, targets));
+    return;
+  }
+
+  state.pendingRaptorTarget = {
+    owner,
+    targets,
+    selectedTarget: targets[0]
+  };
+  setAction("Gerichte Raptorjacht laat je eerst bewust een doelwit aanwijzen.");
+  render();
+}
+
+function selectRaptorTarget(target) {
+  const pendingRaptorTarget = state.pendingRaptorTarget;
+  if (!pendingRaptorTarget || !pendingRaptorTarget.targets.includes(target)) return;
+
+  pendingRaptorTarget.selectedTarget = target;
+  render();
+}
+
+function confirmRaptorTarget() {
+  const pendingRaptorTarget = state.pendingRaptorTarget;
+  if (!pendingRaptorTarget) return;
+
+  state.pendingRaptorTarget = null;
+  resolveRaptorTarget(pendingRaptorTarget.owner, pendingRaptorTarget.selectedTarget);
+  render();
+  continueAfterPause();
+}
+
+function resolveRaptorTarget(owner, target) {
+  if (!target || state.eliminated[target]) return;
+  state.pendingTurns[target] += 1;
+  consumeTurn(owner);
+  log(`${label(owner)} stuurt de raptor op ${label(target)} af.`);
+  setAction(`${label(target)} is het doelwit en moet straks 2 beurten overleven.`);
+}
+
 function alterFuture(owner) {
   const topCards = state.deck.splice(Math.max(0, state.deck.length - 3)).reverse();
 
-  if (owner === "pc") {
+  if (owner !== "player") {
     const saferOrder = [...topCards].sort((a, b) => Number(a.type === "meteor") - Number(b.type === "meteor"));
     state.deck.push(...saferOrder.slice().reverse());
-    setAction("De pc rommelt met de prehistorische tijdlijn.");
+    setAction(`${label(owner)} rommelt met de prehistorische tijdlijn.`);
     return;
   }
 
@@ -802,7 +966,7 @@ function stealFossilCard(owner, target) {
     return;
   }
 
-  if (owner === "pc") {
+  if (owner !== "player") {
     const index = Math.floor(Math.random() * targetHand.length);
     stealCardAt(owner, target, index);
     return;
@@ -813,7 +977,7 @@ function stealFossilCard(owner, target) {
     target,
     cards: [...targetHand]
   };
-  setAction("Fossielgraaier laat je bewust een gesloten kaart uit de pc-hand kiezen.");
+  setAction(`Fossielgraaier laat je bewust een gesloten kaart van ${label(target)} kiezen.`);
   render();
 }
 
@@ -829,6 +993,7 @@ function confirmFossilChoice(index) {
 
 function drawCard(owner, from = "top") {
   if (state.gameOver || owner !== state.current) return;
+  if (state.eliminated[owner]) return;
   if (isInteractionBlocked()) return;
 
   if (state.deck.length === 0) {
@@ -837,12 +1002,13 @@ function drawCard(owner, from = "top") {
   }
 
   const card = from === "bottom" ? state.deck.shift() : state.deck.pop();
+  state.activity = { owner, type: "draw" };
   log(`${label(owner)} trekt ${from === "bottom" ? "de onderste" : "een"} kaart.`);
   state.pendingDraw = { owner, card, from };
   setAction(`${label(owner)} heeft een kaart getrokken. Klik verder om de beurt te laten doorgaan.`);
   render();
 
-  if (owner === "pc") {
+  if (owner !== "player") {
     window.setTimeout(confirmPendingDraw, card.type === "meteor" ? 1350 : 900);
   }
 }
@@ -872,7 +1038,7 @@ function handleMeteor(owner, meteorCard) {
 
   if (shelterIndex === -1) {
     state.discard.push(meteorCard);
-    endGame(other(owner), `${label(owner)} wordt geraakt door een Meteorietinslag.`);
+    eliminatePlayer(owner, `${label(owner)} wordt geraakt door een Meteorietinslag.`);
     return;
   }
 
@@ -890,7 +1056,7 @@ function handleMeteor(owner, meteorCard) {
   const insertAt = Math.floor(Math.random() * (state.deck.length + 1));
   state.deck.splice(insertAt, 0, meteorCard);
   consumeTurn(owner);
-  setAction("De pc overleeft de Meteorietinslag en stopt hem geheim terug.");
+  setAction(`${label(owner)} overleeft de Meteorietinslag en stopt hem geheim terug.`);
   render();
 
   continueAfterPause();
@@ -908,7 +1074,7 @@ function confirmMeteorPlacement() {
   setAction("Je overleeft de meteoriet. Niemand weet precies waar hij nu ligt.");
   render();
 
-  if (!state.gameOver && state.current === "pc") {
+  if (!state.gameOver && state.current !== "player") {
     window.setTimeout(pcTurn, 650);
   }
 }
@@ -917,7 +1083,7 @@ function consumeTurn(owner) {
   state.pendingTurns[owner] -= 1;
   if (state.pendingTurns[owner] <= 0) {
     state.pendingTurns[owner] = 1;
-    state.current = other(owner);
+    state.current = nextActivePlayer(owner);
   }
 }
 
@@ -947,25 +1113,32 @@ function stealCardAt(owner, target, index) {
     title: "Kaart gestolen",
     cards: stolen,
     text: `${label(owner)} pakt ${stolen.name} van ${label(target)}.`,
-    buttonText: "Leg in hand"
+    buttonText: "Leg in hand",
+    owner
   });
 }
 
 function pcTurn() {
-  if (state.gameOver || state.current !== "pc") return;
+  if (state.gameOver || state.current === "player") return;
+  if (state.eliminated[state.current]) {
+    state.current = nextActivePlayer(state.current);
+    render();
+    continueAfterPause();
+    return;
+  }
   if (isInteractionBlocked()) return;
 
-  const cardToPlay = choosePcCard();
+  const cardToPlay = choosePcCard(state.current);
   if (cardToPlay) {
-    playCard("pc", cardToPlay.id);
+    playCard(state.current, cardToPlay.id);
     return;
   }
 
-  drawCard("pc");
+  drawCard(state.current);
 }
 
-function choosePcCard() {
-  const hand = state.pcHand;
+function choosePcCard(owner) {
+  const hand = getHand(owner);
   const playablePair = hand.find((card) => isSetCard(card) && findPairForCard(hand, card).length === 2);
   if (playablePair && Math.random() < 0.34) return playablePair;
 
@@ -988,12 +1161,36 @@ function endGame(winner, reason) {
   log(reason);
   if (winner === "player") {
     setAction(`${reason} Jij wint deze prehistorische chaos.`);
-  } else if (winner === "pc") {
-    setAction(`${reason} De pc wint.`);
+  } else if (winner) {
+    setAction(`${reason} ${label(winner)} wint.`);
   } else {
     setAction(reason);
   }
   render();
+}
+
+function eliminatePlayer(owner, reason) {
+  state.eliminated[owner] = true;
+  state.pendingTurns[owner] = 0;
+  log(reason);
+
+  if (owner === "player") {
+    endGame(null, `${reason} Jij bent uitgeschakeld.`);
+    return;
+  }
+
+  const remaining = activePlayers();
+  if (remaining.length === 1) {
+    endGame(remaining[0], `${reason} ${label(remaining[0])} blijft als laatste over.`);
+    return;
+  }
+
+  setAction(`${reason} ${label(owner)} is uitgeschakeld.`);
+  if (state.current === owner) {
+    state.current = nextActivePlayer(owner);
+  }
+  render();
+  continueAfterPause();
 }
 
 function isSetCard(card) {
@@ -1001,25 +1198,65 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingNopeReaction || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingNopeReaction || state.pendingRaptorTarget || activeReveal);
 }
 
 function continueAfterPause() {
-  if (!state.gameOver && !isInteractionBlocked() && state.current === "pc") {
+  if (!state.gameOver && !isInteractionBlocked() && state.current !== "player") {
     window.setTimeout(pcTurn, 650);
   }
 }
 
 function getHand(owner) {
-  return owner === "player" ? state.playerHand : state.pcHand;
+  return state.hands[owner] ?? [];
 }
 
-function other(owner) {
-  return owner === "player" ? "pc" : "player";
+function getPlayer(owner) {
+  return state.players.find((player) => player.id === owner);
 }
 
 function label(owner) {
-  return owner === "player" ? "Jij" : "De pc";
+  return getPlayer(owner)?.name ?? owner;
+}
+
+function activePlayers() {
+  return state.players.map((player) => player.id).filter((id) => !state.eliminated[id]);
+}
+
+function activeOpponentsOf(owner) {
+  return activePlayers().filter((id) => id !== owner);
+}
+
+function chooseDefaultTarget(owner) {
+  const targets = activeOpponentsOf(owner);
+  if (targets.length === 0) return null;
+  return owner === "player" ? targets[0] : choosePcTarget(owner, targets);
+}
+
+function choosePcTarget(owner, targets = activeOpponentsOf(owner)) {
+  if (targets.includes("player") && Math.random() < 0.72) return "player";
+  return targets[Math.floor(Math.random() * targets.length)];
+}
+
+function chooseNopeReactor(actor) {
+  const candidates = activeOpponentsOf(actor).filter((id) => getHand(id).some((card) => card.type === "nope"));
+  if (candidates.length === 0) return null;
+  if (candidates.includes("player")) return "player";
+  return candidates[0];
+}
+
+function nextActivePlayer(owner) {
+  const active = activePlayers();
+  if (active.length === 0) return owner;
+
+  const order = state.players.map((player) => player.id);
+  let index = order.indexOf(owner);
+  for (let step = 0; step < order.length; step += 1) {
+    index = (index + 1) % order.length;
+    if (active.includes(order[index])) return order[index];
+  }
+
+  return active[0];
 }
 
 els.drawButton.addEventListener("click", () => drawCard("player"));
@@ -1049,6 +1286,11 @@ els.revealButton.addEventListener("click", () => {
 
   if (state.pendingNopeReaction) {
     resolveNopeReaction(true);
+    return;
+  }
+
+  if (state.pendingRaptorTarget) {
+    confirmRaptorTarget();
     return;
   }
 
