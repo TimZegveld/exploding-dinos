@@ -62,9 +62,14 @@ const cardCatalog = {
   },
   fossil: {
     name: "Fossielgraaier",
-    text: "Steel een willekeurige kaart van de ander.",
+    text: "Kies een gesloten kaart van de ander en steel die.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "fossil",
+      icon: "F",
+      image: "assets/cards/illustrations/fossil-grazer.jpg"
+    }
   },
   nope: {
     name: "Brul Terug",
@@ -141,6 +146,7 @@ const initialState = {
   pendingDraw: null,
   pendingMeteorPlacement: null,
   pendingOracle: null,
+  pendingFossilChoice: null,
   gameOver: false
 };
 
@@ -303,9 +309,10 @@ function renderPlayerHand() {
 function renderReveal() {
   const pendingPlacement = state.pendingMeteorPlacement;
   const pendingOracle = state.pendingOracle;
+  const pendingFossilChoice = state.pendingFossilChoice;
   const pendingDraw = state.pendingDraw;
 
-  if (!pendingPlacement && !pendingOracle && !pendingDraw && !activeReveal) {
+  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealButton.disabled = false;
@@ -340,6 +347,17 @@ function renderReveal() {
       ? "Leg links de kaart die bovenop moet liggen. Bevestig daarna de nieuwe tijdlijn."
       : "De trekstapel is leeg, dus er valt niets te kneden.";
     els.revealButton.textContent = "Tijdlijn vastleggen";
+    return;
+  }
+
+  if (pendingFossilChoice) {
+    els.revealEyebrow.textContent = "Fossielgraaier";
+    renderFossilChoices(pendingFossilChoice);
+    els.revealText.textContent = pendingFossilChoice.cards.length
+      ? "Kies een gesloten kaart uit de hand van de pc."
+      : "De pc heeft geen kaarten om te stelen.";
+    els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
+    els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
     return;
   }
 
@@ -501,6 +519,19 @@ function renderOracleCards(pendingOracle) {
   });
 }
 
+function renderFossilChoices(pendingFossilChoice) {
+  els.revealCard.classList.add("is-multi", "is-fossil-choice");
+
+  pendingFossilChoice.cards.forEach((card, index) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card is-back fossil-choice";
+    button.type = "button";
+    button.textContent = `Kaart ${index + 1}`;
+    button.addEventListener("click", () => confirmFossilChoice(index));
+    els.revealCard.append(button);
+  });
+}
+
 function showCardMoment({ title, cards, text, buttonText = "Verder", faceDown = false, shaking = false, onClose = null }) {
   activeReveal = {
     title,
@@ -634,7 +665,7 @@ function resolveCard(owner, card) {
   }
 
   if (card.type === "fossil") {
-    stealRandomCard(owner, target);
+    stealFossilCard(owner, target);
     return;
   }
 
@@ -692,6 +723,38 @@ function confirmOracleOrder() {
   setAction(visible ? `Nieuwe bovenkant: ${visible}.` : "De tijdlijn blijft leeg.");
   render();
 
+  continueAfterPause();
+}
+
+function stealFossilCard(owner, target) {
+  const targetHand = getHand(target);
+  if (targetHand.length === 0) {
+    setAction(`${label(target)} heeft geen kaarten om te stelen.`);
+    return;
+  }
+
+  if (owner === "pc") {
+    const index = Math.floor(Math.random() * targetHand.length);
+    stealCardAt(owner, target, index);
+    return;
+  }
+
+  state.pendingFossilChoice = {
+    owner,
+    target,
+    cards: [...targetHand]
+  };
+  setAction("Fossielgraaier laat je bewust een gesloten kaart uit de pc-hand kiezen.");
+  render();
+}
+
+function confirmFossilChoice(index) {
+  const pendingFossilChoice = state.pendingFossilChoice;
+  if (!pendingFossilChoice) return;
+
+  state.pendingFossilChoice = null;
+  stealCardAt(pendingFossilChoice.owner, pendingFossilChoice.target, index);
+  render();
   continueAfterPause();
 }
 
@@ -797,7 +860,18 @@ function stealRandomCard(owner, target) {
   }
 
   const index = Math.floor(Math.random() * targetHand.length);
-  const [stolen] = targetHand.splice(index, 1);
+  stealCardAt(owner, target, index);
+}
+
+function stealCardAt(owner, target, index) {
+  const targetHand = getHand(target);
+  if (targetHand.length === 0) {
+    setAction(`${label(target)} heeft geen kaarten om te stelen.`);
+    return;
+  }
+
+  const boundedIndex = Math.max(0, Math.min(index, targetHand.length - 1));
+  const [stolen] = targetHand.splice(boundedIndex, 1);
   getHand(owner).push(stolen);
   setAction(`${label(owner)} steelt een kaart van ${label(target)}.`);
   showCardMoment({
@@ -858,7 +932,7 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || activeReveal);
 }
 
 function continueAfterPause() {
@@ -894,6 +968,13 @@ els.revealButton.addEventListener("click", () => {
 
   if (state.pendingOracle) {
     confirmOracleOrder();
+    return;
+  }
+
+  if (state.pendingFossilChoice) {
+    state.pendingFossilChoice = null;
+    render();
+    continueAfterPause();
     return;
   }
 

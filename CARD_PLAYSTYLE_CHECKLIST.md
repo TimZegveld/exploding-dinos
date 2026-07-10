@@ -15,7 +15,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 | `oracle` | Tijdlijn Kneden | Bovenste kaarten manipuleren | Werkt automatisch; speler kiest nog niet zelf. |
 | `volcano` | Vulkaan Shuffle | Stapel schudden | Werkt als simpele reset. |
 | `dig` | Diep Graven | Onderste kaart trekken | Werkt met eigen trekbron. |
-| `fossil` | Fossielgraaier | Kaart stelen | Werkt willekeurig. |
+| `fossil` | Fossielgraaier | Kaart stelen | Speler kiest bewust een gesloten handpositie; pc kiest willekeurig. |
 | `nope` | Brul Terug | Actie blokkeren | Werkt als vooraf gespeelde schildkaart. |
 | `feral` | Wilde Dino | Joker voor soortkaarten | Werkt als paar-joker. |
 | `miniRaptor` | Mini-Raptor | Soortkaart | Deelt nu hetzelfde paar-effect met alle soortkaarten. |
@@ -49,7 +49,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
   - Overweeg een klein gevolg, zoals daarna 1 kaart mogen bekijken of juist verplicht trekken.
   - Check: kaart voelt niet als alleen een technische reset.
 
-- [ ] Stap 6: Maak `fossil` minder willekeurig of duidelijker bewust.
+- [x] Stap 6: Maak `fossil` minder willekeurig of duidelijker bewust.
   - Optie A: kies een kaartpositie uit de hand van de ander.
   - Optie B: steel willekeurig, maar toon eerst hoeveel kaarten elke speler heeft per familie.
   - Check: speler heeft een herkenbare beslissing of duidelijke spanning.
@@ -106,7 +106,7 @@ Doel: elk kaarttype moet een eigen speelgevoel krijgen. Dit document is bedoeld 
 ## Aanbevolen volgorde per kaarttype
 
 - [x] `oracle`: grootste winst, omdat deze nu automatisch speelt terwijl de tekst een keuze suggereert.
-- [ ] `fossil`: snel voelbaar beter als de speler bewuster steelt.
+- [x] `fossil`: snel voelbaar beter als de speler bewuster steelt.
 - [ ] `nope`: belangrijk voor interactie en timing.
 - [ ] `raptor` en `targetedRaptor`: voorkomen dat twee kaarten hetzelfde voelen.
 - [ ] Soortkaarten: grootste ontwerpblok, daarom pas doen als de actieflow stevig staat.

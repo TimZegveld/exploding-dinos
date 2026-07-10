@@ -256,8 +256,20 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="fossil"] {
+  --face-accent: #c8842f;
+  --face-header: #7c4a24;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 214, 0.98), rgba(199, 132, 47, 0.72)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
+}
+
+.card-face[data-tone="fossil"] .card-face__header {
+  background: linear-gradient(135deg, #5f3a20, #9b612b);
 }
 
 .card-face__header {
@@ -307,6 +319,10 @@ h2 {
 
 .card-face[data-tone="oracle"] .card-face__art img {
   object-position: 50% 52%;
+}
+
+.card-face[data-tone="fossil"] .card-face__art img {
+  object-position: 54% 48%;
 }
 
 .card-face__text {
@@ -511,6 +527,10 @@ h2 {
   object-position: 50% 50%;
 }
 
+.draw-reveal__card.card-face[data-tone="fossil"] .card-face__art img {
+  object-position: 54% 46%;
+}
+
 .draw-reveal__card strong {
   display: block;
   margin-bottom: 18px;
@@ -654,6 +674,16 @@ h2 {
 .draw-reveal__card.is-oracle {
   grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
   width: min(620px, 86vw);
+}
+
+.fossil-choice {
+  min-height: 136px;
+  border: 2px solid var(--ink);
+  cursor: pointer;
+}
+
+.fossil-choice:hover {
+  transform: translateY(-2px);
 }
 
 .oracle-controls {

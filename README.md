@@ -29,7 +29,7 @@ Open `index.html` in je browser. Er is geen build-step nodig.
 - `Tijdlijn Kneden` x6 totaal: bekijk en herschik de bovenste drie kaarten.
 - `Vulkaan Shuffle` x6 totaal: schud de trekstapel.
 - `Diep Graven` x7 totaal: trek de onderste kaart.
-- `Fossielgraaier` x6 totaal: steel een willekeurige kaart.
+- `Fossielgraaier` x6 totaal: kies een gesloten kaart van de ander en steel die.
 - `Brul Terug` x9 totaal: blokkeer een actie.
 - `Wilde Dino` x6 totaal: joker voor soortkaarten.
 - Dino-soortkaarten x35 totaal: speel paren om te stelen.
