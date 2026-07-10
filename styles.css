@@ -228,15 +228,18 @@ h2 {
 }
 
 .deck:hover:not(:disabled),
-.card-button:hover:not(:disabled),
+.card-button:hover,
 #newGameButton:hover {
   transform: translateY(-2px);
 }
 
-.deck:disabled,
-.card-button:disabled {
+.deck:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.card-button[aria-disabled="true"] {
+  opacity: 0.72;
 }
 
 .deck-count {
@@ -1009,6 +1012,11 @@ h2 {
   background: #e9f0ff;
 }
 
+.draw-reveal__mini-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 .draw-reveal__card.is-oracle {
   grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
   width: min(620px, 86vw);
@@ -1093,19 +1101,33 @@ h2 {
   font-weight: 800;
 }
 
-.placement input {
+.placement select {
   width: 100%;
-  accent-color: var(--danger);
+  min-height: 42px;
+  border: 1px solid rgba(37, 29, 23, 0.24);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: var(--card);
+  font-weight: 800;
 }
 
-.placement__labels {
-  display: flex;
-  justify-content: space-between;
+.placement__hint {
+  min-height: 0;
+  margin: 8px 0 0;
   color: var(--muted);
   font-size: 0.82rem;
+  line-height: 1.35;
 }
 
-#revealButton {
+.reveal-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 10px;
+}
+
+#revealButton,
+.secondary-action {
   width: 100%;
   border: 0;
   border-radius: 8px;
@@ -1123,15 +1145,10 @@ h2 {
 }
 
 .secondary-action {
-  width: 100%;
-  margin-top: 8px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   padding: 11px 14px;
   color: var(--ink);
   background: #fffdf7;
-  cursor: pointer;
-  font-weight: 900;
 }
 
 .secondary-action.is-hidden {

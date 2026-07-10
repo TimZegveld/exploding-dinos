@@ -2,6 +2,8 @@ const MIN_OPPONENTS = 1;
 const MAX_OPPONENTS = 4;
 const DEFAULT_OPPONENTS = 1;
 const playerColors = ["#2f7d4f", "#d45d32", "#2d6f9f", "#b36a22", "#7a56a6"];
+const opponentNames = ["Rex", "Nova", "Kiki", "Bram"];
+const RAPTOR_TURN_LOAD = 2;
 
 const cardCatalog = {
   meteor: {
@@ -166,8 +168,11 @@ const initialState = {
   pendingMeteorPlacement: null,
   pendingOracle: null,
   pendingFossilChoice: null,
+  pendingStealTarget: null,
   pendingNopeReaction: null,
+  pendingAttackReaction: null,
   pendingRaptorTarget: null,
+  pendingCardDetail: null,
   gameOver: false
 };
 
@@ -193,7 +198,8 @@ const els = {
   revealButton: document.querySelector("#revealButton"),
   revealSecondaryButton: document.querySelector("#revealSecondaryButton"),
   placementControls: document.querySelector("#placementControls"),
-  placementSlider: document.querySelector("#placementSlider")
+  placementSelect: document.querySelector("#placementSelect"),
+  placementHint: document.querySelector("#placementHint")
 };
 
 function makeCard(type, hasPaw = false) {
@@ -251,9 +257,12 @@ function createPlayers(opponentCount) {
     { id: "player", name: "Jij", color: playerColors[0], isHuman: true },
     ...Array.from({ length: opponentCount }, (_, index) => ({
       id: `pc${index + 1}`,
-      name: `PC ${index + 1}`,
+      name: opponentNames[index] ?? `Dino ${index + 1}`,
       color: playerColors[index + 1],
-      isHuman: false
+      isHuman: false,
+      profile: {
+        playStyle: "balanced"
+      }
     }))
   ];
 }
@@ -388,24 +397,29 @@ function renderPlayerHand() {
     button.className = "card-button";
     button.type = "button";
     button.dataset.kind = card.kind;
-    button.disabled = !canPlayCard("player", card) || state.current !== "player" || state.gameOver || isInteractionBlocked();
+    const canPlay = canPlayCard("player", card);
+    button.setAttribute("aria-disabled", String(!canPlay));
+    button.disabled = state.gameOver || state.eliminated.player || isHandClickBlocked();
     renderCardFace(button, card);
-    button.addEventListener("click", () => playCard("player", card.id));
+    button.addEventListener("click", () => inspectPlayerCard(card.id));
     els.playerHand.append(button);
   });
 }
 
 function renderReveal() {
+  const pendingCardDetail = state.pendingCardDetail;
   const pendingPlacement = state.pendingMeteorPlacement;
   const pendingOracle = state.pendingOracle;
   const pendingFossilChoice = state.pendingFossilChoice;
+  const pendingStealTarget = state.pendingStealTarget;
   const pendingNopeReaction = state.pendingNopeReaction;
+  const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingPlacement?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingNopeReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
+  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingFossilChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -420,6 +434,20 @@ function renderReveal() {
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
   els.revealSecondaryButton.disabled = false;
+
+  if (pendingCardDetail) {
+    const playable = canPlayInspectedCard(pendingCardDetail.owner, pendingCardDetail.card);
+    els.revealEyebrow.textContent = playable ? "Kaart bekijken" : "Kaart bekijken";
+    renderOpenRevealCard(pendingCardDetail.card);
+    els.revealText.textContent = playable
+      ? `${pendingCardDetail.card.name} kan nu gespeeld worden.`
+      : `${pendingCardDetail.card.name} kan nu niet gespeeld worden.`;
+    els.revealButton.textContent = "Terug";
+    els.revealSecondaryButton.textContent = "Spelen";
+    els.revealSecondaryButton.disabled = !playable;
+    els.revealSecondaryButton.classList.remove("is-hidden");
+    return;
+  }
 
   if (activeReveal) {
     els.revealEyebrow.textContent = activeReveal.title;
@@ -452,13 +480,32 @@ function renderReveal() {
   }
 
   if (pendingFossilChoice) {
-    els.revealEyebrow.textContent = "Fossielgraaier";
+    els.revealEyebrow.textContent = pendingFossilChoice.title ?? "Fossielgraaier";
     renderFossilChoices(pendingFossilChoice);
     els.revealText.textContent = pendingFossilChoice.cards.length
-      ? `Kies een gesloten kaart uit de hand van ${label(pendingFossilChoice.target)}.`
+      ? `Kies een gesloten kaart uit de hand van ${objectLabel(pendingFossilChoice.target)}.`
       : `${label(pendingFossilChoice.target)} heeft geen kaarten om te stelen.`;
     els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
     els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
+    return;
+  }
+
+  if (pendingStealTarget) {
+    els.revealEyebrow.textContent = pendingStealTarget.title;
+    renderTargetChoices(pendingStealTarget);
+    els.revealText.textContent = pendingStealTarget.targets.length
+      ? "Kies van wie je een gesloten kaart wilt pakken."
+      : "Er is niemand met kaarten om van te stelen.";
+    els.revealButton.textContent = pendingStealTarget.targets.length ? "Bevestig doelwit" : "Verder";
+    els.revealButton.disabled = pendingStealTarget.targets.length > 0 && !pendingStealTarget.selectedTarget;
+    return;
+  }
+
+  if (pendingAttackReaction) {
+    els.revealEyebrow.textContent = "Reageer op aanval";
+    renderAttackReactionChoices(pendingAttackReaction);
+    els.revealText.textContent = `${label(pendingAttackReaction.actor)} valt ${objectLabel(pendingAttackReaction.target)} aan. Kies een reactie uit je hand, of doe niets.`;
+    els.revealButton.textContent = "Niets doen";
     return;
   }
 
@@ -466,8 +513,8 @@ function renderReveal() {
     els.revealEyebrow.textContent = "Brul Terug?";
     renderOpenRevealCard(pendingNopeReaction.card);
     els.revealText.textContent = `${label(pendingNopeReaction.actor)} speelt ${pendingNopeReaction.card.name}. Wil je Brul Terug inzetten om het effect te stoppen?`;
-    els.revealButton.textContent = "Brul terug";
-    els.revealSecondaryButton.textContent = "Laat doorgaan";
+    els.revealButton.textContent = "OK";
+    els.revealSecondaryButton.textContent = "Speel Brul Terug";
     els.revealSecondaryButton.classList.remove("is-hidden");
     return;
   }
@@ -485,9 +532,7 @@ function renderReveal() {
     renderOpenRevealCard(card, true);
     els.revealEyebrow.textContent = "Geheime terugplaatsing";
     els.revealText.textContent = "Kies waar de Meteorietinslag teruggaat. Onderin is veiliger voor nu; bovenop is gemeen voor de volgende trek.";
-    els.placementSlider.min = "0";
-    els.placementSlider.max = String(state.deck.length);
-    els.placementSlider.value = String(state.deck.length);
+    renderPlacementOptions();
     els.placementControls.classList.remove("is-hidden");
     els.revealButton.textContent = "Stop geheim terug";
     return;
@@ -510,15 +555,17 @@ function renderReveal() {
     els.revealText.textContent = hasShelter
       ? `${label(owner)} trekt een Meteorietinslag. Schuilgrot kan hem redden.`
       : `${label(owner)} trekt een Meteorietinslag zonder Schuilgrot.`;
-    els.revealButton.textContent = hasShelter ? "Gebruik Schuilgrot" : "Laat ontploffen";
+    els.revealButton.textContent = owner === "player"
+      ? hasShelter ? "Gebruik Schuilgrot" : "Laat ontploffen"
+      : "OK";
   } else {
     els.revealText.textContent = owner === "player"
       ? "Lees de kaart rustig. Klik daarna om hem aan je hand toe te voegen."
       : `${label(owner)} trekt een gesloten kaart. De beurt gaat zo verder.`;
-    els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : `${label(owner)} neemt kaart`;
+    els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : "OK";
   }
 
-  els.revealButton.disabled = owner !== "player";
+  els.revealButton.disabled = false;
 }
 
 function renderOpenRevealCard(card, isShaking = false) {
@@ -686,6 +733,38 @@ function renderFossilChoices(pendingFossilChoice) {
   });
 }
 
+function renderTargetChoices(pendingStealTarget) {
+  els.revealCard.classList.add("is-multi", "is-raptor-target");
+
+  pendingStealTarget.targets.forEach((target) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card raptor-target";
+    button.type = "button";
+    button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
+    button.dataset.selected = String(target === pendingStealTarget.selectedTarget);
+    button.textContent = `${label(target)} (${getHand(target).length})`;
+    button.addEventListener("click", () => selectStealTarget(target));
+    els.revealCard.append(button);
+  });
+}
+
+function renderAttackReactionChoices(pendingAttackReaction) {
+  els.revealCard.classList.add("is-multi", "is-attack-reaction");
+
+  getHand("player").forEach((card) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card";
+    button.type = "button";
+    button.classList.add(`is-${card.kind}`);
+    const playable = canPlayAttackReactionCard(card);
+    button.disabled = !playable;
+    button.setAttribute("aria-disabled", String(!playable));
+    renderCardFace(button, card, { mini: true });
+    button.addEventListener("click", () => resolveAttackReactionWithCard(card.id));
+    els.revealCard.append(button);
+  });
+}
+
 function renderRaptorTargetChoices(pendingRaptorTarget) {
   els.revealCard.classList.add("is-multi", "is-raptor-target");
 
@@ -699,6 +778,38 @@ function renderRaptorTargetChoices(pendingRaptorTarget) {
     button.addEventListener("click", () => selectRaptorTarget(target));
     els.revealCard.append(button);
   });
+}
+
+function renderPlacementOptions() {
+  els.placementSelect.replaceChildren();
+  const positions = state.deck.length + 1;
+
+  for (let index = 0; index < positions; index += 1) {
+    const option = document.createElement("option");
+    option.value = String(index);
+    const fromTop = state.deck.length - index + 1;
+    if (index === 0) {
+      option.textContent = `Onderop (${positions})`;
+    } else if (index === state.deck.length) {
+      option.textContent = "Bovenop (1)";
+    } else {
+      option.textContent = `Positie ${fromTop} van boven`;
+    }
+    els.placementSelect.append(option);
+  }
+
+  els.placementSelect.value = String(state.deck.length);
+  updatePlacementHint();
+}
+
+function updatePlacementHint() {
+  const insertAt = Number(els.placementSelect.value);
+  const fromTop = state.deck.length - insertAt + 1;
+  els.placementHint.textContent = insertAt === state.deck.length
+    ? "De volgende speler trekt deze kaart als eerste."
+    : insertAt === 0
+      ? "De meteoriet gaat helemaal onderop."
+      : `De meteoriet komt op plek ${fromTop} van boven.`;
 }
 
 function showCardMoment({
@@ -748,6 +859,38 @@ function closeActiveReveal(useSecondary = false) {
   continueAfterPause();
 }
 
+function inspectPlayerCard(cardId) {
+  if (state.gameOver || state.eliminated.player || isHandClickBlocked()) return;
+
+  const card = getHand("player").find((item) => item.id === cardId);
+  if (!card) return;
+
+  state.pendingCardDetail = { owner: "player", card };
+  render();
+}
+
+function closeCardDetail(playAfterClose = false) {
+  const detail = state.pendingCardDetail;
+  if (!detail) return;
+
+  state.pendingCardDetail = null;
+  if (playAfterClose) {
+    playCard(detail.owner, detail.card.id);
+    return;
+  }
+
+  render();
+}
+
+function canPlayInspectedCard(owner, card) {
+  return owner === state.current
+    && owner === "player"
+    && !state.gameOver
+    && !state.eliminated[owner]
+    && !isGameplayBlockedForPlay()
+    && canPlayCard(owner, card);
+}
+
 function canPlayCard(owner, card) {
   if (card.playable) return true;
   if (isSetCard(card)) return findPairForCard(getHand(owner), card).length === 2;
@@ -762,6 +905,7 @@ function playCard(owner, cardId) {
   if (index === -1) return;
 
   const card = hand[index];
+  if (!canPlayCard(owner, card)) return;
   if (isSetCard(card)) {
     playSetPair(owner, card);
     return;
@@ -772,21 +916,19 @@ function playCard(owner, cardId) {
   state.activity = { owner, type: "play" };
   log(`${label(owner)} speelt ${card.name}.`);
   const preview = getActionPreview(owner, card);
-  const playerCanReact = owner !== "player" && canReactWithNope(card) && activeOpponentsOf(owner).includes("player");
-  const playerNope = playerCanReact ? getHand("player").find((item) => item.type === "nope") : null;
+  const playerCanReactToAttack = owner !== "player" && isAttackCard(card) && preview.target === "player";
   showCardMoment({
     title: `${label(owner)} speelt`,
     cards: card,
     text: preview.text,
-    buttonText: playerCanReact ? "OK" : "Speel kaart",
-    secondaryButtonText: playerCanReact ? "Speel Brul Terug" : null,
-    secondaryDisabled: playerCanReact && !playerNope,
+    buttonText: "OK",
     owner,
     onClose: () => {
-      offerNopeReaction(owner, card, { skipPlayer: playerCanReact, target: preview.target });
-    },
-    onSecondary: () => {
-      resolvePlayerNopeReaction(owner, card, playerNope?.id);
+      if (playerCanReactToAttack) {
+        startAttackReaction(owner, card, preview.target);
+        return false;
+      }
+      offerNopeReaction(owner, card, { target: preview.target });
     }
   });
 }
@@ -797,14 +939,21 @@ function getActionPreview(owner, card) {
   if (card.type === "fossil" && target) {
     return {
       target,
-      text: `${label(owner)} speelt ${card.name} op ${label(target)} en wil een gesloten kaart stelen.`
+      text: `${label(owner)} speelt ${card.name} op ${objectLabel(target)} en wil een gesloten kaart stelen.`
     };
   }
 
   if (card.type === "raptor" && target) {
     return {
       target,
-      text: `${label(owner)} speelt ${card.name} op ${label(target)}.`
+      text: `${label(owner)} speelt ${card.name} op ${objectLabel(target)}.`
+    };
+  }
+
+  if (card.type === "targetedRaptor" && target) {
+    return {
+      target,
+      text: `${label(owner)} speelt ${card.name} op ${objectLabel(target)}.`
     };
   }
 
@@ -826,13 +975,16 @@ function playSetPair(owner, card) {
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
   state.activity = { owner, type: "play" };
+  const target = chooseStealTarget(owner);
   showCardMoment({
     title: `${label(owner)} speelt een paar`,
     cards: pair,
-    text: "Dit paar mag een willekeurige kaart van de ander stelen.",
-    buttonText: "Pak kaart",
+    text: target
+      ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
+      : "Dit paar mag een gesloten kaart van een ander stelen.",
+    buttonText: "OK",
     owner,
-    onClose: () => stealRandomCard(owner, chooseDefaultTarget(owner))
+    onClose: () => startPairSteal(owner, target)
   });
 }
 
@@ -861,21 +1013,32 @@ function resolveCard(owner, card, context = {}) {
 
   if (card.type === "raptor") {
     if (!target) return;
-    state.pendingTurns[target] += 1;
-    consumeTurn(owner);
-    setAction(`De raptor valt meteen aan. ${label(target)} moet straks 2 beurten overleven.`);
+    resolveRaptorAttack(owner, target, context.attackLoad ?? RAPTOR_TURN_LOAD);
     return;
   }
 
   if (card.type === "targetedRaptor") {
-    chooseRaptorTarget(owner);
+    if (context.target) {
+      resolveRaptorTarget(owner, context.target, context.attackLoad ?? RAPTOR_TURN_LOAD);
+      return;
+    }
+    chooseRaptorTarget(owner, context.attackLoad ?? RAPTOR_TURN_LOAD);
     return;
   }
 
   if (card.type === "trike") {
-    const peek = state.deck.slice(-3).reverse().map((item) => item.name);
-    const text = peek.length ? peek.join(", ") : "de stapel is leeg";
-    setAction(owner === "player" ? `Bovenop liggen: ${text}.` : `${label(owner)} bekijkt de bovenste 3 kaarten.`);
+    const peek = state.deck.slice(-3).reverse();
+    const text = peek.length
+      ? `Bovenop liggen: ${peek.map((item) => item.name).join(", ")}.`
+      : "De trekstapel is leeg.";
+    showCardMoment({
+      title: "Triceratops Blik",
+      cards: peek,
+      text: owner === "player" ? text : `${label(owner)} bekijkt de bovenste 3 kaarten.`,
+      buttonText: "OK",
+      faceDown: owner !== "player",
+      owner
+    });
     return;
   }
 
@@ -933,8 +1096,74 @@ function offerNopeReaction(actor, card, context = {}) {
   render();
 }
 
+function startAttackReaction(actor, card, target) {
+  const currentLoad = Math.max(RAPTOR_TURN_LOAD, state.pendingTurns[target] ?? 1);
+  state.pendingAttackReaction = {
+    actor,
+    card,
+    target,
+    attackLoad: currentLoad,
+    context: { target, attackLoad: currentLoad }
+  };
+  setAction(`${label(actor)} valt je aan. Kies een reactie uit je hand of doe niets.`);
+  render();
+}
+
+function resolveAttackReactionWithCard(cardId) {
+  const pending = state.pendingAttackReaction;
+  if (!pending) return;
+
+  const hand = getHand("player");
+  const index = hand.findIndex((card) => card.id === cardId);
+  if (index === -1) return;
+
+  const card = hand[index];
+  if (!canPlayAttackReactionCard(card)) return;
+
+  const [reactionCard] = hand.splice(index, 1);
+  state.discard.push(reactionCard);
+  state.activity = { owner: "player", type: "play" };
+  state.pendingAttackReaction = null;
+
+  if (reactionCard.type === "nope") {
+    log(`Jij blokkeert ${pending.card.name} met Brul Terug.`);
+    setAction(`${pending.card.name} is weggebruld voordat het effect begon.`);
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  const shiftedLoad = pending.attackLoad + RAPTOR_TURN_LOAD;
+  log(`Jij schuift de aanval terug met ${reactionCard.name}.`);
+  showCardMoment({
+    title: "Tegenaanval",
+    cards: reactionCard,
+    text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet straks ${shiftedLoad} beurten overleven.`,
+    buttonText: "OK",
+    owner: "player",
+    onClose: () => resolveRaptorAttack(pending.actor, pending.actor, shiftedLoad)
+  });
+}
+
+function resolveAttackReactionWithoutCard() {
+  const pending = state.pendingAttackReaction;
+  if (!pending) return;
+
+  state.pendingAttackReaction = null;
+  offerNopeReaction(pending.actor, pending.card, { ...pending.context, skipPlayer: true });
+  render();
+}
+
 function canReactWithNope(card) {
   return card.playable && card.type !== "nope";
+}
+
+function isAttackCard(card) {
+  return card.type === "raptor" || card.type === "targetedRaptor";
+}
+
+function canPlayAttackReactionCard(card) {
+  return card.type === "nope" || isAttackCard(card);
 }
 
 function choosePcNopeReaction(card) {
@@ -984,19 +1213,20 @@ function resolveNopeReaction(useNope) {
   continueAfterPause();
 }
 
-function chooseRaptorTarget(owner) {
+function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD) {
   const targets = activeOpponentsOf(owner);
   if (targets.length === 0) return;
 
   if (owner !== "player") {
-    resolveRaptorTarget(owner, choosePcTarget(owner, targets));
+    resolveRaptorTarget(owner, choosePcTarget(owner, targets), attackLoad);
     return;
   }
 
   state.pendingRaptorTarget = {
     owner,
     targets,
-    selectedTarget: targets[0]
+    selectedTarget: targets[0],
+    attackLoad
   };
   setAction("Gerichte Raptorjacht laat je eerst bewust een doelwit aanwijzen.");
   render();
@@ -1015,17 +1245,23 @@ function confirmRaptorTarget() {
   if (!pendingRaptorTarget) return;
 
   state.pendingRaptorTarget = null;
-  resolveRaptorTarget(pendingRaptorTarget.owner, pendingRaptorTarget.selectedTarget);
+  resolveRaptorTarget(pendingRaptorTarget.owner, pendingRaptorTarget.selectedTarget, pendingRaptorTarget.attackLoad);
   render();
   continueAfterPause();
 }
 
-function resolveRaptorTarget(owner, target) {
+function resolveRaptorTarget(owner, target, attackLoad = RAPTOR_TURN_LOAD) {
   if (!target || state.eliminated[target]) return;
-  state.pendingTurns[target] += 1;
+  resolveRaptorAttack(owner, target, attackLoad);
+  log(`${label(owner)} stuurt de raptor op ${objectLabel(target)} af.`);
+}
+
+function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD) {
+  if (!target || state.eliminated[target]) return;
+  const turnsAfterOwnerConsumes = target === owner ? attackLoad + 1 : attackLoad;
+  state.pendingTurns[target] = Math.max(state.pendingTurns[target] ?? 1, turnsAfterOwnerConsumes);
   consumeTurn(owner);
-  log(`${label(owner)} stuurt de raptor op ${label(target)} af.`);
-  setAction(`${label(target)} is het doelwit en moet straks 2 beurten overleven.`);
+  setAction(`${label(target)} is het doelwit en moet straks ${attackLoad} beurten overleven.`);
 }
 
 function resolveSprint(owner) {
@@ -1107,7 +1343,7 @@ function stealFossilCard(owner, target) {
     target,
     cards: [...targetHand]
   };
-  setAction(`Fossielgraaier laat je bewust een gesloten kaart van ${label(target)} kiezen.`);
+  setAction(`Fossielgraaier laat je bewust een gesloten kaart van ${objectLabel(target)} kiezen.`);
   render();
 }
 
@@ -1119,6 +1355,65 @@ function confirmFossilChoice(index) {
   stealCardAt(pendingFossilChoice.owner, pendingFossilChoice.target, index);
   render();
   continueAfterPause();
+}
+
+function chooseStealTarget(owner) {
+  const targets = activeOpponentsOf(owner).filter((target) => getHand(target).length > 0);
+  if (targets.length === 0) return null;
+  return owner === "player" ? targets[0] : choosePcTarget(owner, targets);
+}
+
+function startPairSteal(owner, initialTarget = null) {
+  const targets = activeOpponentsOf(owner).filter((target) => getHand(target).length > 0);
+  if (targets.length === 0) {
+    setAction("Niemand heeft kaarten om te stelen.");
+    return;
+  }
+
+  if (owner !== "player") {
+    const target = initialTarget && targets.includes(initialTarget) ? initialTarget : choosePcTarget(owner, targets);
+    stealRandomCard(owner, target);
+    return;
+  }
+
+  state.pendingStealTarget = {
+    owner,
+    title: "Paar stelen",
+    targets,
+    selectedTarget: initialTarget && targets.includes(initialTarget) ? initialTarget : targets[0]
+  };
+  setAction("Kies eerst van wie je een gesloten kaart wilt pakken.");
+  render();
+}
+
+function selectStealTarget(target) {
+  const pendingStealTarget = state.pendingStealTarget;
+  if (!pendingStealTarget || !pendingStealTarget.targets.includes(target)) return;
+
+  pendingStealTarget.selectedTarget = target;
+  render();
+}
+
+function confirmStealTarget() {
+  const pendingStealTarget = state.pendingStealTarget;
+  if (!pendingStealTarget) return;
+
+  const target = pendingStealTarget.selectedTarget;
+  state.pendingStealTarget = null;
+  if (!target) {
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  state.pendingFossilChoice = {
+    owner: pendingStealTarget.owner,
+    target,
+    cards: [...getHand(target)],
+    title: "Paar stelen"
+  };
+  setAction(`Kies een gesloten kaart van ${objectLabel(target)}.`);
+  render();
 }
 
 function drawCard(owner, from = "top") {
@@ -1138,7 +1433,7 @@ function drawCard(owner, from = "top") {
   setAction(`${label(owner)} heeft een kaart getrokken. Klik verder om de beurt te laten doorgaan.`);
   render();
 
-  if (owner !== "player") {
+  if (owner !== "player" && card.type !== "meteor") {
     window.setTimeout(confirmPendingDraw, card.type === "meteor" ? 1350 : 900);
   }
 }
@@ -1183,20 +1478,26 @@ function handleMeteor(owner, meteorCard) {
     return;
   }
 
-  const insertAt = Math.floor(Math.random() * (state.deck.length + 1));
-  state.deck.splice(insertAt, 0, meteorCard);
-  consumeTurn(owner);
-  setAction(`${label(owner)} overleeft de Meteorietinslag en stopt hem geheim terug.`);
-  render();
-
-  continueAfterPause();
+  showCardMoment({
+    title: `${label(owner)} gebruikt Schuilgrot`,
+    cards: [meteorCard, shelter],
+    text: `${label(owner)} overleeft de meteoriet en legt hem zelf ergens terug in de trekstapel.`,
+    buttonText: "OK",
+    owner,
+    onClose: () => {
+      const insertAt = Math.floor(Math.random() * (state.deck.length + 1));
+      state.deck.splice(insertAt, 0, meteorCard);
+      consumeTurn(owner);
+      setAction(`${label(owner)} overleeft de Meteorietinslag en stopt hem geheim terug.`);
+    }
+  });
 }
 
 function confirmMeteorPlacement() {
   if (!state.pendingMeteorPlacement) return;
 
   const { owner, meteorCard } = state.pendingMeteorPlacement;
-  const insertAt = Number(els.placementSlider.value);
+  const insertAt = Number(els.placementSelect.value);
   state.deck.splice(insertAt, 0, meteorCard);
   state.pendingMeteorPlacement = null;
   consumeTurn(owner);
@@ -1238,12 +1539,12 @@ function stealCardAt(owner, target, index) {
   const boundedIndex = Math.max(0, Math.min(index, targetHand.length - 1));
   const [stolen] = targetHand.splice(boundedIndex, 1);
   getHand(owner).push(stolen);
-  setAction(`${label(owner)} steelt een kaart van ${label(target)}.`);
+  setAction(`${label(owner)} steelt een kaart van ${objectLabel(target)}.`);
   showCardMoment({
     title: "Kaart gestolen",
     cards: stolen,
-    text: `${label(owner)} pakt ${stolen.name} van ${label(target)}.`,
-    buttonText: "Leg in hand",
+    text: `${label(owner)} pakt ${stolen.name} van ${objectLabel(target)}.`,
+    buttonText: owner === "player" ? "Leg in hand" : "OK",
     owner
   });
 }
@@ -1333,7 +1634,15 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingNopeReaction || state.pendingRaptorTarget || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+}
+
+function isGameplayBlockedForPlay() {
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+}
+
+function isHandClickBlocked() {
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingFossilChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function continueAfterPause() {
@@ -1352,6 +1661,10 @@ function getPlayer(owner) {
 
 function label(owner) {
   return getPlayer(owner)?.name ?? owner;
+}
+
+function objectLabel(owner) {
+  return owner === "player" ? "jou" : label(owner);
 }
 
 function activePlayers() {
@@ -1399,7 +1712,13 @@ function nextActivePlayer(owner) {
 
 els.drawButton.addEventListener("click", () => drawCard("player"));
 els.newGameButton.addEventListener("click", startGame);
+els.placementSelect.addEventListener("change", updatePlacementHint);
 els.revealButton.addEventListener("click", () => {
+  if (state.pendingCardDetail) {
+    closeCardDetail(false);
+    return;
+  }
+
   if (activeReveal) {
     closeActiveReveal();
     return;
@@ -1422,8 +1741,18 @@ els.revealButton.addEventListener("click", () => {
     return;
   }
 
+  if (state.pendingStealTarget) {
+    confirmStealTarget();
+    return;
+  }
+
+  if (state.pendingAttackReaction) {
+    resolveAttackReactionWithoutCard();
+    return;
+  }
+
   if (state.pendingNopeReaction) {
-    resolveNopeReaction(true);
+    resolveNopeReaction(false);
     return;
   }
 
@@ -1435,8 +1764,18 @@ els.revealButton.addEventListener("click", () => {
   confirmPendingDraw();
 });
 els.revealSecondaryButton.addEventListener("click", () => {
+  if (state.pendingCardDetail) {
+    closeCardDetail(true);
+    return;
+  }
+
+  if (activeReveal) {
+    closeActiveReveal(true);
+    return;
+  }
+
   if (state.pendingNopeReaction) {
-    resolveNopeReaction(false);
+    resolveNopeReaction(true);
   }
 });
 

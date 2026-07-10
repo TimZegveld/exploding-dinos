@@ -70,15 +70,14 @@
           <div class="draw-reveal__card" id="revealCard"></div>
           <p class="draw-reveal__text" id="revealText"></p>
           <div class="placement is-hidden" id="placementControls">
-            <label for="placementSlider">Geheime plek in de trekstapel</label>
-            <input id="placementSlider" type="range" min="0" max="0" value="0">
-            <div class="placement__labels">
-              <span>Onderin</span>
-              <span>Bovenop</span>
-            </div>
+            <label for="placementSelect">Geheime plek in de trekstapel</label>
+            <select id="placementSelect"></select>
+            <p class="placement__hint" id="placementHint"></p>
           </div>
-          <button id="revealButton" type="button">Verder</button>
-          <button class="secondary-action is-hidden" id="revealSecondaryButton" type="button">Laat doorgaan</button>
+          <div class="reveal-actions">
+            <button id="revealButton" type="button">Verder</button>
+            <button class="secondary-action is-hidden" id="revealSecondaryButton" type="button">Laat doorgaan</button>
+          </div>
         </div>
       </section>
     </main>
