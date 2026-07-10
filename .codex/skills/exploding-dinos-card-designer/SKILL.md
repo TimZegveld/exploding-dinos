@@ -33,8 +33,12 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
    - Update checklist/README text when rules change.
 
 5. Verify.
-   - Run a JavaScript syntax check with the bundled Node executable when available.
-   - Use the in-app browser for gameplay verification when practical.
+   - Prefer the bundled Node executable:
+     `C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe`
+   - Always run:
+     `& 'C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' --check 'game.js'`
+   - Use a browser smoke test only when Playwright is already available in the active tool/runtime. Do not spend time installing dependencies just for this static HTML app unless the user asks.
+   - If a browser test is blocked by sandbox/profile/module-path issues, use a lightweight DOM harness to load `game.js` and verify startup, event binding, and modal references. This catches common regressions such as missing elements after `index.html` changes.
    - Report any test that could not be completed.
 
 6. Create the visual prompt.
