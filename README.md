@@ -61,7 +61,7 @@ Statuslegenda:
 | `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar |
-| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
+| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. | klaar |
 | `pteroPret` | Ptero Pret | 7 | Soortkaart; unieke paarbeloning staat nog open. | basis |
 
 ## Mogelijke volgende iteraties

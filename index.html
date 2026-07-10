@@ -13,10 +13,27 @@
           <p class="eyebrow">Nederlandse dino-editie</p>
           <h1>Exploding Dinos</h1>
         </div>
-        <div class="status-pill" id="turnStatus">Jouw beurt</div>
+        <div class="topbar-actions">
+          <nav class="page-tabs" aria-label="Spelschermen">
+            <button class="page-tab is-active" id="showGamePage" type="button">Spel</button>
+            <button class="page-tab" id="showCatalogPage" type="button">Kaarten</button>
+          </nav>
+          <div class="status-pill" id="turnStatus">Jouw beurt</div>
+        </div>
       </section>
 
-      <section class="table">
+      <section class="catalog-page is-hidden" id="catalogPage" aria-labelledby="catalogTitle">
+        <div class="catalog-heading">
+          <div>
+            <p class="eyebrow">Kaartenboek</p>
+            <h2 id="catalogTitle">Alle unieke kaarten</h2>
+          </div>
+          <p id="catalogCount">0 kaarten</p>
+        </div>
+        <div class="catalog-grid" id="catalogGrid"></div>
+      </section>
+
+      <section class="table" id="gameTable">
         <div class="opponent-zone">
           <div class="opponents" id="opponents"></div>
         </div>
@@ -63,6 +80,16 @@
           <ol class="log" id="gameLog"></ol>
         </div>
       </aside>
+
+      <section class="catalog-detail is-hidden" id="catalogDetail" aria-modal="true" role="dialog" aria-labelledby="catalogDetailTitle">
+        <div class="catalog-detail__panel">
+          <p class="eyebrow" id="catalogDetailKind">Kaart</p>
+          <div class="catalog-detail__card" id="catalogDetailCard"></div>
+          <h2 id="catalogDetailTitle"></h2>
+          <p class="catalog-detail__text" id="catalogDetailText"></p>
+          <button id="closeCatalogDetail" type="button">Sluiten</button>
+        </div>
+      </section>
 
       <section class="draw-reveal is-hidden" id="drawReveal" aria-live="polite">
         <div class="draw-reveal__panel">

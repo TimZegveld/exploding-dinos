@@ -7,6 +7,7 @@ const {
   createPlayers
 } = globalThis.ExplodingDinosPlayers;
 const {
+  cardCatalog,
   partyPackDistribution,
   buildCardPool,
   deckModeForPlayers,
@@ -30,6 +31,7 @@ const initialState = {
   pendingFossilChoice: null,
   pendingDiscardChoice: null,
   pendingBrontoChoice: null,
+  pendingPteroChoice: null,
   pendingStealTarget: null,
   pendingNopeReaction: null,
   pendingAttackReaction: null,
@@ -41,8 +43,23 @@ const initialState = {
 
 let state = structuredClone(initialState);
 let activeReveal = null;
+let currentPage = "game";
+let selectedCatalogType = null;
 
 const els = {
+  gameTable: document.querySelector("#gameTable"),
+  sidePanel: document.querySelector(".side-panel"),
+  catalogPage: document.querySelector("#catalogPage"),
+  catalogGrid: document.querySelector("#catalogGrid"),
+  catalogCount: document.querySelector("#catalogCount"),
+  catalogDetail: document.querySelector("#catalogDetail"),
+  catalogDetailKind: document.querySelector("#catalogDetailKind"),
+  catalogDetailCard: document.querySelector("#catalogDetailCard"),
+  catalogDetailTitle: document.querySelector("#catalogDetailTitle"),
+  catalogDetailText: document.querySelector("#catalogDetailText"),
+  showGamePage: document.querySelector("#showGamePage"),
+  showCatalogPage: document.querySelector("#showCatalogPage"),
+  closeCatalogDetail: document.querySelector("#closeCatalogDetail"),
   turnStatus: document.querySelector("#turnStatus"),
   opponents: document.querySelector("#opponents"),
   deckCount: document.querySelector("#deckCount"),
@@ -133,6 +150,7 @@ function render() {
   const playerZone = document.querySelector(".player-zone");
   const playerColor = getPlayer("player")?.color ?? playerColors[0];
 
+  renderPageChrome();
   els.turnStatus.textContent = state.gameOver
     ? "Spel afgelopen"
     : state.current === "player"
@@ -155,6 +173,26 @@ function render() {
   renderOpponents();
   renderPlayerHand();
   renderReveal();
+  renderCatalogDetail();
+}
+
+function renderPageChrome() {
+  const isCatalog = currentPage === "catalog";
+  els.gameTable.classList.toggle("is-hidden", isCatalog);
+  els.sidePanel.classList.toggle("is-hidden", isCatalog);
+  els.catalogPage.classList.toggle("is-hidden", !isCatalog);
+  els.showGamePage.classList.toggle("is-active", !isCatalog);
+  els.showCatalogPage.classList.toggle("is-active", isCatalog);
+  els.showGamePage.setAttribute("aria-current", isCatalog ? "false" : "page");
+  els.showCatalogPage.setAttribute("aria-current", isCatalog ? "page" : "false");
+}
+
+function showPage(page) {
+  currentPage = page;
+  if (page === "catalog") {
+    renderCatalogGrid();
+  }
+  render();
 }
 
 function renderOpponents() {
@@ -233,15 +271,16 @@ function renderReveal() {
   const pendingFossilChoice = state.pendingFossilChoice;
   const pendingDiscardChoice = state.pendingDiscardChoice;
   const pendingBrontoChoice = state.pendingBrontoChoice;
+  const pendingPteroChoice = state.pendingPteroChoice;
   const pendingStealTarget = state.pendingStealTarget;
   const pendingNopeReaction = state.pendingNopeReaction;
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
-  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
+  if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingPteroChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
@@ -342,6 +381,17 @@ function renderReveal() {
     els.revealButton.textContent = "Laat bovenop";
     els.revealSecondaryButton.textContent = "Schuif onderop";
     els.revealSecondaryButton.classList.remove("is-hidden");
+    return;
+  }
+
+  if (pendingPteroChoice) {
+    els.revealEyebrow.textContent = "Ptero Pret";
+    renderPteroChoices(pendingPteroChoice);
+    els.revealText.textContent = pendingPteroChoice.cards.length > 1
+      ? "Kies welke kaart bovenop blijft. De andere vliegt naar de bodem van de trekstapel."
+      : "Er is maar 1 kaart om te bekijken, dus die blijft bovenop.";
+    els.revealButton.textContent = "Vlucht vastleggen";
+    els.revealButton.disabled = pendingPteroChoice.cards.length > 1 && !pendingPteroChoice.selectedTopId;
     return;
   }
 
@@ -456,6 +506,8 @@ function renderRevealCards(cards, options = {}) {
 
 function renderCardFace(element, card, options = {}) {
   element.dataset.kind = card.kind;
+  delete element.dataset.tone;
+  element.classList.remove("card-face", "card-face--mini", "card-face--large");
   element.replaceChildren();
 
   if (!card.design) {
@@ -506,6 +558,73 @@ function renderCardFace(element, card, options = {}) {
   }
 
   element.append(header, art, text);
+}
+
+function renderCatalogGrid() {
+  const entries = Object.entries(cardCatalog);
+  els.catalogGrid.replaceChildren();
+  els.catalogCount.textContent = `${entries.length} unieke kaarten`;
+
+  entries.forEach(([type]) => {
+    const card = createCatalogCard(type);
+    const button = document.createElement("button");
+    button.className = "catalog-card";
+    button.type = "button";
+    button.dataset.kind = card.kind;
+    button.setAttribute("aria-label", `${card.name} openen`);
+    renderCardFace(button, card, { hidePaw: true });
+
+    const meta = document.createElement("span");
+    meta.className = "catalog-card__meta";
+    meta.textContent = getCatalogMeta(type, card);
+    button.append(meta);
+
+    button.addEventListener("click", () => openCatalogCard(type));
+    els.catalogGrid.append(button);
+  });
+}
+
+function createCatalogCard(type) {
+  return {
+    id: `catalog-${type}`,
+    type,
+    hasPaw: false,
+    ...cardCatalog[type]
+  };
+}
+
+function getCatalogMeta(type, card) {
+  const count = partyPackDistribution[type]?.total;
+  const kindLabels = {
+    danger: "gevaar",
+    defuse: "redding",
+    action: "actie",
+    set: "soort"
+  };
+  const labelText = kindLabels[card.kind] ?? card.kind;
+  return count ? `${labelText} - ${count} in Party Pack` : labelText;
+}
+
+function openCatalogCard(type) {
+  selectedCatalogType = type;
+  renderCatalogDetail();
+}
+
+function closeCatalogCard() {
+  selectedCatalogType = null;
+  renderCatalogDetail();
+}
+
+function renderCatalogDetail() {
+  els.catalogDetail.classList.toggle("is-hidden", !selectedCatalogType);
+  if (!selectedCatalogType) return;
+
+  const card = createCatalogCard(selectedCatalogType);
+  els.catalogDetailKind.textContent = getCatalogMeta(selectedCatalogType, card);
+  els.catalogDetailTitle.textContent = card.name;
+  els.catalogDetailText.textContent = card.text;
+  els.catalogDetailCard.className = "catalog-detail__card";
+  renderCardFace(els.catalogDetailCard, card, { large: true, hidePaw: true });
 }
 
 function createPawMarker() {
@@ -613,6 +732,21 @@ function renderTargetChoices(pendingStealTarget) {
     button.dataset.selected = String(target === pendingStealTarget.selectedTarget);
     button.textContent = `${label(target)} (${getHand(target).length})`;
     button.addEventListener("click", () => selectStealTarget(target));
+    els.revealCard.append(button);
+  });
+}
+
+function renderPteroChoices(pendingPteroChoice) {
+  els.revealCard.classList.add("is-multi", "is-ptero-choice");
+
+  pendingPteroChoice.cards.forEach((card) => {
+    const button = document.createElement("button");
+    button.className = "draw-reveal__mini-card ptero-choice";
+    button.type = "button";
+    button.classList.add(`is-${card.kind}`);
+    button.dataset.selected = String(card.id === pendingPteroChoice.selectedTopId);
+    renderCardFace(button, card, { mini: true });
+    button.addEventListener("click", () => selectPteroTop(card.id));
     els.revealCard.append(button);
   });
 }
@@ -942,6 +1076,14 @@ function getSetPairPreviewText(owner, rewardType, target) {
     return "Bronto Buik bekijkt de bovenste kaart en mag die onderop schuiven.";
   }
 
+  if (rewardType === "triceraTuk") {
+    return "Tricera-Tuk dut door 1 open beurt heen zonder een kaart te trekken.";
+  }
+
+  if (rewardType === "pteroPret") {
+    return "Ptero Pret bekijkt de bovenste 2 kaarten en laat er 1 bovenop, 1 onderop.";
+  }
+
   return target
     ? `${label(owner)} mag een gesloten kaart van ${objectLabel(target)} pakken.`
     : "Dit paar mag een gesloten kaart van een ander stelen.";
@@ -960,6 +1102,16 @@ function startSetPairReward(owner, rewardType, initialTarget = null, playedPairI
 
   if (rewardType === "brontoBuik") {
     startBrontoBelly(owner);
+    return;
+  }
+
+  if (rewardType === "triceraTuk") {
+    resolveTriceraTuk(owner);
+    return;
+  }
+
+  if (rewardType === "pteroPret") {
+    startPteroPret(owner);
     return;
   }
 
@@ -1284,6 +1436,18 @@ function resolveSprint(owner) {
   setAction(`${label(owner)} sprint weg en trekt niet.`);
 }
 
+function resolveTriceraTuk(owner) {
+  const turnsBeforeTuk = state.pendingTurns[owner] ?? 1;
+  consumeTurn(owner);
+
+  if (turnsBeforeTuk > 1 && state.current === owner) {
+    setAction(`${label(owner)} tukt 1 raptorbeurt weg. Nog ${state.pendingTurns[owner]} beurt te gaan.`);
+    return;
+  }
+
+  setAction(`${label(owner)} tukt veilig door de beurt heen en trekt niet.`);
+}
+
 function alterFuture(owner) {
   const topCards = state.deck.splice(Math.max(0, state.deck.length - 3)).reverse();
 
@@ -1570,6 +1734,72 @@ function confirmBrontoChoice(moveToBottom) {
   continueAfterPause();
 }
 
+function startPteroPret(owner) {
+  const cards = state.deck.splice(Math.max(0, state.deck.length - 2)).reverse();
+  if (cards.length === 0) {
+    setAction("Ptero Pret fladdert rond, maar de trekstapel is leeg.");
+    return;
+  }
+
+  if (owner !== "player") {
+    resolvePteroCards(owner, cards, choosePcPteroTop(cards)?.id);
+    return;
+  }
+
+  state.pendingPteroChoice = {
+    owner,
+    cards,
+    selectedTopId: cards[0]?.id ?? null
+  };
+  setAction("Ptero Pret laat je de bovenste 2 kaarten bekijken en 1 kaart veilig bovenop houden.");
+  render();
+}
+
+function choosePcPteroTop(cards) {
+  const scoreCard = (card) => {
+    if (card.type === "meteor") return -100;
+    if (card.type === "shelter") return 80;
+    if (card.type === "sprint") return 48;
+    if (card.type === "nope") return 42;
+    if (card.playable) return 34;
+    if (isSetCard(card)) return 22;
+    return 10;
+  };
+
+  return [...cards].sort((a, b) => scoreCard(b) - scoreCard(a))[0] ?? cards[0];
+}
+
+function selectPteroTop(cardId) {
+  const pendingPteroChoice = state.pendingPteroChoice;
+  if (!pendingPteroChoice || !pendingPteroChoice.cards.some((card) => card.id === cardId)) return;
+
+  pendingPteroChoice.selectedTopId = cardId;
+  render();
+}
+
+function confirmPteroChoice() {
+  const pendingPteroChoice = state.pendingPteroChoice;
+  if (!pendingPteroChoice) return;
+
+  state.pendingPteroChoice = null;
+  resolvePteroCards(pendingPteroChoice.owner, pendingPteroChoice.cards, pendingPteroChoice.selectedTopId);
+  render();
+  continueAfterPause();
+}
+
+function resolvePteroCards(owner, cards, selectedTopId) {
+  const topCard = cards.find((card) => card.id === selectedTopId) ?? cards[0];
+  const bottomCard = cards.find((card) => card.id !== topCard?.id);
+
+  if (bottomCard) state.deck.unshift(bottomCard);
+  if (topCard) state.deck.push(topCard);
+
+  const topText = topCard ? `${topCard.name} blijft bovenop` : "De trekstapel blijft leeg";
+  const bottomText = bottomCard ? ` en ${bottomCard.name} vliegt onderop` : "";
+  log(`${label(owner)} laat Ptero Pret de bovenkant herschikken.`);
+  setAction(`${topText}${bottomText}.`);
+}
+
 function reclaimDiscardCard(owner, cardId) {
   const index = state.discard.findIndex((card) => card.id === cardId);
   if (index === -1) {
@@ -1815,6 +2045,16 @@ function choosePcCard(owner) {
     return sprint;
   }
 
+  const triceraTuk = hand.find((card) => card.type === "triceraTuk" && findPairForCard(hand, card).length === 2);
+  if ((state.pendingTurns[owner] ?? 1) > 1 && triceraTuk && Math.random() < 0.72) {
+    return triceraTuk;
+  }
+
+  const pteroPret = hand.find((card) => card.type === "pteroPret" && findPairForCard(hand, card).length === 2);
+  if (pteroPret && state.deck.length >= 2 && Math.random() < 0.58) {
+    return pteroPret;
+  }
+
   const playablePair = hand.find((card) => isSetCard(card) && findPairForCard(hand, card).length === 2);
   if (playablePair && Math.random() < 0.34) return playablePair;
 
@@ -1895,15 +2135,15 @@ function isSetCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function isGameplayBlockedForPlay() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
 }
 
 function isHandClickBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
 }
 
 function continueAfterPause() {
@@ -1979,6 +2219,14 @@ function nextActivePlayer(owner) {
 
 els.drawButton.addEventListener("click", () => drawCard("player"));
 els.newGameButton.addEventListener("click", startGame);
+els.showGamePage.addEventListener("click", () => showPage("game"));
+els.showCatalogPage.addEventListener("click", () => showPage("catalog"));
+els.closeCatalogDetail.addEventListener("click", closeCatalogCard);
+els.catalogDetail.addEventListener("click", (event) => {
+  if (event.target === els.catalogDetail) {
+    closeCatalogCard();
+  }
+});
 els.placementSelect.addEventListener("change", updatePlacementHint);
 els.revealButton.addEventListener("click", () => {
   if (state.pendingCardDetail) {
@@ -2022,6 +2270,11 @@ els.revealButton.addEventListener("click", () => {
 
   if (state.pendingBrontoChoice) {
     confirmBrontoChoice(false);
+    return;
+  }
+
+  if (state.pendingPteroChoice) {
+    confirmPteroChoice();
     return;
   }
 

@@ -142,13 +142,18 @@ const cardCatalog = {
   },
   triceraTuk: {
     name: "Tricera-Tuk",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
+    text: "Speel als paar. Tuk 1 open beurt weg zonder te trekken.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "tricera-tuk",
+      icon: "leaf",
+      image: "assets/cards/illustrations/tricera-tuk-sleep.png"
+    }
   },
   pteroPret: {
     name: "Ptero Pret",
-    text: "Soortkaart. Speel 2 dezelfde als paar om te stelen.",
+    text: "Speel als paar. Bekijk bovenste 2; leg 1 bovenop en 1 onderop.",
     kind: "set",
     playable: false
   }
