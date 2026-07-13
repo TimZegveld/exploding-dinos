@@ -390,9 +390,40 @@ h2 {
   color: var(--muted);
 }
 
-.discard strong {
+.discard > strong:not(.card-face) {
   color: var(--ink);
   font-size: 1.35rem;
+}
+
+.discard__top-card.card-face {
+  width: 100%;
+  min-width: 0;
+  margin-top: 6px;
+  border: 0;
+  padding: 0;
+  filter: grayscale(1) saturate(0.15) contrast(0.92);
+  opacity: 0.78;
+  box-shadow: none;
+}
+
+.discard__top-card.card-face .card-face__header {
+  padding: 6px;
+}
+
+.discard__top-card.card-face .card-face__title {
+  font-size: 0.72rem;
+}
+
+.discard__top-card.card-face .card-face__icon {
+  width: 22px;
+  height: 22px;
+  font-size: 0.72rem;
+}
+
+.discard__top-card.card-face .card-face__text {
+  min-height: 42px;
+  padding: 6px;
+  font-size: 0.56rem;
 }
 
 .card-button,
@@ -1465,12 +1496,18 @@ h2 {
 
 .draw-reveal__panel {
   width: min(430px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 18px;
   background: var(--panel);
   box-shadow: var(--shadow), 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 72%);
   text-align: center;
+}
+
+.draw-reveal__panel:has(.draw-reveal__card.is-multi) {
+  width: min(620px, 100%);
 }
 
 .draw-reveal__card {
@@ -1526,8 +1563,8 @@ h2 {
 
 .draw-reveal__card.end-card {
   display: grid;
-  width: min(330px, 78vw);
-  aspect-ratio: 4 / 3;
+  width: min(420px, 78vw);
+  aspect-ratio: auto;
   place-items: center;
   gap: 12px;
   padding: 18px;
@@ -1552,64 +1589,19 @@ h2 {
 .end-card__scene {
   position: relative;
   display: grid;
-  width: min(170px, 48vw);
+  width: min(330px, 62vw);
   aspect-ratio: 1;
   place-items: center;
-}
-
-.end-card__burst {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--end-burst-win);
-  opacity: 0.86;
-}
-
-.end-card.is-loss .end-card__burst {
-  background: var(--end-burst-loss);
-}
-
-.end-card__dino {
-  position: relative;
-  width: 74%;
-  height: 58%;
-  border: 3px solid var(--ink);
-  border-radius: 58% 42% 48% 52%;
-  background: color-mix(in srgb, var(--player-color), var(--card) 24%);
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
   box-shadow: 0 8px 0 color-mix(in srgb, var(--card-ink), transparent 84%);
 }
 
-.end-card__dino::before,
-.end-card__dino::after {
-  position: absolute;
-  content: "";
-}
-
-.end-card__dino::before {
-  top: 18%;
-  right: 16%;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--ink);
-  box-shadow: -36px 2px 0 var(--ink);
-}
-
-.end-card__dino::after {
-  right: 18%;
-  bottom: 20%;
-  width: 42px;
-  height: 18px;
-  border-bottom: 4px solid var(--ink);
-  border-radius: 0 0 999px 999px;
-}
-
-.end-card.is-loss .end-card__dino::after {
-  bottom: 12%;
-  border-top: 4px solid var(--ink);
-  border-bottom: 0;
-  border-radius: 999px 999px 0 0;
+.end-card__scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .end-card__setup {
@@ -1771,12 +1763,22 @@ h2 {
   --ink: var(--card-ink);
   --muted: var(--card-muted);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(132px, 100%), 1fr));
   gap: 10px;
-  width: min(520px, 82vw);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   aspect-ratio: auto;
   min-height: 0;
   background: var(--card-overlay);
+}
+
+.draw-reveal__card.is-ptero-choice {
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+}
+
+.draw-reveal__card.is-steal-target {
+  grid-template-columns: repeat(auto-fit, minmax(min(126px, 100%), 1fr));
 }
 
 .draw-reveal__mini-card {
@@ -1889,7 +1891,52 @@ h2 {
   cursor: pointer;
 }
 
+.fossil-choice[data-selected="true"] {
+  outline: 4px solid color-mix(in srgb, var(--accent), transparent 62%);
+  box-shadow: var(--card-shadow-low), inset 0 0 0 3px var(--accent);
+}
+
 .fossil-choice:hover {
+  transform: translateY(-2px);
+}
+
+.steal-target {
+  --ink: var(--card-ink);
+  --muted: var(--card-muted);
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-height: 0;
+  gap: 8px;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 3%), color-mix(in srgb, var(--player-color), var(--card) 72%)),
+    var(--card);
+  cursor: pointer;
+  text-align: center;
+}
+
+.steal-target .player-portrait {
+  flex-basis: 56px;
+  width: 56px;
+  height: 56px;
+}
+
+.steal-target strong {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.steal-target span:not(.player-portrait) {
+  font-size: 0.72rem;
+}
+
+.steal-target[data-selected="true"] {
+  outline: 4px solid color-mix(in srgb, var(--player-color), transparent 62%);
+  box-shadow: var(--card-shadow-low), inset 0 0 0 3px var(--player-color);
+}
+
+.steal-target:hover {
   transform: translateY(-2px);
 }
 

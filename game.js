@@ -171,7 +171,7 @@ function render() {
   els.turnStatus.style.setProperty("--player-color", currentPlayer?.color ?? playerColor);
 
   els.deckCount.textContent = state.deck.length;
-  els.discardTop.textContent = state.discard.at(-1)?.name ?? "Nog leeg";
+  renderDiscardPile();
   els.playerHint.textContent = state.eliminated.player
     ? "Uitgeschakeld"
     : state.current === "player" && !state.gameOver
@@ -187,6 +187,21 @@ function render() {
   renderPlayerHand();
   renderReveal();
   renderCatalogDetail();
+}
+
+function renderDiscardPile() {
+  const topCard = state.discard.at(-1);
+  els.discardTop.className = "";
+  els.discardTop.removeAttribute?.("aria-label");
+
+  if (!topCard) {
+    els.discardTop.textContent = "Nog leeg";
+    return;
+  }
+
+  els.discardTop.className = "discard__top-card";
+  els.discardTop.setAttribute("aria-label", `Afgelegde kaart: ${topCard.name}`);
+  renderCardFace(els.discardTop, topCard, { mini: true });
 }
 
 function renderPageChrome() {
@@ -405,7 +420,9 @@ function renderReveal() {
     els.revealEyebrow.textContent = activeReveal.title;
     if (activeReveal.endGame) {
       renderEndGameReveal(activeReveal);
-    } else if (activeReveal.cards.length === 1 && !activeReveal.faceDown) {
+    } else if (activeReveal.cards.length === 1 && activeReveal.faceDown) {
+      renderClosedRevealCard();
+    } else if (activeReveal.cards.length === 1) {
       renderOpenRevealCard(activeReveal.cards[0], activeReveal.shaking);
     } else {
       renderRevealCards(activeReveal.cards, {
@@ -445,12 +462,12 @@ function renderReveal() {
 
   if (pendingFossilChoice) {
     els.revealEyebrow.textContent = pendingFossilChoice.title ?? "Fossielgraaier";
-    renderFossilChoices(pendingFossilChoice);
+    renderStealCardChoices(pendingFossilChoice);
     els.revealText.textContent = pendingFossilChoice.cards.length
-      ? `Kies een gesloten kaart uit de hand van ${objectLabel(pendingFossilChoice.target)}.`
+      ? `Kies ${pendingFossilChoice.maxSelect > 1 ? `maximaal ${pendingFossilChoice.maxSelect} gesloten kaarten` : "een gesloten kaart"} uit de hand van ${objectLabel(pendingFossilChoice.target)}.`
       : `${label(pendingFossilChoice.target)} heeft geen kaarten om te stelen.`;
-    els.revealButton.textContent = pendingFossilChoice.cards.length ? "Kies kaart" : "Verder";
-    els.revealButton.disabled = pendingFossilChoice.cards.length > 0;
+    els.revealButton.textContent = pendingFossilChoice.cards.length ? "Steel kaart" : "Verder";
+    els.revealButton.disabled = pendingFossilChoice.cards.length > 0 && (pendingFossilChoice.selectedIndexes ?? []).length === 0;
     return;
   }
 
@@ -507,9 +524,11 @@ function renderReveal() {
 
   if (pendingNopeReaction) {
     els.revealEyebrow.textContent = "Brul Terug?";
-    renderOpenRevealCard(pendingNopeReaction.card);
-    els.revealText.textContent = `${label(pendingNopeReaction.actor)} speelt ${pendingNopeReaction.card.name}. Wil je Brul Terug inzetten om het effect te stoppen?`;
-    els.revealButton.textContent = "OK";
+    renderOpenRevealCard(pendingNopeReaction.nopeCount > 0 ? pendingNopeReaction.lastNopeCard : pendingNopeReaction.card);
+    els.revealText.textContent = pendingNopeReaction.nopeCount > 0
+      ? `${label(pendingNopeReaction.lastReactor)} speelde Brul Terug. Wil je daar zelf Brul Terug overheen spelen?`
+      : `${label(pendingNopeReaction.actor)} speelt ${pendingNopeReaction.card.name}. Wil je Brul Terug inzetten om het effect te stoppen?`;
+    els.revealButton.textContent = "Laat doorgaan";
     els.revealSecondaryButton.textContent = "Speel Brul Terug";
     els.revealSecondaryButton.classList.remove("is-hidden");
     return;
@@ -605,6 +624,11 @@ function renderOpenRevealCard(card, isShaking = false) {
   }
 
   renderCardFace(els.revealCard, card, { large: true });
+}
+
+function renderClosedRevealCard() {
+  els.revealCard.classList.add("is-back");
+  els.revealCard.setAttribute("aria-label", "Gesloten dino kaart");
 }
 
 function renderRevealCards(cards, options = {}) {
@@ -822,15 +846,17 @@ function renderOracleCards(pendingOracle) {
   });
 }
 
-function renderFossilChoices(pendingFossilChoice) {
+function renderStealCardChoices(pendingFossilChoice) {
   els.revealCard.classList.add("is-multi", "is-fossil-choice");
+  const selected = new Set(pendingFossilChoice.selectedIndexes ?? []);
 
   pendingFossilChoice.cards.forEach((card, index) => {
     const button = document.createElement("button");
     button.className = "draw-reveal__mini-card is-back fossil-choice";
     button.type = "button";
+    button.dataset.selected = String(selected.has(index));
     button.textContent = `Kaart ${index + 1}`;
-    button.addEventListener("click", () => confirmFossilChoice(index));
+    button.addEventListener("click", () => selectStealCard(index));
     els.revealCard.append(button);
   });
 }
@@ -850,16 +876,21 @@ function renderDiscardChoices(pendingDiscardChoice) {
 }
 
 function renderTargetChoices(pendingStealTarget) {
-  els.revealCard.classList.add("is-multi", "is-raptor-target");
+  els.revealCard.classList.add("is-multi", "is-steal-target");
 
   pendingStealTarget.targets.forEach((target) => {
     const player = getPlayer(target);
     const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card raptor-target";
+    button.className = "draw-reveal__mini-card steal-target";
     button.type = "button";
     button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
     button.dataset.selected = String(target === pendingStealTarget.selectedTarget);
-    button.append(createPlayerPortrait(player, { small: true }), document.createTextNode(`${label(target)} (${getHand(target).length})`));
+    const name = document.createElement("strong");
+    name.textContent = label(target);
+    const count = document.createElement("span");
+    const cardCount = getHand(target).length;
+    count.textContent = `${cardCount} kaart${cardCount === 1 ? "" : "en"}`;
+    button.append(createPlayerPortrait(player), name, count);
     button.addEventListener("click", () => selectStealTarget(target));
     els.revealCard.append(button);
   });
@@ -923,19 +954,15 @@ function renderEndGameReveal(reveal) {
   const scene = document.createElement("div");
   scene.className = "end-card__scene";
 
-  const winner = getPlayer(reveal.winner);
-  const dino = winner
-    ? createPlayerPortrait(winner)
-    : document.createElement("span");
-  dino.classList.add("end-card__dino");
-  if (!winner) {
-    dino.setAttribute("aria-hidden", "true");
-  }
-
-  const burst = document.createElement("span");
-  burst.className = "end-card__burst";
-
-  scene.append(burst, dino);
+  const image = document.createElement("img");
+  image.src = reveal.winner === "player"
+    ? "assets/endings/victory-dino.png"
+    : "assets/endings/defeat-dino.png";
+  image.alt = reveal.winner === "player"
+    ? "Vrolijke dino viert de overwinning"
+    : "Dino kijkt verslagen na een komische meteorietinslag";
+  image.loading = "lazy";
+  scene.append(image);
 
   const setup = document.createElement("p");
   setup.className = "end-card__setup";
@@ -1141,7 +1168,7 @@ function getActionPreview(owner, card) {
 
   return {
     target: null,
-    text: "Klik verder om het effect van deze kaart uit te voeren."
+    text: "Klik verder om het effect van deze kaart af te handelen."
   };
 }
 
@@ -1309,34 +1336,20 @@ function resolveCard(owner, card, context = {}) {
 }
 
 function offerNopeReaction(actor, card, context = {}) {
-  const reactor = chooseNopeReactor(actor, { skipPlayer: context.skipPlayer });
-  if (!reactor) {
-    resolveCard(actor, card, context);
-    return;
-  }
-  const nopeCard = getHand(reactor).find((item) => item.type === "nope");
-
-  if (!canReactWithNope(card) || !nopeCard) {
+  if (!canReactWithNope(card)) {
     resolveCard(actor, card, context);
     return;
   }
 
-  if (reactor !== "player") {
-    state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id, context };
-    const shouldBlock = choosePcNopeReaction(card);
-    if (shouldBlock) {
-      resolveNopeReaction(true);
-      return;
-    }
-
-    log(`${label(reactor)} houdt Brul Terug vast.`);
-    resolveNopeReaction(false);
-    return;
-  }
-
-  state.pendingNopeReaction = { actor, reactor, card, nopeCardId: nopeCard.id, context };
-  setAction(`${label(actor)} speelt ${card.name}. Je kunt reageren met Brul Terug.`);
-  render();
+  continueNopeChain({
+    actor,
+    card,
+    context,
+    lastReactor: actor,
+    lastNopeCard: null,
+    nopeCount: 0,
+    skipPlayer: Boolean(context.skipPlayer)
+  });
 }
 
 function startAttackReaction(actor, card, target) {
@@ -1370,9 +1383,14 @@ function resolveAttackReactionWithCard(cardId) {
 
   if (reactionCard.type === "nope") {
     log(`Jij blokkeert ${pending.card.name} met Brul Terug.`);
-    setAction(`${pending.card.name} is weggebruld voordat het effect begon.`);
-    render();
-    continueAfterPause();
+    startNopeChainWithPlayedCard({
+      actor: pending.actor,
+      card: pending.card,
+      context: pending.context,
+      reactor: "player",
+      nopeCard: reactionCard,
+      nopeCount: 0
+    });
     return;
   }
 
@@ -1426,6 +1444,7 @@ function canPlayAttackReactionCard(card) {
 }
 
 function choosePcNopeReaction(card) {
+  if (card.type === "nope") return Math.random() < 0.52;
   if (card.type === "trike" || card.type === "volcano") return Math.random() < 0.28;
   if (card.type === "sprint") return Math.random() < 0.42;
   return Math.random() < 0.68;
@@ -1437,7 +1456,17 @@ function resolvePlayerNopeReaction(actor, card, nopeCardId) {
     return;
   }
 
-  state.pendingNopeReaction = { actor, reactor: "player", card, nopeCardId };
+  state.pendingNopeReaction = {
+    actor,
+    reactor: "player",
+    card,
+    nopeCardId,
+    context: {},
+    lastReactor: actor,
+    lastNopeCard: null,
+    nopeCount: 0,
+    skipPlayer: false
+  };
   resolveNopeReaction(true);
   return false;
 }
@@ -1449,27 +1478,118 @@ function resolveNopeReaction(useNope) {
   state.pendingNopeReaction = null;
 
   if (!useNope) {
-    resolveCard(pending.actor, pending.card, pending.context);
-    render();
-    continueAfterPause();
+    finishNopeChain(pending);
     return;
   }
 
   const hand = getHand(pending.reactor);
   const index = hand.findIndex((card) => card.id === pending.nopeCardId);
   if (index === -1) {
-    resolveCard(pending.actor, pending.card, pending.context);
-    render();
-    continueAfterPause();
+    finishNopeChain(pending);
     return;
   }
 
   const [nopeCard] = hand.splice(index, 1);
   state.discard.push(nopeCard);
-  log(`${label(pending.reactor)} blokkeert ${pending.card.name} met Brul Terug.`);
-  setAction(`${pending.card.name} is weggebruld voordat het effect begon.`);
+  startNopeChainWithPlayedCard({
+    ...pending,
+    reactor: pending.reactor,
+    nopeCard
+  });
+}
+
+function startNopeChainWithPlayedCard(chain) {
+  const nextChain = {
+    actor: chain.actor,
+    card: chain.card,
+    context: chain.context ?? {},
+    lastReactor: chain.reactor,
+    lastNopeCard: chain.nopeCard,
+    nopeCount: (chain.nopeCount ?? 0) + 1,
+    skipPlayer: false
+  };
+  const firstNope = nextChain.nopeCount === 1;
+  log(firstNope
+    ? `${label(chain.reactor)} blokkeert ${chain.card.name} met Brul Terug.`
+    : `${label(chain.reactor)} brult de vorige Brul Terug terug.`);
+  setAction(firstNope
+    ? `${label(chain.reactor)} speelt Brul Terug op ${chain.card.name}.`
+    : `${label(chain.reactor)} speelt Brul Terug op Brul Terug.`);
+  showCardMoment({
+    title: `${label(chain.reactor)} speelt`,
+    cards: chain.nopeCard,
+    text: firstNope
+      ? `${chain.card.name} wordt teruggebruld, tenzij iemand opnieuw Brul Terug speelt.`
+      : "De Brul Terug-keten draait opnieuw om.",
+    buttonText: "OK",
+    owner: chain.reactor,
+    onClose: () => {
+      continueNopeChain(nextChain);
+      return false;
+    }
+  });
+  render();
+}
+
+function continueNopeChain(chain) {
+  const reactor = chooseNopeChainReactor(chain);
+  if (!reactor) {
+    finishNopeChain(chain);
+    return;
+  }
+
+  const nopeCard = getHand(reactor).find((item) => item.type === "nope");
+  if (!nopeCard) {
+    finishNopeChain(chain);
+    return;
+  }
+
+  if (reactor !== "player") {
+    const shouldBlock = choosePcNopeReaction(chain.nopeCount > 0 ? chain.lastNopeCard : chain.card);
+    if (shouldBlock) {
+      state.pendingNopeReaction = { ...chain, reactor, nopeCardId: nopeCard.id, skipPlayer: false };
+      resolveNopeReaction(true);
+      return;
+    }
+
+    log(`${label(reactor)} houdt Brul Terug vast.`);
+    finishNopeChain(chain);
+    return;
+  }
+
+  state.pendingNopeReaction = { ...chain, reactor, nopeCardId: nopeCard.id, skipPlayer: false };
+  setAction(chain.nopeCount > 0
+    ? `${label(chain.lastReactor)} speelde Brul Terug. Jij kunt die Brul Terug ongedaan maken.`
+    : `${label(chain.actor)} speelt ${chain.card.name}. Je kunt reageren met Brul Terug.`);
+  render();
+}
+
+function finishNopeChain(chain) {
+  if ((chain.nopeCount ?? 0) % 2 === 1) {
+    log(`${chain.card.name} blijft geblokkeerd na ${chain.nopeCount} Brul Terug-kaart${chain.nopeCount === 1 ? "" : "en"}.`);
+    setAction(`${chain.card.name} is weggebruld voordat het effect begon.`);
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  if ((chain.nopeCount ?? 0) > 0) {
+    log(`${chain.card.name} gaat toch door na de Brul Terug-keten.`);
+    setAction(`${chain.card.name} gaat toch door na de Brul Terug-keten.`);
+  }
+  resolveCard(chain.actor, chain.card, chain.context);
   render();
   continueAfterPause();
+}
+
+function chooseNopeChainReactor(chain) {
+  const candidates = activeOpponentsOf(chain.lastReactor).filter((id) => {
+    if (chain.skipPlayer && chain.nopeCount === 0 && id === "player") return false;
+    return getHand(id).some((card) => card.type === "nope");
+  });
+  if (candidates.length === 0) return null;
+  if (candidates.includes("player")) return "player";
+  return candidates[0];
 }
 
 function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
@@ -1714,18 +1834,46 @@ function stealFossilCard(owner, target) {
   state.pendingFossilChoice = {
     owner,
     target,
-    cards: [...targetHand]
+    cards: [...targetHand],
+    selectedIndexes: [],
+    maxSelect: 1
   };
   setAction(`Fossielgraaier laat je bewust een gesloten kaart van ${objectLabel(target)} kiezen.`);
   render();
 }
 
-function confirmFossilChoice(index) {
+function selectStealCard(index) {
   const pendingFossilChoice = state.pendingFossilChoice;
   if (!pendingFossilChoice) return;
+  const selected = new Set(pendingFossilChoice.selectedIndexes ?? []);
+  const maxSelect = pendingFossilChoice.maxSelect ?? 1;
+
+  if (selected.has(index)) {
+    selected.delete(index);
+  } else {
+    if (maxSelect === 1) selected.clear();
+    if (selected.size < maxSelect) selected.add(index);
+  }
+
+  pendingFossilChoice.selectedIndexes = [...selected].sort((a, b) => a - b);
+  render();
+}
+
+function confirmFossilChoice(index = null) {
+  const pendingFossilChoice = state.pendingFossilChoice;
+  if (!pendingFossilChoice) return;
+  const selectedIndexes = index === null
+    ? pendingFossilChoice.selectedIndexes ?? []
+    : [index];
 
   state.pendingFossilChoice = null;
-  stealCardAt(pendingFossilChoice.owner, pendingFossilChoice.target, index);
+  if (selectedIndexes.length === 0) {
+    render();
+    continueAfterPause();
+    return;
+  }
+
+  stealCardsAt(pendingFossilChoice.owner, pendingFossilChoice.target, selectedIndexes);
   render();
   continueAfterPause();
 }
@@ -1753,7 +1901,8 @@ function startPairSteal(owner, initialTarget = null) {
     owner,
     title: "Paar stelen",
     targets,
-    selectedTarget: initialTarget && targets.includes(initialTarget) ? initialTarget : targets[0]
+    selectedTarget: initialTarget && targets.includes(initialTarget) ? initialTarget : targets[0],
+    maxSelect: 1
   };
   setAction("Kies eerst van wie je een gesloten kaart wilt pakken.");
   render();
@@ -1777,9 +1926,10 @@ function startMiniRaptorSteal(owner, initialTarget = null) {
     title: "Mini-Raptor graait",
     targets,
     selectedTarget: initialTarget && targets.includes(initialTarget) ? initialTarget : targets[0],
-    reward: "randomSteal"
+    reward: "miniRaptorSteal",
+    maxSelect: 1
   };
-  setAction("Kies wie de Mini-Raptor snel 1 willekeurige kaart laat graaien.");
+  setAction("Kies bij wie de Mini-Raptor snel 1 kaart mag graaien.");
   render();
 }
 
@@ -1979,18 +2129,13 @@ function confirmStealTarget() {
     return;
   }
 
-  if (pendingStealTarget.reward === "randomSteal") {
-    stealRandomCard(pendingStealTarget.owner, target);
-    render();
-    continueAfterPause();
-    return;
-  }
-
   state.pendingFossilChoice = {
     owner: pendingStealTarget.owner,
     target,
     cards: [...getHand(target)],
-    title: "Paar stelen"
+    title: pendingStealTarget.reward === "miniRaptorSteal" ? "Mini-Raptor graait" : "Paar stelen",
+    selectedIndexes: [],
+    maxSelect: pendingStealTarget.maxSelect ?? 1
   };
   setAction(`Kies een gesloten kaart van ${objectLabel(target)}.`);
   render();
@@ -2135,28 +2280,50 @@ function stealRandomCard(owner, target) {
   stealCardAt(owner, target, index);
 }
 
-function stealCardAt(owner, target, index) {
+function stealCardsAt(owner, target, indexes) {
   const targetHand = getHand(target);
-  if (targetHand.length === 0) {
+  const uniqueIndexes = [...new Set(indexes)]
+    .map((index) => Math.max(0, Math.min(index, targetHand.length - 1)))
+    .filter((index) => Number.isInteger(index))
+    .sort((a, b) => b - a);
+
+  if (targetHand.length === 0 || uniqueIndexes.length === 0) {
     setAction(`${label(target)} heeft geen kaarten om te stelen.`);
     return;
   }
 
-  const boundedIndex = Math.max(0, Math.min(index, targetHand.length - 1));
-  const [stolen] = targetHand.splice(boundedIndex, 1);
-  getHand(owner).push(stolen);
+  const stolenCards = [];
+  uniqueIndexes.forEach((index) => {
+    if (index >= targetHand.length) return;
+    const [stolen] = targetHand.splice(index, 1);
+    if (stolen) {
+      getHand(owner).push(stolen);
+      stolenCards.unshift(stolen);
+    }
+  });
+
+  if (stolenCards.length === 0) {
+    setAction(`${label(target)} heeft geen kaarten om te stelen.`);
+    return;
+  }
+
   const isPrivatePcSteal = owner !== "player" && target !== "player";
-  setAction(`${label(owner)} steelt een kaart van ${objectLabel(target)}.`);
+  const cardNames = stolenCards.map((card) => card.name).join(", ");
+  setAction(`${label(owner)} steelt ${stolenCards.length === 1 ? "een kaart" : `${stolenCards.length} kaarten`} van ${objectLabel(target)}.`);
   showCardMoment({
-    title: "Kaart gestolen",
-    cards: stolen,
+    title: stolenCards.length === 1 ? "Kaart gestolen" : "Kaarten gestolen",
+    cards: stolenCards,
     text: isPrivatePcSteal
-      ? `${label(owner)} pakt een gesloten kaart van ${objectLabel(target)}. ${subjectPronoun(owner, true)} houdt geheim welke kaart het was.`
-      : `${label(owner)} pakt ${stolen.name} van ${objectLabel(target)}.`,
+      ? `${label(owner)} pakt ${stolenCards.length === 1 ? "een gesloten kaart" : `${stolenCards.length} gesloten kaarten`} van ${objectLabel(target)}. ${subjectPronoun(owner, true)} houdt geheim welke kaart het was.`
+      : `${label(owner)} pakt ${cardNames} van ${objectLabel(target)}.`,
     buttonText: owner === "player" ? "Leg in hand" : "OK",
     faceDown: isPrivatePcSteal,
     owner
   });
+}
+
+function stealCardAt(owner, target, index) {
+  stealCardsAt(owner, target, [index]);
 }
 
 function pcTurn() {
@@ -2348,16 +2515,6 @@ function choosePcTarget(owner, targets = activeOpponentsOf(owner)) {
   return targets[Math.floor(Math.random() * targets.length)];
 }
 
-function chooseNopeReactor(actor, options = {}) {
-  const candidates = activeOpponentsOf(actor).filter((id) => {
-    if (options.skipPlayer && id === "player") return false;
-    return getHand(id).some((card) => card.type === "nope");
-  });
-  if (candidates.length === 0) return null;
-  if (candidates.includes("player")) return "player";
-  return candidates[0];
-}
-
 function nextActivePlayer(owner) {
   const active = activePlayers();
   if (active.length === 0) return owner;
@@ -2410,9 +2567,7 @@ els.revealButton.addEventListener("click", () => {
   }
 
   if (state.pendingFossilChoice) {
-    state.pendingFossilChoice = null;
-    render();
-    continueAfterPause();
+    confirmFossilChoice();
     return;
   }
 
