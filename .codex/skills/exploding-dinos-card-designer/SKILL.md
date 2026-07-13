@@ -1,11 +1,11 @@
 ---
 name: exploding-dinos-card-designer
-description: Use when working on the Exploding Dinos browser card game to design or implement one card from the project checklist, including choosing the next card, defining its gameplay function, updating game code/UI/PC behavior, writing a visual design prompt, and applying a user-provided card illustration image as a project asset.
+description: Use when working on the Exploding Dinos browser card game to design or implement one card from the project checklist, including choosing the next card, defining its gameplay function, updating game code/UI/PC behavior, writing a visible visual prompt, generating or applying card illustration artwork, and saving it as a project asset.
 ---
 
 # Exploding Dinos Card Designer
 
-Use this skill to move one Exploding Dinos card forward end to end: gameplay first, visual direction second, user-provided artwork third.
+Use this skill to move one Exploding Dinos card forward end to end: gameplay first, visual direction second, visible prompt and first generated artwork third.
 
 ## Workflow
 
@@ -45,12 +45,17 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
    - If a browser test is blocked by sandbox/profile/module-path issues, use the bundled smoke harness instead. It loads `game.js` and verifies startup, event binding, and modal references.
    - Report any test that could not be completed.
 
-6. Create the visual prompt.
+6. Create and show the visual prompt.
    - Use `references/card-art-prompts.md` for prompt structure.
    - Prompt for illustration only: no card title, no effect text, no logo, no watermark.
    - Reserve title/effect/icon rendering for game HTML/CSS.
+   - Show the final prompt to the user before generating so they can inspect or reuse it.
+   - Unless the user explicitly says not to generate, create the first image yourself after showing the prompt; do not wait for approval just to make the first attempt.
+   - Use the `imagegen` skill/default built-in image generation flow for new raster card art.
 
-7. Apply user-provided artwork.
+7. Apply generated or user-provided artwork.
+   - For generated artwork, inspect the output, confirm it has no text/logo/watermark, then copy the selected image from the Codex generated-images location into `assets/cards/illustrations/`; leave the original generated file in place.
+   - If the generated image is not acceptable, iterate once with a targeted prompt revision before wiring it into the game.
    - Use only a newly uploaded/attached image that is intended for the selected card; never reuse an image that already exists in the repo as a shortcut.
    - Before copying, compare filename, byte size, and SHA-256 hash against existing `assets/cards/illustrations/` images when practical; if it matches an existing card, stop and ask for the correct image.
    - Copy only the selected image into `assets/cards/illustrations/`; do not commit `.codex-remote-attachments/`.
