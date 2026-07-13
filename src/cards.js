@@ -108,9 +108,14 @@ const cardCatalog = {
   },
   feral: {
     name: "Wilde Dino",
-    text: "Joker voor dino-soortkaarten. Activeert de andere soortbeloning.",
+    text: "Joker voor een soortpaar. Activeert de volledige beloning van de andere soortkaart.",
     kind: "set",
-    playable: false
+    playable: false,
+    design: {
+      tone: "feral",
+      icon: "claw",
+      image: "assets/cards/illustrations/wilde-dino-joker.png"
+    }
   },
   miniRaptor: {
     name: "Mini-Raptor",

@@ -1122,7 +1122,7 @@ function findPairForCard(hand, card) {
   if (!isSetCard(card)) return [];
 
   if (card.type === "feral") {
-    const otherSet = hand.find((item) => item.id !== card.id && isSetCard(item));
+    const otherSet = hand.find((item) => item.id !== card.id && isSetRewardCard(item));
     return otherSet ? [card, otherSet] : [];
   }
 
@@ -2156,6 +2156,10 @@ function eliminatePlayer(owner, reason) {
 
 function isSetCard(card) {
   return card.kind === "set";
+}
+
+function isSetRewardCard(card) {
+  return isSetCard(card) && card.type !== "feral";
 }
 
 function isInteractionBlocked() {

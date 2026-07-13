@@ -393,6 +393,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="feral"] {
+  --face-accent: #2f9d79;
+  --face-header: #236848;
+  background:
+    linear-gradient(180deg, rgba(235, 247, 190, 0.98), rgba(62, 157, 127, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="targeted-raptor"] {
   --face-accent: #dc8a2f;
   --face-header: #84401f;
@@ -483,6 +491,10 @@ h2 {
 
 .card-face[data-tone="nope"] .card-face__header {
   background: linear-gradient(135deg, #6f251f, #b8482e);
+}
+
+.card-face[data-tone="feral"] .card-face__header {
+  background: linear-gradient(135deg, #23543b, #d16d24 54%, #227da2);
 }
 
 .card-face[data-tone="targeted-raptor"] .card-face__header {
@@ -828,6 +840,10 @@ h2 {
 
 .card-face[data-tone="nope"] .card-face__art img {
   object-position: 47% 46%;
+}
+
+.card-face[data-tone="feral"] .card-face__art img {
+  object-position: 50% 45%;
 }
 
 .card-face[data-tone="targeted-raptor"] .card-face__art img {
@@ -1434,6 +1450,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="nope"] .card-face__art img {
   object-position: 48% 45%;
+}
+
+.draw-reveal__card.card-face[data-tone="feral"] .card-face__art img {
+  object-position: 50% 43%;
 }
 
 .draw-reveal__card.card-face[data-tone="targeted-raptor"] .card-face__art img {

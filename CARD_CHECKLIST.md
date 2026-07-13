@@ -24,7 +24,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `dig` | Diep Graven | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar | Varianten/balans later. |
 | `fossil` | Fossielgraaier | Kies een gesloten kaart van een tegenstander en steel die. | klaar | Varianten/balans later. |
 | `nope` | Brul Terug | Reageer op een actiekaart van de ander en blokkeer die. | klaar | Varianten/balans later. |
-| `feral` | Wilde Dino | Joker voor dino-soortkaarten; activeert de beloning van de andere soortkaart in het paar. | basis | Jokerrol definitief vastleggen en kaartfront/artwork toevoegen. |
+| `feral` | Wilde Dino | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. | klaar | Varianten/balans later. |
 | `miniRaptor` | Mini-Raptor | Speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | Varianten/balans later. |
 | `stegoSnack` | Stego Snack | Speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar | Varianten/balans later. |
 | `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar | Varianten/balans later. |
@@ -34,14 +34,14 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 ## Open kaartwerk
 
 - [x] Bepaal of `trike` bewust simpel blijft of een uniekere informatieflow krijgt.
-- [ ] Werk `feral` definitief uit: volledige soortbeloning of zwakkere joker-beloning.
+- [x] Werk `feral` definitief uit: volledige soortbeloning of zwakkere joker-beloning.
 - [x] Geef `miniRaptor` een unieke paarbeloning en kaartfront.
 - [x] Geef `stegoSnack` een unieke paarbeloning en kaartfront.
 - [x] Geef `brontoBuik` een kaartfront en crop/tweak.
 - [x] Geef `triceraTuk` een kaartfront en crop/tweak.
 - [x] Geef `pteroPret` een unieke paarbeloning.
 - [x] Geef `pteroPret` een kaartfront en crop/tweak.
-- [ ] Voeg kaartfronts toe voor `meteor`, `shelter`, `raptor` en `feral`.
+- [ ] Voeg kaartfronts toe voor `meteor`, `shelter` en `raptor`.
 - [ ] Voeg resterende basisillustraties toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
 - [ ] Doe een balansronde nadat de soortkaartbeloningen helder zijn.
