@@ -481,6 +481,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="meteor"] {
+  --face-accent: #f36b22;
+  --face-header: #6f231c;
+  background:
+    linear-gradient(180deg, rgba(255, 221, 137, 0.98), rgba(214, 74, 34, 0.8)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -537,6 +545,10 @@ h2 {
   background: linear-gradient(135deg, #1f5c80, #4aa4c9);
 }
 
+.card-face[data-tone="meteor"] .card-face__header {
+  background: linear-gradient(135deg, #5c211a, #b83f24);
+}
+
 .card-face__header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 25px;
@@ -574,7 +586,8 @@ h2 {
 .card-face__icon--roar,
 .card-face__icon--volcano,
 .card-face__icon--dig,
-.card-face__icon--leaf {
+.card-face__icon--leaf,
+.card-face__icon--impact {
   position: relative;
   overflow: hidden;
 }
@@ -586,7 +599,8 @@ h2 {
 .card-face__icon--roar span,
 .card-face__icon--volcano span,
 .card-face__icon--dig span,
-.card-face__icon--leaf span {
+.card-face__icon--leaf span,
+.card-face__icon--impact span {
   display: block;
   background: currentColor;
 }
@@ -815,6 +829,37 @@ h2 {
   transform: rotate(36deg);
 }
 
+.card-face__icon--impact span:nth-child(1) {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+
+.card-face__icon--impact span:nth-child(2) {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 14px;
+  height: 5px;
+  border-radius: 999px;
+  transform: rotate(-32deg);
+}
+
+.card-face__icon--impact span:nth-child(3) {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  width: 15px;
+  height: 15px;
+  background: transparent;
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  transform: rotate(45deg);
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -884,6 +929,10 @@ h2 {
 
 .card-face[data-tone="ptero-pret"] .card-face__art img {
   object-position: 50% 43%;
+}
+
+.card-face[data-tone="meteor"] .card-face__art img {
+  object-position: 53% 58%;
 }
 
 .card-face__text {
@@ -1494,6 +1543,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="ptero-pret"] .card-face__art img {
   object-position: 50% 45%;
+}
+
+.draw-reveal__card.card-face[data-tone="meteor"] .card-face__art img {
+  object-position: 53% 54%;
 }
 
 .draw-reveal__card strong {

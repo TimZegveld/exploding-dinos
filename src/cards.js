@@ -4,7 +4,12 @@ const cardCatalog = {
     name: "Meteorietinslag",
     text: "Trek je deze zonder Schuilgrot, dan ben je uitgeschakeld.",
     kind: "danger",
-    playable: false
+    playable: false,
+    design: {
+      tone: "meteor",
+      icon: "impact",
+      image: "assets/cards/illustrations/meteor-impact.png"
+    }
   },
   shelter: {
     name: "Schuilgrot",

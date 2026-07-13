@@ -13,7 +13,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 
 | Type | Naam | Regel in deze iteratie | Status | Volgende stap |
 |---|---|---|---|---|
-| `meteor` | Meteorietinslag | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | spel klaar | Eigen kaartfront/artwork toevoegen. |
+| `meteor` | Meteorietinslag | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | klaar | Varianten/balans later. |
 | `shelter` | Schuilgrot | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 | `raptor` | Raptor Aanval | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | spel klaar | Eigen kaartfront/artwork toevoegen. |
 | `targetedRaptor` | Gerichte Raptorjacht | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar | Varianten/balans later. |
@@ -41,7 +41,8 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Geef `triceraTuk` een kaartfront en crop/tweak.
 - [x] Geef `pteroPret` een unieke paarbeloning.
 - [x] Geef `pteroPret` een kaartfront en crop/tweak.
-- [ ] Voeg kaartfronts toe voor `meteor`, `shelter` en `raptor`.
+- [ ] Voeg kaartfronts toe voor `shelter` en `raptor`.
+- [x] Geef `meteor` een kaartfront en crop/tweak.
 - [ ] Voeg resterende basisillustraties toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
 - [ ] Doe een balansronde nadat de soortkaartbeloningen helder zijn.
