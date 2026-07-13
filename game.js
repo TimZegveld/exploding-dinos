@@ -12,6 +12,7 @@ const {
   buildCardPool,
   deckModeForPlayers,
   makeCard,
+  resolveDesign,
   shuffle
 } = globalThis.ExplodingDinosCards;
 
@@ -585,11 +586,14 @@ function renderCatalogGrid() {
 }
 
 function createCatalogCard(type) {
+  const catalogCard = cardCatalog[type];
+
   return {
     id: `catalog-${type}`,
     type,
     hasPaw: false,
-    ...cardCatalog[type]
+    ...catalogCard,
+    design: resolveDesign(type)
   };
 }
 

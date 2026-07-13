@@ -115,14 +115,17 @@ Voorbeeld voor `miniRaptor`:
 miniRaptor: {
   name: "Mini-Raptor",
   kind: "set",
-  image: "assets/cards/illustrations/mini-raptor-01.png",
-  variants: [
-    "assets/cards/illustrations/mini-raptor-01.png",
-    "assets/cards/illustrations/mini-raptor-02.png",
-    "assets/cards/illustrations/mini-raptor-03.png"
-  ]
+  design: {
+    image: "assets/cards/illustrations/mini-raptor-quick-steal.png",
+    images: [
+      "assets/cards/illustrations/mini-raptor-quick-steal.png",
+      "assets/cards/illustrations/mini-raptor-mossy-getaway.png"
+    ]
+  }
 }
 ```
+
+`miniRaptor` gebruikt deze structuur nu als eerste soortkaartvariant; de deckhelper verdeelt meerdere illustraties over kaartkopieën zonder de kaartregel te veranderen.
 
 Variantregels:
 

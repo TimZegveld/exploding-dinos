@@ -25,7 +25,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 | `fossil` | Fossielgraaier | Kies een gesloten kaart van een tegenstander en steel die. | klaar | Varianten/balans later. |
 | `nope` | Brul Terug | Reageer op een actiekaart van de ander en blokkeer die. | klaar | Varianten/balans later. |
 | `feral` | Wilde Dino | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. | klaar | Varianten/balans later. |
-| `miniRaptor` | Mini-Raptor | Speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | Varianten/balans later. |
+| `miniRaptor` | Mini-Raptor | Speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar | Eerste soortkaartvariant toegevoegd; meer varianten/balans later. |
 | `stegoSnack` | Stego Snack | Speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar | Varianten/balans later. |
 | `brontoBuik` | Bronto Buik | Speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar | Varianten/balans later. |
 | `triceraTuk` | Tricera-Tuk | Speel een paar om 1 open beurt weg te dutten zonder te trekken. | klaar | Varianten/balans later. |
@@ -43,7 +43,8 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Geef `pteroPret` een kaartfront en crop/tweak.
 - [x] Voeg kaartfront toe voor `raptor`.
 - [x] Geef `meteor` een kaartfront en crop/tweak.
-- [ ] Voeg resterende basisillustratie toe voor kaarttypes zonder artwork.
+- [x] Voeg resterende basisillustratie toe voor kaarttypes zonder artwork.
+- [x] Bereid eerste soortkaartvariant voor: `miniRaptor` wisselt tussen basisart en mossige graai-variant.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.
 - [ ] Doe een balansronde nadat de soortkaartbeloningen helder zijn.
 

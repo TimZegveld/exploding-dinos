@@ -15,6 +15,8 @@ Open `index.html` in je browser. Er is geen build-step nodig.
 
 De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
 
+Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen.
+
 ## Project-skill
 
 Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
@@ -58,7 +60,7 @@ Statuslegenda:
 | `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar |
 | `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar |
 | `feral` | Wilde Dino | 6 | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. | klaar |
-| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. | klaar |
+| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft als eerste soortkaart een extra illustratievariant. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. | klaar |

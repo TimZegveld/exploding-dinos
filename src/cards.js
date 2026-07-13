@@ -140,7 +140,11 @@ const cardCatalog = {
     design: {
       tone: "mini-raptor",
       icon: "claw",
-      image: "assets/cards/illustrations/mini-raptor-quick-steal.png"
+      image: "assets/cards/illustrations/mini-raptor-quick-steal.png",
+      images: [
+        "assets/cards/illustrations/mini-raptor-quick-steal.png",
+        "assets/cards/illustrations/mini-raptor-mossy-getaway.png"
+      ]
     }
   },
   stegoSnack: {
@@ -209,12 +213,62 @@ const partyPackDistribution = {
   pteroPret: { total: 7, paw: 3 }
 };
 
-function makeCard(type, hasPaw = false) {
+const CARD_VARIANT_REPEAT_LIMIT = 1;
+
+function getDesignImages(type) {
+  const design = cardCatalog[type]?.design;
+  if (!design) return [];
+
+  if (Array.isArray(design.images) && design.images.length > 0) {
+    return design.images;
+  }
+
+  return design.image ? [design.image] : [];
+}
+
+function resolveDesign(type, variantIndex = 0) {
+  const design = cardCatalog[type]?.design;
+  if (!design) return undefined;
+
+  const images = getDesignImages(type);
+  const image = images.length > 0
+    ? images[Math.abs(variantIndex) % images.length]
+    : design.image;
+
+  return {
+    ...design,
+    image,
+    images
+  };
+}
+
+function createCardVariantTracker() {
+  const nextVariantByType = {};
+
+  return {
+    next(type) {
+      const images = getDesignImages(type);
+      if (images.length <= 1) {
+        return 0;
+      }
+
+      const next = nextVariantByType[type] ?? 0;
+      nextVariantByType[type] = next + 1;
+
+      return Math.floor(next / CARD_VARIANT_REPEAT_LIMIT) % images.length;
+    }
+  };
+}
+
+function makeCard(type, hasPaw = false, variantIndex = 0) {
+  const catalogCard = cardCatalog[type];
+
   return {
     id: crypto.randomUUID(),
     type,
     hasPaw,
-    ...cardCatalog[type]
+    ...catalogCard,
+    design: resolveDesign(type, variantIndex)
   };
 }
 
@@ -237,6 +291,7 @@ function deckModeForPlayers(players) {
 function buildCardPool(playerCount) {
   const mode = deckModeForPlayers(playerCount);
   const cards = [];
+  const variants = createCardVariantTracker();
 
   Object.entries(partyPackDistribution).forEach(([type, counts]) => {
     if (type === "meteor" || type === "shelter") return;
@@ -248,7 +303,7 @@ function buildCardPool(playerCount) {
         : counts.total;
 
     for (let index = 0; index < copies; index += 1) {
-      cards.push(makeCard(type, mode === "paw"));
+      cards.push(makeCard(type, mode === "paw", variants.next(type)));
     }
   });
 
@@ -261,6 +316,7 @@ globalThis.ExplodingDinosCards = {
   buildCardPool,
   deckModeForPlayers,
   makeCard,
+  resolveDesign,
   shuffle
 };
 })();
