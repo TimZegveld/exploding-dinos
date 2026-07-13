@@ -15,7 +15,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 |---|---|---|---|---|
 | `meteor` | Meteorietinslag | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | klaar | Varianten/balans later. |
 | `shelter` | Schuilgrot | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | klaar | Varianten/balans later. |
-| `raptor` | Raptor Aanval | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | spel klaar | Eigen kaartfront/artwork toevoegen. |
+| `raptor` | Raptor Aanval | Het doelwit moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar | Varianten/balans later. |
 | `targetedRaptor` | Gerichte Raptorjacht | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar | Varianten/balans later. |
 | `sprint` | Dino Sprint | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar | Varianten/balans later. |
 | `trike` | Triceratops Blik | Bekijk de bovenste 3 kaarten; Meteorietinslag en Schuilgrot worden expliciet gemeld. | klaar | Varianten/balans later. |
@@ -41,7 +41,7 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Geef `triceraTuk` een kaartfront en crop/tweak.
 - [x] Geef `pteroPret` een unieke paarbeloning.
 - [x] Geef `pteroPret` een kaartfront en crop/tweak.
-- [ ] Voeg kaartfront toe voor `raptor`.
+- [x] Voeg kaartfront toe voor `raptor`.
 - [x] Geef `meteor` een kaartfront en crop/tweak.
 - [ ] Voeg resterende basisillustratie toe voor kaarttypes zonder artwork.
 - [ ] Bereid later varianten voor veelvoorkomende soortkaarten voor.

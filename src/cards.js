@@ -26,7 +26,12 @@ const cardCatalog = {
     name: "Raptor Aanval",
     text: "Het doelwit moet nu 2 kaarten trekken.",
     kind: "action",
-    playable: true
+    playable: true,
+    design: {
+      tone: "raptor",
+      icon: "claw",
+      image: "assets/cards/illustrations/raptor-aanval.png"
+    }
   },
   targetedRaptor: {
     name: "Gerichte Raptorjacht",
