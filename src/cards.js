@@ -129,7 +129,12 @@ const cardCatalog = {
     design: {
       tone: "feral",
       icon: "claw",
-      image: "assets/cards/illustrations/wilde-dino-joker.png"
+      image: "assets/cards/illustrations/wilde-dino-joker.png",
+      images: [
+        "assets/cards/illustrations/wilde-dino-joker.png",
+        "assets/cards/illustrations/wilde-dino-chameleon-chaos.png",
+        "assets/cards/illustrations/wilde-dino-feather-storm.png"
+      ]
     }
   },
   miniRaptor: {
@@ -143,7 +148,9 @@ const cardCatalog = {
       image: "assets/cards/illustrations/mini-raptor-quick-steal.png",
       images: [
         "assets/cards/illustrations/mini-raptor-quick-steal.png",
-        "assets/cards/illustrations/mini-raptor-mossy-getaway.png"
+        "assets/cards/illustrations/mini-raptor-mossy-getaway.png",
+        "assets/cards/illustrations/mini-raptor-feather-flash.png",
+        "assets/cards/illustrations/mini-raptor-bone-snatch.png"
       ]
     }
   },
@@ -155,7 +162,12 @@ const cardCatalog = {
     design: {
       tone: "stego-snack",
       icon: "leaf",
-      image: "assets/cards/illustrations/stego-snack-discard.png"
+      image: "assets/cards/illustrations/stego-snack-discard.png",
+      images: [
+        "assets/cards/illustrations/stego-snack-discard.png",
+        "assets/cards/illustrations/stego-snack-fern-salad.png",
+        "assets/cards/illustrations/stego-snack-moonlit-munch.png"
+      ]
     }
   },
   brontoBuik: {
@@ -166,7 +178,12 @@ const cardCatalog = {
     design: {
       tone: "bronto-buik",
       icon: "leaf",
-      image: "assets/cards/illustrations/bronto-buik-belly-card.png"
+      image: "assets/cards/illustrations/bronto-buik-belly-card.png",
+      images: [
+        "assets/cards/illustrations/bronto-buik-belly-card.png",
+        "assets/cards/illustrations/bronto-buik-belly-bridge.png",
+        "assets/cards/illustrations/bronto-buik-cloud-gazer.png"
+      ]
     }
   },
   triceraTuk: {
@@ -177,7 +194,12 @@ const cardCatalog = {
     design: {
       tone: "tricera-tuk",
       icon: "leaf",
-      image: "assets/cards/illustrations/tricera-tuk-sleep.png"
+      image: "assets/cards/illustrations/tricera-tuk-sleep.png",
+      images: [
+        "assets/cards/illustrations/tricera-tuk-sleep.png",
+        "assets/cards/illustrations/tricera-tuk-hammock-horns.png",
+        "assets/cards/illustrations/tricera-tuk-mud-nap.png"
+      ]
     }
   },
   pteroPret: {
@@ -188,7 +210,12 @@ const cardCatalog = {
     design: {
       tone: "ptero-pret",
       icon: "speed",
-      image: "assets/cards/illustrations/ptero-pret-sky-sort.png"
+      image: "assets/cards/illustrations/ptero-pret-sky-sort.png",
+      images: [
+        "assets/cards/illustrations/ptero-pret-sky-sort.png",
+        "assets/cards/illustrations/ptero-pret-cliff-dive.png",
+        "assets/cards/illustrations/ptero-pret-gust-loop.png"
+      ]
     }
   }
 };

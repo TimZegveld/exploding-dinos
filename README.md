@@ -8,6 +8,8 @@ Speel online: https://timzegveld.github.io/exploding-dinos/
 
 Open `index.html` in je browser. Er is geen build-step nodig.
 
+Bij een eerste potje is 1 pc-tegenstander de rustigste keuze om de kaarten en beurtflow te leren. Meer spelers kan direct, maar maakt het spel chaotischer.
+
 Voor lokaal testen op een telefoon kun je de map via een kleine webserver delen op je eigen wifi-netwerk:
 
 ```powershell
@@ -49,7 +51,7 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 
 De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
 
-Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen.
+Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief.
 
 ## Project-skill
 
@@ -58,6 +60,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 ## Regels in deze iteratie
 
 - Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
+- De startselectie adviseert beginners om met 1 tegenstander te beginnen; extra tegenstanders zorgen voor meer chaos.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
@@ -96,17 +99,16 @@ Statuslegenda:
 | `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar |
 | `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar |
 | `nope` | Brul Terug | 9 | Reageer op een actiekaart van de ander en blokkeer die. | klaar |
-| `feral` | Wilde Dino | 6 | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. | klaar |
-| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft als eerste soortkaart een extra illustratievariant. | klaar |
-| `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. | klaar |
-| `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. | klaar |
-| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. | klaar |
-| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. | klaar |
+| `feral` | Wilde Dino | 6 | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. Heeft meerdere illustratievarianten. | klaar |
+| `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft meerdere illustratievarianten. | klaar |
+| `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |
+| `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. Heeft meerdere illustratievarianten. | klaar |
+| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Heeft meerdere illustratievarianten. | klaar |
 
 ## Mogelijke volgende iteraties
 
 - Verdere testdekking voor spelregels en browserflows.
-- GitHub Pages-publicatie na test- en mobiele releasecheck.
 - Betere kaartbalans na meerdere proefpotjes.
 - Moeilijkheidsgraden voor de pc.
 - Extra kaartvarianten, meer kaarttypes of set-combo's.

@@ -4,9 +4,10 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Huidige stand
 
-- `npm test` is groen via de gebundelde Node-runtime: 9 tests.
+- `npm test` is groen via de gebundelde Node-runtime: 15 tests.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
-- Alle kaarttypes hebben een gekoppelde illustratie; `Mini-Raptor` heeft al een extra variant.
+- Alle kaarttypes hebben een gekoppelde illustratie; veelvoorkomende soortkaarten hebben extra illustratievarianten.
+- De NPC-selectie geeft beginnersadvies: start met 1 tegenstander; meer spelers geeft meer chaos.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - GitHub Pages staat als live URL in de README; publicatie zelf is dus geen open taak meer.
 - Een structurele echte-browser testlaag ontbreekt nog; Playwright is niet beschikbaar in de huidige runtime.
@@ -40,5 +41,4 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Later, niet blokkerend
 
-- [ ] Bereid extra illustratievarianten voor veelvoorkomende soortkaarten voor.
 - [ ] Overweeg extra kaarttypes of set-combo's, pas na balans en testdekking.
