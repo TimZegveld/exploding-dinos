@@ -19,6 +19,156 @@ const {
 
 const HAND_TYPE_ORDER = Object.keys(cardCatalog);
 
+const pcStyleProfiles = {
+  archaeologist: {
+    name: "Archeoloog",
+    sprintEscape: 0.82,
+    napEscape: 0.64,
+    pteroPair: 0.44,
+    pairPlay: 0.3,
+    volcanoLowDeck: 0.58,
+    trikeRiskCheck: 0.78,
+    fallbackPlay: 0.2,
+    playerTarget: 0.64,
+    brontoRaptorMove: 0.34,
+    nope: { default: 0.6, nope: 0.48, info: 0.34, sprint: 0.36 },
+    cardBias: { fossil: 1.45, dig: 1.35, trike: 1.2, oracle: 1.08, targetedRaptor: 0.9, raptor: 0.82 },
+    discardPriority: ["shelter", "dig", "fossil", "trike", "oracle", "nope", "sprint", "volcano", "targetedRaptor", "raptor"]
+  },
+  volcanic: {
+    name: "Vulkaanwachter",
+    sprintEscape: 0.74,
+    napEscape: 0.5,
+    pteroPair: 0.5,
+    pairPlay: 0.28,
+    volcanoLowDeck: 0.94,
+    trikeRiskCheck: 0.54,
+    fallbackPlay: 0.28,
+    playerTarget: 0.72,
+    brontoRaptorMove: 0.5,
+    nope: { default: 0.6, nope: 0.44, info: 0.2, sprint: 0.34 },
+    cardBias: { volcano: 1.75, raptor: 1.16, targetedRaptor: 1.12, sprint: 1.08, trike: 0.82, oracle: 0.72 },
+    discardPriority: ["shelter", "volcano", "sprint", "nope", "targetedRaptor", "raptor", "dig", "oracle", "fossil"]
+  },
+  sneaky: {
+    name: "Bottenfluisteraar",
+    sprintEscape: 0.78,
+    napEscape: 0.58,
+    pteroPair: 0.48,
+    pairPlay: 0.42,
+    volcanoLowDeck: 0.46,
+    trikeRiskCheck: 0.62,
+    fallbackPlay: 0.24,
+    playerTarget: 0.7,
+    brontoRaptorMove: 0.36,
+    targetRichHand: true,
+    nope: { default: 0.72, nope: 0.56, info: 0.3, sprint: 0.42 },
+    cardBias: { fossil: 1.85, miniRaptor: 1.7, targetedRaptor: 1.25, nope: 1.18, raptor: 0.92 },
+    pairBias: { miniRaptor: 1.8, feral: 1.25 },
+    discardPriority: ["shelter", "fossil", "nope", "sprint", "dig", "oracle", "targetedRaptor", "raptor", "volcano"]
+  },
+  aggressive: {
+    name: "Brulbaard",
+    sprintEscape: 0.62,
+    napEscape: 0.42,
+    pteroPair: 0.36,
+    pairPlay: 0.24,
+    volcanoLowDeck: 0.5,
+    trikeRiskCheck: 0.48,
+    fallbackPlay: 0.34,
+    playerTarget: 0.86,
+    brontoRaptorMove: 0.62,
+    nope: { default: 0.78, nope: 0.64, info: 0.18, sprint: 0.48 },
+    cardBias: { targetedRaptor: 1.85, raptor: 1.75, nope: 1.25, sprint: 1.16, fossil: 1.05, trike: 0.58, oracle: 0.52 },
+    discardPriority: ["shelter", "targetedRaptor", "raptor", "nope", "sprint", "fossil", "volcano", "dig", "oracle"]
+  },
+  careful: {
+    name: "Tijdlijnkundige",
+    sprintEscape: 0.9,
+    napEscape: 0.82,
+    pteroPair: 0.68,
+    pairPlay: 0.2,
+    volcanoLowDeck: 0.52,
+    trikeRiskCheck: 0.94,
+    fallbackPlay: 0.12,
+    playerTarget: 0.48,
+    brontoRaptorMove: 0.72,
+    nope: { default: 0.64, nope: 0.5, info: 0.46, sprint: 0.36 },
+    cardBias: { oracle: 1.85, trike: 1.75, pteroPret: 1.45, brontoBuik: 1.42, dig: 1.22, raptor: 0.5, targetedRaptor: 0.58 },
+    discardPriority: ["shelter", "oracle", "trike", "pteroPret", "brontoBuik", "nope", "sprint", "dig", "fossil"]
+  },
+  captain: {
+    name: "Kaartkapitein",
+    sprintEscape: 0.84,
+    napEscape: 0.66,
+    pteroPair: 0.82,
+    pairPlay: 0.36,
+    volcanoLowDeck: 0.62,
+    trikeRiskCheck: 0.68,
+    fallbackPlay: 0.22,
+    playerTarget: 0.66,
+    brontoRaptorMove: 0.44,
+    nope: { default: 0.62, nope: 0.54, info: 0.34, sprint: 0.38 },
+    cardBias: { pteroPret: 1.85, sprint: 1.42, oracle: 1.2, trike: 1.12, volcano: 1.08, raptor: 0.85 },
+    pairBias: { pteroPret: 1.9, feral: 1.22 },
+    discardPriority: ["shelter", "pteroPret", "sprint", "oracle", "trike", "nope", "volcano", "fossil", "raptor"]
+  },
+  defensive: {
+    name: "Mosridder",
+    sprintEscape: 0.94,
+    napEscape: 0.86,
+    pteroPair: 0.46,
+    pairPlay: 0.22,
+    volcanoLowDeck: 0.58,
+    trikeRiskCheck: 0.84,
+    fallbackPlay: 0.14,
+    playerTarget: 0.42,
+    brontoRaptorMove: 0.82,
+    nope: { default: 0.82, nope: 0.7, info: 0.38, sprint: 0.58 },
+    cardBias: { nope: 1.72, sprint: 1.48, trike: 1.35, brontoBuik: 1.3, stegoSnack: 1.24, raptor: 0.46, targetedRaptor: 0.5 },
+    discardPriority: ["shelter", "nope", "sprint", "brontoBuik", "trike", "stegoSnack", "dig", "oracle", "fossil"]
+  },
+  chaotic: {
+    name: "Platenmaker",
+    sprintEscape: 0.72,
+    napEscape: 0.5,
+    pteroPair: 0.72,
+    pairPlay: 0.62,
+    volcanoLowDeck: 0.82,
+    trikeRiskCheck: 0.48,
+    fallbackPlay: 0.46,
+    playerTarget: 0.62,
+    brontoRaptorMove: 0.5,
+    nope: { default: 0.5, nope: 0.5, info: 0.24, sprint: 0.42 },
+    cardBias: { volcano: 1.45, pteroPret: 1.36, feral: 1.34, sprint: 1.18, raptor: 1.08, oracle: 0.72 },
+    pairBias: { feral: 1.65 },
+    discardPriority: ["shelter", "volcano", "pteroPret", "feral", "sprint", "nope", "targetedRaptor", "dig", "oracle"]
+  },
+  tricky: {
+    name: "Trucjager",
+    sprintEscape: 0.8,
+    napEscape: 0.6,
+    pteroPair: 0.56,
+    pairPlay: 0.48,
+    volcanoLowDeck: 0.66,
+    trikeRiskCheck: 0.7,
+    fallbackPlay: 0.3,
+    playerTarget: 0.74,
+    brontoRaptorMove: 0.58,
+    targetRichHand: true,
+    nope: { default: 0.74, nope: 0.62, info: 0.36, sprint: 0.5 },
+    cardBias: { nope: 1.52, targetedRaptor: 1.45, fossil: 1.42, oracle: 1.24, miniRaptor: 1.3, raptor: 1.1 },
+    pairBias: { miniRaptor: 1.45, pteroPret: 1.22, feral: 1.18 },
+    discardPriority: ["shelter", "nope", "fossil", "targetedRaptor", "miniRaptor", "oracle", "sprint", "raptor", "volcano"]
+  }
+};
+
+const defaultPcStyleProfile = pcStyleProfiles.archaeologist;
+
+function hasPcStyleProfile(style) {
+  return Boolean(pcStyleProfiles[style]);
+}
+
 const initialState = {
   players: [],
   hands: {},
@@ -143,16 +293,16 @@ function startGame() {
   }
 
   const mode = deckModeForPlayers(playerCount);
-  const shelterCount = mode === "paw"
-    ? partyPackDistribution.shelter.paw
+  const shelterCount = mode === "compact"
+    ? partyPackDistribution.shelter.compact
     : mode === "standard"
-      ? partyPackDistribution.shelter.total - partyPackDistribution.shelter.paw
+      ? partyPackDistribution.shelter.total - partyPackDistribution.shelter.compact
       : partyPackDistribution.shelter.total;
   const extraDefuses = Math.max(0, shelterCount - playerCount);
   const meteors = Math.max(1, playerCount - 1);
   const drawPile = [
     ...pool,
-    ...Array.from({ length: extraDefuses }, () => makeCard("shelter", mode === "paw")),
+    ...Array.from({ length: extraDefuses }, () => makeCard("shelter", mode === "compact")),
     ...Array.from({ length: meteors }, () => makeCard("meteor", false))
   ];
 
@@ -848,6 +998,29 @@ function renderRevealCards(cards, options = {}) {
   });
 }
 
+const cardKindIcons = {
+  action: {
+    src: "assets/cards/icons/action.svg",
+    className: "action",
+    label: "Actie"
+  },
+  danger: {
+    src: "assets/cards/icons/danger.svg",
+    className: "danger",
+    label: "Gevaar"
+  },
+  defuse: {
+    src: "assets/cards/icons/defuse.svg",
+    className: "defuse",
+    label: "Redding"
+  },
+  set: {
+    src: "assets/cards/icons/set-pair.svg",
+    className: "set-pair",
+    label: "Spaarkaart"
+  }
+};
+
 function renderCardFace(element, card, options = {}) {
   element.dataset.kind = card.kind;
   delete element.dataset.tone;
@@ -859,9 +1032,6 @@ function renderCardFace(element, card, options = {}) {
     title.textContent = card.name;
     const text = document.createElement("span");
     text.textContent = card.text;
-    if (card.hasPaw && !options.hidePaw) {
-      text.append(createPawMarker());
-    }
     element.append(title, text);
     return;
   }
@@ -879,13 +1049,15 @@ function renderCardFace(element, card, options = {}) {
   title.textContent = card.name;
 
   header.append(title);
-  if (card.kind === "set") {
+  const kindIcon = cardKindIcons[card.kind];
+  if (kindIcon) {
     const icon = document.createElement("span");
-    icon.className = "card-face__icon card-face__icon--set-pair";
-    icon.setAttribute("aria-hidden", "true");
+    icon.className = `card-face__icon card-face__icon--${kindIcon.className}`;
+    icon.setAttribute("aria-label", kindIcon.label);
+    icon.setAttribute("title", kindIcon.label);
 
     const image = document.createElement("img");
-    image.src = "assets/cards/icons/set-pair.svg";
+    image.src = kindIcon.src;
     image.alt = "";
     icon.append(image);
     header.append(icon);
@@ -905,9 +1077,6 @@ function renderCardFace(element, card, options = {}) {
   const text = document.createElement("span");
   text.className = "card-face__text";
   text.textContent = card.text;
-  if (card.hasPaw && !options.hidePaw) {
-    text.append(createPawMarker());
-  }
 
   element.append(header, art, text);
 }
@@ -924,7 +1093,7 @@ function renderCatalogGrid() {
     button.type = "button";
     button.dataset.kind = card.kind;
     button.setAttribute("aria-label", `${card.name} openen`);
-    renderCardFace(button, card, { hidePaw: true });
+    renderCardFace(button, card);
 
     const meta = document.createElement("span");
     meta.className = "catalog-card__meta";
@@ -942,7 +1111,7 @@ function createCatalogCard(type) {
   return {
     id: `catalog-${type}`,
     type,
-    hasPaw: false,
+    isCompact: false,
     ...catalogCard,
     design: resolveDesign(type)
   };
@@ -979,22 +1148,7 @@ function renderCatalogDetail() {
   els.catalogDetailTitle.textContent = card.name;
   els.catalogDetailText.textContent = card.text;
   els.catalogDetailCard.className = "catalog-detail__card";
-  renderCardFace(els.catalogDetailCard, card, { large: true, hidePaw: true });
-}
-
-function createPawMarker() {
-  const marker = document.createElement("span");
-  marker.className = "card-paw-marker";
-  marker.setAttribute("aria-label", "Dino-poot");
-  marker.setAttribute("title", "Dino-poot");
-
-  for (let i = 0; i < 4; i += 1) {
-    const toe = document.createElement("span");
-    toe.setAttribute("aria-hidden", "true");
-    marker.append(toe);
-  }
-
-  return marker;
+  renderCardFace(els.catalogDetailCard, card, { large: true });
 }
 
 function renderOracleCards(pendingOracle) {
@@ -1008,7 +1162,7 @@ function renderOracleCards(pendingOracle) {
     position.textContent = index === 0 ? "Bovenop" : `Plek ${index + 1}`;
 
     item.append(position);
-    renderCardFace(item, card, { mini: true, hidePaw: true });
+    renderCardFace(item, card, { mini: true });
     item.prepend(position);
 
     if (pendingOracle.owner === "player" && pendingOracle.cards.length > 1) {
@@ -1661,11 +1815,38 @@ function canPlayAttackReactionCard(card) {
   return card.type === "nope" || isAttackCard(card);
 }
 
-function choosePcNopeReaction(card) {
-  if (card.type === "nope") return Math.random() < 0.52;
-  if (card.type === "trike" || card.type === "volcano") return Math.random() < 0.28;
-  if (card.type === "sprint") return Math.random() < 0.42;
-  return Math.random() < 0.68;
+function clampChance(value) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function getPcStyleProfile(owner) {
+  const style = getPlayer(owner)?.playStyle;
+  return pcStyleProfiles[style] ?? defaultPcStyleProfile;
+}
+
+function pcStyleChance(owner, key, fallback) {
+  const profile = getPcStyleProfile(owner);
+  return clampChance(profile[key] ?? fallback);
+}
+
+function pcCardBias(owner, type) {
+  return getPcStyleProfile(owner).cardBias?.[type] ?? 1;
+}
+
+function pcPairBias(owner, type) {
+  return getPcStyleProfile(owner).pairBias?.[type] ?? pcCardBias(owner, type);
+}
+
+function choosePcNopeReaction(owner, card) {
+  const nope = getPcStyleProfile(owner).nope ?? defaultPcStyleProfile.nope;
+  const chance = card.type === "nope"
+    ? nope.nope
+    : card.type === "trike" || card.type === "volcano"
+      ? nope.info
+      : card.type === "sprint"
+        ? nope.sprint
+        : nope.default;
+  return Math.random() < clampChance(chance);
 }
 
 function resolvePlayerNopeReaction(actor, card, nopeCardId) {
@@ -1764,7 +1945,7 @@ function continueNopeChain(chain) {
   }
 
   if (reactor !== "player") {
-    const shouldBlock = choosePcNopeReaction(chain.nopeCount > 0 ? chain.lastNopeCard : chain.card);
+    const shouldBlock = choosePcNopeReaction(reactor, chain.nopeCount > 0 ? chain.lastNopeCard : chain.card);
     if (shouldBlock) {
       state.pendingNopeReaction = { ...chain, reactor, nopeCardId: nopeCard.id, skipPlayer: false };
       resolveNopeReaction(true);
@@ -2168,7 +2349,7 @@ function startStegoSnack(owner, playedPairIds = []) {
   }
 
   if (owner !== "player") {
-    const card = choosePcDiscardSnack(cards);
+    const card = choosePcDiscardSnack(owner, cards);
     reclaimDiscardCard(owner, card.id);
     return;
   }
@@ -2189,8 +2370,9 @@ function getStegoSnackOptions(excludedIds = []) {
     .reverse();
 }
 
-function choosePcDiscardSnack(cards) {
-  const priority = ["shelter", "nope", "sprint", "dig", "volcano", "oracle", "fossil", "targetedRaptor", "raptor"];
+function choosePcDiscardSnack(owner, cards) {
+  const priority = getPcStyleProfile(owner).discardPriority
+    ?? ["shelter", "nope", "sprint", "dig", "volcano", "oracle", "fossil", "targetedRaptor", "raptor"];
   for (const type of priority) {
     const card = cards.find((item) => item.type === type);
     if (card) return card;
@@ -2220,7 +2402,7 @@ function startBrontoBelly(owner) {
   }
 
   if (owner !== "player") {
-    const shouldMove = topCard.type === "meteor" || (topCard.type === "raptor" && Math.random() < 0.42);
+    const shouldMove = topCard.type === "meteor" || (topCard.type === "raptor" && Math.random() < pcStyleChance(owner, "brontoRaptorMove", 0.42));
     if (shouldMove) {
       state.deck.unshift(state.deck.pop());
     }
@@ -2267,7 +2449,7 @@ function startPteroPret(owner) {
   }
 
   if (owner !== "player") {
-    resolvePteroCards(owner, cards, choosePcPteroTop(cards)?.id);
+    resolvePteroCards(owner, cards, choosePcPteroTop(owner, cards)?.id);
     showCardMoment({
       title: "Ptero Pret",
       cards,
@@ -2288,14 +2470,14 @@ function startPteroPret(owner) {
   render();
 }
 
-function choosePcPteroTop(cards) {
+function choosePcPteroTop(owner, cards) {
   const scoreCard = (card) => {
     if (card.type === "meteor") return -100;
-    if (card.type === "shelter") return 80;
-    if (card.type === "sprint") return 48;
-    if (card.type === "nope") return 42;
-    if (card.playable) return 34;
-    if (isSetCard(card)) return 22;
+    if (card.type === "shelter") return 80 * pcCardBias(owner, card.type);
+    if (card.type === "sprint") return 48 * pcCardBias(owner, card.type);
+    if (card.type === "nope") return 42 * pcCardBias(owner, card.type);
+    if (card.playable) return 34 * pcCardBias(owner, card.type);
+    if (isSetCard(card)) return 22 * pcPairBias(owner, card.type);
     return 10;
   };
 
@@ -2589,45 +2771,58 @@ function pcTurn() {
 function choosePcCard(owner) {
   const hand = getHand(owner);
   const sprint = hand.find((card) => card.type === "sprint");
-  if ((state.pendingTurns[owner] ?? 1) > 1 && sprint && Math.random() < 0.86) {
+  if ((state.pendingTurns[owner] ?? 1) > 1 && sprint && Math.random() < pcStyleChance(owner, "sprintEscape", 0.86)) {
     return sprint;
   }
 
   const triceraTuk = hand.find((card) => card.type === "triceraTuk" && findPairForCard(hand, card).length === 2);
-  if ((state.pendingTurns[owner] ?? 1) > 1 && triceraTuk && Math.random() < 0.72) {
+  if ((state.pendingTurns[owner] ?? 1) > 1 && triceraTuk && Math.random() < pcStyleChance(owner, "napEscape", 0.72)) {
     return triceraTuk;
   }
 
   const pteroPret = hand.find((card) => card.type === "pteroPret" && findPairForCard(hand, card).length === 2);
-  if (pteroPret && state.deck.length >= 2 && Math.random() < 0.58) {
+  if (pteroPret && state.deck.length >= 2 && Math.random() < pcStyleChance(owner, "pteroPair", 0.58)) {
     return pteroPret;
   }
 
-  const playablePair = hand.find((card) => isSetCard(card) && findPairForCard(hand, card).length === 2);
-  if (playablePair && Math.random() < 0.34) return playablePair;
+  const playablePair = choosePcSetPair(owner, hand);
+  if (playablePair && Math.random() < pcStyleChance(owner, "pairPlay", 0.34)) return playablePair;
 
   const volcano = hand.find((card) => card.type === "volcano");
-  if (volcano && state.deck.length <= 6 && Math.random() < 0.78) {
+  if (volcano && state.deck.length <= 6 && Math.random() < pcStyleChance(owner, "volcanoLowDeck", 0.78)) {
     return volcano;
   }
 
   const trike = hand.find((card) => card.type === "trike");
-  if (trike && ((state.pendingTurns[owner] ?? 1) > 1 || state.deck.length <= 8) && Math.random() < 0.74) {
+  if (trike && ((state.pendingTurns[owner] ?? 1) > 1 || state.deck.length <= 8) && Math.random() < pcStyleChance(owner, "trikeRiskCheck", 0.74)) {
     return trike;
   }
 
   const playable = hand.filter((card) => card.playable);
   if (playable.length === 0) return null;
 
-  const usefulOrder = ["trike", "oracle", "fossil", "targetedRaptor", "raptor", "volcano", "dig", "sprint", "nope"];
-  for (const type of usefulOrder) {
+  for (const type of getPcUsefulOrder(owner)) {
     const candidate = playable.find((card) => card.type === type);
-    if (candidate && Math.random() < 0.68) {
+    if (candidate && Math.random() < clampChance(0.68 * pcCardBias(owner, type))) {
       return candidate;
     }
   }
 
-  return Math.random() < 0.22 ? playable[0] : null;
+  return Math.random() < pcStyleChance(owner, "fallbackPlay", 0.22) ? playable[0] : null;
+}
+
+function choosePcSetPair(owner, hand) {
+  return hand
+    .filter((card) => isSetCard(card) && findPairForCard(hand, card).length === 2)
+    .sort((a, b) => pcPairBias(owner, b.type) - pcPairBias(owner, a.type))[0] ?? null;
+}
+
+function getPcUsefulOrder(owner) {
+  const usefulOrder = ["trike", "oracle", "fossil", "targetedRaptor", "raptor", "volcano", "dig", "sprint", "nope"];
+  return usefulOrder
+    .map((type, index) => ({ type, index, score: pcCardBias(owner, type) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((item) => item.type);
 }
 
 function endGame(winner, reason) {
@@ -2781,7 +2976,10 @@ function chooseDefaultTarget(owner) {
 }
 
 function choosePcTarget(owner, targets = activeOpponentsOf(owner)) {
-  if (targets.includes("player") && Math.random() < 0.72) return "player";
+  if (targets.includes("player") && Math.random() < pcStyleChance(owner, "playerTarget", 0.72)) return "player";
+  if (getPcStyleProfile(owner).targetRichHand) {
+    return [...targets].sort((a, b) => getHand(b).length - getHand(a).length)[0] ?? targets[0];
+  }
   return targets[Math.floor(Math.random() * targets.length)];
 }
 

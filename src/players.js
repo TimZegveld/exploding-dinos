@@ -14,7 +14,7 @@ const opponentPersonas = [
     species: "Tyrannosaurus rex",
     speciesShort: "T. rex",
     initials: "RA",
-    playStyle: "balanced",
+    playStyle: "archaeologist",
     color: "#d45d32",
     portrait: "assets/players/portraits/rex-archeoloog.png",
     portraitPrompt: `${portraitPromptBase}, Tyrannosaurus rex with a broad snout and tiny arms, curious dinosaur archaeologist wearing a monocle and field hat, surrounded by fossils and small excavation tools`
@@ -27,7 +27,7 @@ const opponentPersonas = [
     species: "Parasaurolophus",
     speciesShort: "Parasaurolophus",
     initials: "NV",
-    playStyle: "bold",
+    playStyle: "volcanic",
     color: "#e05f4f",
     portrait: "assets/players/portraits/nova-vulkaanwachter.png",
     portraitPrompt: `${portraitPromptBase}, Parasaurolophus with a long backward head crest, confident dinosaur volcano watcher wearing safety goggles, holding a glowing lava lantern, warm volcanic rim light`
@@ -79,7 +79,7 @@ const opponentPersonas = [
     species: "Pteranodon",
     speciesShort: "Pteranodon",
     initials: "OK",
-    playStyle: "balanced",
+    playStyle: "captain",
     color: "#2f8f8a",
     portrait: "assets/players/portraits/otto-kaartkapitein.png",
     portraitPrompt: `${portraitPromptBase}, Pteranodon with a long beak and swept head crest, cheerful flying reptile card captain wearing a captain hat, holding a fan of blank playing cards, nautical adventure mood`
@@ -99,16 +99,16 @@ const opponentPersonas = [
   },
   {
     personaId: "puck",
-    name: "Puck de Pootafdrukker",
+    name: "Puck de Platenmaker",
     gender: "male",
-    role: "Pootafdrukker",
+    role: "Platenmaker",
     species: "Stegosaurus",
     speciesShort: "Stegosaurus",
     initials: "PP",
     playStyle: "chaotic",
     color: "#b36a22",
-    portrait: "assets/players/portraits/puck-pootafdrukker.png",
-    portraitPrompt: `${portraitPromptBase}, Stegosaurus with friendly face and visible back plates, lively dinosaur paw-print maker with an ink pot and paw stamp tools, playful messy creative energy`
+    portrait: "assets/players/portraits/puck-platenmaker.png",
+    portraitPrompt: `${portraitPromptBase}, Stegosaurus with friendly face and visible back plates, lively dinosaur plate artist with carved wooden stamp tools and playful messy creative energy`
   },
   {
     personaId: "tara",

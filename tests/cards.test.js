@@ -21,35 +21,35 @@ function loadCardsModule() {
 test("deck mode follows player-count ranges", () => {
   const { deckModeForPlayers } = loadCardsModule();
 
-  assert.equal(deckModeForPlayers(2), "paw");
-  assert.equal(deckModeForPlayers(3), "paw");
+  assert.equal(deckModeForPlayers(2), "compact");
+  assert.equal(deckModeForPlayers(3), "compact");
   assert.equal(deckModeForPlayers(4), "standard");
   assert.equal(deckModeForPlayers(7), "standard");
   assert.equal(deckModeForPlayers(8), "full");
 });
 
-test("buildCardPool uses paw counts for two or three players", () => {
+test("buildCardPool uses compact counts for two or three players", () => {
   const { buildCardPool, partyPackDistribution } = loadCardsModule();
   const pool = buildCardPool(2);
   const expected = Object.entries(partyPackDistribution)
     .filter(([type]) => type !== "meteor" && type !== "shelter")
-    .reduce((sum, [, counts]) => sum + counts.paw, 0);
+    .reduce((sum, [, counts]) => sum + counts.compact, 0);
 
   assert.equal(pool.length, expected);
-  assert.equal(pool.every((card) => card.hasPaw), true);
+  assert.equal(pool.every((card) => card.isCompact), true);
   assert.equal(pool.some((card) => card.type === "meteor"), false);
   assert.equal(pool.some((card) => card.type === "shelter"), false);
 });
 
-test("buildCardPool uses non-paw counts for four to seven players", () => {
+test("buildCardPool uses standard counts for four to seven players", () => {
   const { buildCardPool, partyPackDistribution } = loadCardsModule();
   const pool = buildCardPool(4);
   const expected = Object.entries(partyPackDistribution)
     .filter(([type]) => type !== "meteor" && type !== "shelter")
-    .reduce((sum, [, counts]) => sum + counts.total - counts.paw, 0);
+    .reduce((sum, [, counts]) => sum + counts.total - counts.compact, 0);
 
   assert.equal(pool.length, expected);
-  assert.equal(pool.every((card) => !card.hasPaw), true);
+  assert.equal(pool.every((card) => !card.isCompact), true);
 });
 
 test("makeCard resolves catalog data and illustration variants", () => {
@@ -59,7 +59,7 @@ test("makeCard resolves catalog data and illustration variants", () => {
 
   assert.equal(firstVariant.name, "Mini-Raptor");
   assert.equal(firstVariant.kind, "set");
-  assert.equal(firstVariant.hasPaw, true);
+  assert.equal(firstVariant.isCompact, true);
   assert.notEqual(firstVariant.id, secondVariant.id);
   assert.notEqual(firstVariant.design.image, secondVariant.design.image);
 });

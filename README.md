@@ -1,6 +1,6 @@
 # Exploding Dinos
 
-Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 120 kaarten totaal, met een compacte dino-pootafdruk set voor 2-3 spelers.
+Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 120 kaarten totaal, met een compacte kaartselectie voor 2-3 spelers.
 
 Speel online: https://timzegveld.github.io/exploding-dinos/
 
@@ -57,9 +57,26 @@ Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.ima
 
 Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
 
+## NPC-profielen
+
+Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LLM: het zijn vaste kansprofielen en kaartvoorkeuren die de bestaande pc-keuzes subtiel sturen.
+
+| NPC | Profielschets | Speelstijl |
+|---|---|---|
+| Rex de Archeoloog | Nieuwsgierige T. rex die graag graaft, zoekt en waarde uit de aflegstapel haalt. | Onderzoekend: kiest relatief vaak `Fossielgraaier`, `Diep Graven` en kijkkaarten; valt minder blind aan. |
+| Nova de Vulkaanwachter | Zelfverzekerde vulkaanwachter die chaos in de stapel niet schuwt. | Vulkanisch: speelt sneller `Vulkaan Shuffle`, neemt iets meer risico en houdt van tempo. |
+| Kiki de Bottenfluisteraar | Slimme, sluipende raptor die andermans hand goed in de gaten houdt. | Sluw: gebruikt vaker steelkaarten en `Mini-Raptor`, en kiest eerder doelwitten met veel kaarten. |
+| Bram Brulbaard | Luide Carnotaurus die druk zet en graag het initiatief pakt. | Agressief: speelt vaker `Raptor Aanval`, `Gerichte Raptorjacht` en `Brul Terug`; kiest jou vaker als doelwit. |
+| Luna de Tijdlijnkundige | Voorzichtige triceratops die liever eerst de toekomst leest. | Zorgvuldig: gebruikt vaker `Tijdlijn Kneden`, `Triceratops Blik`, `Ptero Pret` en andere deckcontrole. |
+| Otto de Kaartkapitein | Luchtige kaartkapitein die graag de boven- en onderkant van de stapel bestuurt. | Kapitein: heeft extra voorkeur voor `Ptero Pret`, `Dino Sprint` en gecontroleerd herschikken. |
+| Mira de Mosridder | Beschermende Ankylosaurus die liever overleeft dan overhaast aanvalt. | Defensief: bewaart en speelt vaker bescherming, `Brul Terug`, `Dino Sprint` en veilige kijkacties. |
+| Puck de Platenmaker | Creatieve Stegosaurus die graag rare combinaties probeert. | Chaotisch: speelt vaker paren, `Vulkaan Shuffle`, `Ptero Pret` en onverwachte speelbare kaarten. |
+| Tara de Trucjager | Sluwe Dilophosaurus die graag timing en blokkades gebruikt. | Tricky: combineert stelen, `Brul Terug`, gerichte aanvallen en doelwitkeuze op handgrootte. |
+
 ## Regels in deze iteratie
 
 - Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
+- Iedere pc-tegenspeler heeft een eigen speelstijl die kaartkeuze, doelwitkeuze, blokkeren, risico nemen en deckcontrole subtiel beinvloedt.
 - De startselectie adviseert beginners om met 1 tegenstander te beginnen; extra tegenstanders zorgen voor meer chaos.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
@@ -68,7 +85,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - Op telefoon kun je je hand open- en dichtklappen, zodat de trekstapel en tafel meer ruimte houden.
 - Op telefoon zitten Kaarten, Nieuw spel en Logboek achter een sluitbaar menu.
 - Actiekaarten kun je voor het trekken spelen.
-- Bij 2-3 spelers gebruikt de game alleen de dino-pootafdruk kaarten. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
+- Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.

@@ -221,23 +221,23 @@ const cardCatalog = {
 };
 
 const partyPackDistribution = {
-  meteor: { total: 9, paw: 0 },
-  shelter: { total: 10, paw: 3 },
-  raptor: { total: 5, paw: 2 },
-  targetedRaptor: { total: 5, paw: 2 },
-  sprint: { total: 10, paw: 4 },
-  trike: { total: 6, paw: 3 },
-  oracle: { total: 6, paw: 2 },
-  volcano: { total: 6, paw: 2 },
-  dig: { total: 7, paw: 3 },
-  fossil: { total: 6, paw: 2 },
-  nope: { total: 9, paw: 4 },
-  feral: { total: 6, paw: 2 },
-  miniRaptor: { total: 7, paw: 3 },
-  stegoSnack: { total: 7, paw: 3 },
-  brontoBuik: { total: 7, paw: 3 },
-  triceraTuk: { total: 7, paw: 3 },
-  pteroPret: { total: 7, paw: 3 }
+  meteor: { total: 9, compact: 0 },
+  shelter: { total: 10, compact: 3 },
+  raptor: { total: 5, compact: 2 },
+  targetedRaptor: { total: 5, compact: 2 },
+  sprint: { total: 10, compact: 4 },
+  trike: { total: 6, compact: 3 },
+  oracle: { total: 6, compact: 2 },
+  volcano: { total: 6, compact: 2 },
+  dig: { total: 7, compact: 3 },
+  fossil: { total: 6, compact: 2 },
+  nope: { total: 9, compact: 4 },
+  feral: { total: 6, compact: 2 },
+  miniRaptor: { total: 7, compact: 3 },
+  stegoSnack: { total: 7, compact: 3 },
+  brontoBuik: { total: 7, compact: 3 },
+  triceraTuk: { total: 7, compact: 3 },
+  pteroPret: { total: 7, compact: 3 }
 };
 
 const CARD_VARIANT_REPEAT_LIMIT = 1;
@@ -287,13 +287,13 @@ function createCardVariantTracker() {
   };
 }
 
-function makeCard(type, hasPaw = false, variantIndex = 0) {
+function makeCard(type, isCompact = false, variantIndex = 0) {
   const catalogCard = cardCatalog[type];
 
   return {
     id: crypto.randomUUID(),
     type,
-    hasPaw,
+    isCompact,
     ...catalogCard,
     design: resolveDesign(type, variantIndex)
   };
@@ -310,7 +310,7 @@ function shuffle(cards) {
 }
 
 function deckModeForPlayers(players) {
-  if (players <= 3) return "paw";
+  if (players <= 3) return "compact";
   if (players <= 7) return "standard";
   return "full";
 }
@@ -323,14 +323,14 @@ function buildCardPool(playerCount) {
   Object.entries(partyPackDistribution).forEach(([type, counts]) => {
     if (type === "meteor" || type === "shelter") return;
 
-    const copies = mode === "paw"
-      ? counts.paw
+    const copies = mode === "compact"
+      ? counts.compact
       : mode === "standard"
-        ? counts.total - counts.paw
+        ? counts.total - counts.compact
         : counts.total;
 
     for (let index = 0; index < copies; index += 1) {
-      cards.push(makeCard(type, mode === "paw", variants.next(type)));
+      cards.push(makeCard(type, mode === "compact", variants.next(type)));
     }
   });
 

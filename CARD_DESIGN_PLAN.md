@@ -33,11 +33,10 @@ playful prehistoric cartoon card game illustration, chunky shapes, bold clean ou
 Elke kaart krijgt dezelfde basisopbouw:
 
 - Bovenbalk: kaartnaam.
-- Type-icoon: linksboven of rechtsboven.
+- Type-icoon: rechtsboven voor elke kaartfamilie.
 - Illustratievlak: grootste deel van de kaart.
 - Effectvlak: korte regel met speleffect.
 - Typekleur: rand, hoekaccent of achtergrondband.
-- Pootafdruk-marker: optionele markering voor de 2-3 speler set.
 
 Voorgestelde assetstructuur:
 
@@ -52,7 +51,7 @@ assets/
       danger.svg
       defuse.svg
       action.svg
-      set.svg
+      set-pair.svg
       joker.svg
     templates/
       card-template.svg

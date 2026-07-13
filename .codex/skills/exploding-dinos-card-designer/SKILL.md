@@ -81,7 +81,7 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
 ## Design Defaults
 
 - Art direction: playful prehistoric cartoon, chunky shapes, bold outlines, warm colors, expressive dinosaur character, board-game readability.
-- Card UI stays code-rendered: title, icon, effect text, paw marker, borders, and controls.
+- Card UI stays code-rendered: title, icon, effect text, borders, and controls.
 - Art should be readable at hand-card size, not only in large reveal.
 - Prefer one strong representative design per card type before creating variants.
 

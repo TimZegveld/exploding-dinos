@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const { createBrowserHarness } = require("./browser-harness");
 
@@ -33,6 +35,24 @@ test("npc colors are unique and stable in games", () => {
     const persona = opponentPersonas.find((item) => item.personaId === player.personaId);
     assert.equal(player.color, persona.color);
   });
+});
+
+test("npc personas have unique implemented play styles", () => {
+  const { sandbox } = loadGame();
+  const { opponentPersonas } = sandbox.ExplodingDinosPlayers;
+  const styles = opponentPersonas.map((persona) => persona.playStyle);
+
+  assert.equal(new Set(styles).size, opponentPersonas.length);
+  styles.forEach((style) => {
+    assert.equal(sandbox.hasPcStyleProfile(style), true);
+  });
+});
+
+test("opponent selection hints at hidden npc play styles", () => {
+  const html = fs.readFileSync(path.resolve(__dirname, "..", "index.html"), "utf8");
+
+  assert.match(html, /Iedere NPC speelt merkbaar anders/);
+  assert.match(html, /stijl ontdek je pas tijdens het potje/);
 });
 
 test("starting from the modal renders the initial table", () => {
@@ -89,23 +109,34 @@ test("player hand sorts by card type with stable random order inside a type", ()
   assert.equal(sortedIds[2], lateRaptor.id);
 });
 
-test("only set cards render the pair icon in the card header", () => {
+test("all card kinds render a type icon in the card header", () => {
   const { getSelector, sandbox } = loadGame();
   const actionCardHost = getSelector("#actionCardHost");
   const setCardHost = getSelector("#setCardHost");
+  const dangerCardHost = getSelector("#revealCard");
+  const defuseCardHost = getSelector("#discardTop");
 
   sandbox.renderCardFace(actionCardHost, sandbox.ExplodingDinosCards.makeCard("raptor", true));
   sandbox.renderCardFace(setCardHost, sandbox.ExplodingDinosCards.makeCard("miniRaptor", true));
+  sandbox.renderCardFace(dangerCardHost, sandbox.ExplodingDinosCards.makeCard("meteor", false));
+  sandbox.renderCardFace(defuseCardHost, sandbox.ExplodingDinosCards.makeCard("shelter", false));
 
-  const actionHeader = actionCardHost.children[0];
-  const setHeader = setCardHost.children[0];
-  const setIcon = setHeader.children[1];
+  const expected = [
+    [actionCardHost, "card-face__icon card-face__icon--action", "assets/cards/icons/action.svg"],
+    [setCardHost, "card-face__icon card-face__icon--set-pair", "assets/cards/icons/set-pair.svg"],
+    [dangerCardHost, "card-face__icon card-face__icon--danger", "assets/cards/icons/danger.svg"],
+    [defuseCardHost, "card-face__icon card-face__icon--defuse", "assets/cards/icons/defuse.svg"]
+  ];
 
-  assert.equal(actionHeader.children.length, 1);
-  assert.equal(actionHeader.classList.contains("card-face__header--no-icon"), true);
-  assert.equal(setHeader.children.length, 2);
-  assert.equal(setIcon.className, "card-face__icon card-face__icon--set-pair");
-  assert.equal(setIcon.children[0].src, "assets/cards/icons/set-pair.svg");
+  expected.forEach(([host, className, src]) => {
+    const header = host.children[0];
+    const icon = header.children[1];
+
+    assert.equal(header.children.length, 2);
+    assert.equal(header.classList.contains("card-face__header--no-icon"), false);
+    assert.equal(icon.className, className);
+    assert.equal(icon.children[0].src, src);
+  });
 });
 
 test("mobile menu opens logbook and navigates to the catalog", () => {
@@ -197,4 +228,25 @@ test("catalog tab renders all unique cards", () => {
   assert.equal(getSelector("#catalogPage").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#catalogGrid").children.length, expectedCount);
   assert.equal(getSelector("#catalogCount").textContent, `${expectedCount} unieke kaarten`);
+});
+
+test("pc play styles change card choices", () => {
+  const { getSelector, sandbox } = loadGame();
+  const { makeCard } = sandbox.ExplodingDinosCards;
+  const originalRandom = sandbox.Math.random;
+  getSelector("#startGameButton").click();
+
+  const pc = sandbox.getPlayer("pc1");
+  const pcHand = sandbox.getHand("pc1");
+  pcHand.splice(0, pcHand.length, makeCard("raptor"), makeCard("oracle"));
+
+  pc.playStyle = "aggressive";
+  sandbox.Math.random = () => 0.7;
+  assert.equal(sandbox.choosePcCard("pc1").type, "raptor");
+
+  pc.playStyle = "careful";
+  sandbox.Math.random = () => 0.7;
+  assert.equal(sandbox.choosePcCard("pc1").type, "oracle");
+
+  sandbox.Math.random = originalRandom;
 });
