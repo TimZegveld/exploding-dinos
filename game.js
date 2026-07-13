@@ -16,6 +16,15 @@ const {
   resolveDesign,
   shuffle
 } = globalThis.ExplodingDinosCards;
+const {
+  applyRaptorAttack,
+  calculateSetupCounts,
+  determineSetPairRewardType,
+  insertMeteorBack,
+  isNopeChainBlocked,
+  resolveIncomingAttackLoad,
+  resolveMeteorDraw
+} = globalThis.ExplodingDinosRules;
 
 const HAND_TYPE_ORDER = Object.keys(cardCatalog);
 
@@ -202,6 +211,8 @@ let selectedCatalogType = null;
 let isPlayerHandOpen = false;
 let isMobileMenuOpen = false;
 let isMobileLogOpen = false;
+let motion = { kind: null, tone: null, id: 0 };
+let motionTimer = null;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 
 const els = {
@@ -292,14 +303,7 @@ function startGame() {
     });
   }
 
-  const mode = deckModeForPlayers(playerCount);
-  const shelterCount = mode === "compact"
-    ? partyPackDistribution.shelter.compact
-    : mode === "standard"
-      ? partyPackDistribution.shelter.total - partyPackDistribution.shelter.compact
-      : partyPackDistribution.shelter.total;
-  const extraDefuses = Math.max(0, shelterCount - playerCount);
-  const meteors = Math.max(1, playerCount - 1);
+  const { mode, extraDefuses, meteors } = calculateSetupCounts(playerCount, partyPackDistribution, deckModeForPlayers);
   const drawPile = [
     ...pool,
     ...Array.from({ length: extraDefuses }, () => makeCard("shelter", mode === "compact")),
@@ -379,6 +383,7 @@ function render() {
 
   els.deckCount.textContent = state.deck.length;
   renderDiscardPile();
+  els.drawButton.classList.toggle("is-drawing", motion.kind === "draw");
   els.playerHint.textContent = state.eliminated.player
     ? "Uitgeschakeld"
     : !hasGame
@@ -409,6 +414,7 @@ function renderDiscardPile() {
   els.discardTop.className = "";
   els.discardTop.removeAttribute?.("aria-label");
   els.discard.classList.toggle("is-empty", !topCard);
+  els.discard.classList.toggle("is-receiving", motion.kind === "discard");
 
   if (!topCard) {
     els.discardTop.className = "discard__empty";
@@ -717,6 +723,9 @@ function renderReveal() {
       renderClosedRevealCard();
     } else if (activeReveal.cards.length === 1) {
       renderOpenRevealCard(activeReveal.cards[0], activeReveal.shaking);
+      if (activeReveal.motionTone) {
+        els.revealCard.classList.add(`is-${activeReveal.motionTone}-moment`);
+      }
     } else {
       renderRevealCards(activeReveal.cards, {
         faceDown: activeReveal.faceDown,
@@ -850,6 +859,7 @@ function renderReveal() {
   const isMeteor = card.type === "meteor";
   const isVisible = owner === "player" || isMeteor;
   els.revealEyebrow.textContent = `${label(owner)} trekt`;
+  els.revealCard.classList.add("is-draw-arriving");
 
   if (isVisible) {
     renderOpenRevealCard(card, isMeteor);
@@ -860,6 +870,7 @@ function renderReveal() {
 
   if (isMeteor) {
     const hasShelter = getHand(owner).some((item) => item.type === "shelter");
+    els.revealCard.classList.add(hasShelter ? "is-shelter-save-moment" : "is-meteor-moment");
     els.revealText.textContent = hasShelter
       ? `${label(owner)} trekt een Meteorietinslag. Schuilgrot kan hem redden.`
       : `${label(owner)} trekt een Meteorietinslag zonder Schuilgrot.`;
@@ -1389,7 +1400,8 @@ function showCardMoment({
   onClose = null,
   onSecondary = null,
   endGame = false,
-  winner = null
+  winner = null,
+  motionTone = null
 }) {
   activeReveal = {
     title,
@@ -1405,9 +1417,22 @@ function showCardMoment({
     onClose,
     onSecondary,
     endGame,
-    winner
+    winner,
+    motionTone: motionTone ?? (shaking ? "meteor" : null)
   };
   render();
+}
+
+function markMotion(kind, tone = null) {
+  const id = motion.id + 1;
+  motion = { kind, tone, id };
+  window.clearTimeout?.(motionTimer);
+  motionTimer = window.setTimeout(() => {
+    if (motion.id !== id) return;
+    motion = { kind: null, tone: null, id };
+    els.drawButton.classList.remove("is-drawing");
+    els.discard.classList.remove("is-receiving");
+  }, 420);
 }
 
 function closeActiveReveal(useSecondary = false) {
@@ -1483,6 +1508,7 @@ function playCard(owner, cardId, options = {}) {
   hand.splice(index, 1);
   state.discard.push(card);
   state.activity = { owner, type: "play" };
+  markMotion("discard", card.type);
   log(`${label(owner)} speelt ${card.name}.`);
   const preview = getActionPreview(owner, card);
   const playerCanReactToAttack = owner !== "player" && isAttackCard(card) && preview.target === "player";
@@ -1562,6 +1588,7 @@ function playSetPair(owner, card, options = {}) {
     const index = hand.findIndex((item) => item.id === pairCard.id);
     if (index !== -1) state.discard.push(hand.splice(index, 1)[0]);
   });
+  markMotion("discard", rewardType);
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
   state.activity = { owner, type: "play" };
@@ -1576,8 +1603,7 @@ function playSetPair(owner, card, options = {}) {
 }
 
 function getSetPairRewardType(pair, selectedCard) {
-  if (selectedCard.type !== "feral") return selectedCard.type;
-  return pair.find((item) => item.type !== "feral")?.type ?? "feral";
+  return determineSetPairRewardType(pair, selectedCard);
 }
 
 function getSetPairPreviewText(owner, rewardType, target) {
@@ -1750,6 +1776,7 @@ function resolveAttackReactionWithCard(cardId) {
   const [reactionCard] = hand.splice(index, 1);
   state.discard.push(reactionCard);
   state.activity = { owner: "player", type: "play" };
+  markMotion("discard", reactionCard.type);
   state.pendingAttackReaction = null;
 
   if (reactionCard.type === "nope") {
@@ -1890,6 +1917,7 @@ function resolveNopeReaction(useNope) {
 
   const [nopeCard] = hand.splice(index, 1);
   state.discard.push(nopeCard);
+  markMotion("discard", nopeCard.type);
   startNopeChainWithPlayedCard({
     ...pending,
     reactor: pending.reactor,
@@ -1965,7 +1993,7 @@ function continueNopeChain(chain) {
 }
 
 function finishNopeChain(chain) {
-  if ((chain.nopeCount ?? 0) % 2 === 1) {
+  if (isNopeChainBlocked(chain.nopeCount)) {
     log(`${chain.card.name} blijft geblokkeerd na ${chain.nopeCount} Brul Terug-kaart${chain.nopeCount === 1 ? "" : "en"}.`);
     setAction(`${chain.card.name} is weggebruld voordat het effect begon.`);
     render();
@@ -2039,7 +2067,7 @@ function resolveRaptorTarget(owner, target, attackLoad = RAPTOR_TURN_LOAD, retur
 function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
   if (!target || state.eliminated[target]) return;
   state.attackReturn = { target, returnTo };
-  state.pendingTurns[target] = Math.max(1, attackLoad);
+  state.pendingTurns = applyRaptorAttack(state.pendingTurns, target, attackLoad);
   state.current = target;
   setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} kaart(en) trekken voordat ${label(returnTo)} verdergaat.`);
   render();
@@ -2578,6 +2606,7 @@ function drawCard(owner, from = "top") {
 
   const card = from === "bottom" ? state.deck.shift() : state.deck.pop();
   state.activity = { owner, type: "draw" };
+  markMotion("draw", card.type);
   log(`${label(owner)} trekt ${from === "bottom" ? "de onderste" : "een"} kaart.`);
   state.pendingDraw = { owner, card, from };
   setAction(`${label(owner)} heeft een kaart getrokken. Klik verder om de beurt te laten doorgaan.`);
@@ -2607,16 +2636,16 @@ function confirmPendingDraw() {
 
 function handleMeteor(owner, meteorCard) {
   const hand = getHand(owner);
-  const shelterIndex = hand.findIndex((card) => card.type === "shelter");
+  const result = resolveMeteorDraw(hand, state.discard, meteorCard);
 
-  if (shelterIndex === -1) {
-    state.discard.push(meteorCard);
+  if (!result.survived) {
+    markMotion("discard", "meteor");
     eliminatePlayer(owner, `${label(owner)} wordt geraakt door een Meteorietinslag.`);
     return;
   }
 
-  const [shelter] = hand.splice(shelterIndex, 1);
-  state.discard.push(shelter);
+  const { shelter } = result;
+  markMotion("discard", "shelter");
   log(`${label(owner)} gebruikt Schuilgrot en stopt de meteoriet terug.`);
 
   if (owner === "player") {
@@ -2632,9 +2661,10 @@ function handleMeteor(owner, meteorCard) {
     text: `${label(owner)} overleeft de meteoriet en legt hem zelf ergens terug in de trekstapel.`,
     buttonText: "OK",
     owner,
+    motionTone: "shelter-save",
     onClose: () => {
       const insertAt = Math.floor(Math.random() * (state.deck.length + 1));
-      state.deck.splice(insertAt, 0, meteorCard);
+      insertMeteorBack(state.deck, meteorCard, insertAt);
       consumeTurn(owner);
       setAction(`${label(owner)} overleeft de Meteorietinslag en stopt hem geheim terug.`);
     }
@@ -2646,7 +2676,7 @@ function confirmMeteorPlacement() {
 
   const { owner, meteorCard } = state.pendingMeteorPlacement;
   const insertAt = Number(els.placementSelect.value);
-  state.deck.splice(insertAt, 0, meteorCard);
+  insertMeteorBack(state.deck, meteorCard, insertAt);
   state.pendingMeteorPlacement = null;
   consumeTurn(owner);
   log("De Meteorietinslag is geheim teruggestopt in de trekstapel.");
@@ -2678,12 +2708,14 @@ function finishOwnerTurns(owner) {
 }
 
 function getAttackLoad(owner, baseLoad = RAPTOR_TURN_LOAD) {
-  if (state.attackReturn?.target !== owner) return baseLoad;
-
-  const shiftedLoad = (state.pendingTurns[owner] ?? 1) + baseLoad;
-  state.pendingTurns[owner] = 1;
-  state.attackReturn = null;
-  return shiftedLoad;
+  const result = resolveIncomingAttackLoad({
+    owner,
+    pendingTurns: state.pendingTurns,
+    attackReturn: state.attackReturn
+  }, baseLoad);
+  state.pendingTurns = result.pendingTurns;
+  state.attackReturn = result.attackReturn;
+  return result.attackLoad;
 }
 
 function getAttackReturn(owner, fallback = owner) {

@@ -4,24 +4,20 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Huidige stand
 
-- `npm test` is groen via de gebundelde Node-runtime: 18 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 24 tests.
+- De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
+- De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
 - Alle kaarttypes hebben een gekoppelde illustratie; veelvoorkomende soortkaarten hebben extra illustratievarianten.
 - De NPC-selectie geeft beginnersadvies: start met 1 tegenstander; meer spelers geeft meer chaos.
 - Alle 9 NPC's hebben een eigen speelstijlprofiel dat kaartkeuze, doelwitkeuze, blokkeren, risico en deckcontrole beinvloedt.
+- Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - GitHub Pages staat als live URL in de README; publicatie zelf is dus geen open taak meer.
 - Een structurele echte-browser testlaag ontbreekt nog; Playwright is niet beschikbaar in de huidige runtime.
 
 ## Volgende prioriteit
 
-- [ ] Voeg gerichte regeltests toe voor de risicovolste spelregels.
-  - `Meteorietinslag` met en zonder `Schuilgrot`.
-  - `Raptor Aanval`, `Gerichte Raptorjacht`, `Brul Terug` en gestapelde beurten.
-  - Paarbeloningen: `Mini-Raptor`, `Stego Snack`, `Bronto Buik`, `Tricera-Tuk`, `Ptero Pret` en `Wilde Dino`.
-- [ ] Haal de meest testgevoelige spelregels stap voor stap uit `game.js`.
-  - Begin met deck/setup, beurtwissel, meteoriet-afhandeling en aanval-afhandeling.
-  - Maak randomness injecteerbaar, zodat pc-keuzes, deckvolgorde en meteorietplaatsing deterministisch getest kunnen worden.
 - [ ] Voeg een kleine echte-browser testlaag toe voor desktop en mobiel.
   - Minimaal: startscherm, handkaarten, kaartdetail openen/sluiten, reveal-overlay, catalogus en eindscherm.
   - Check console errors en layout op een telefoonviewport.
@@ -38,7 +34,6 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 ## Presentatie en mobiele QA
 
 - [ ] Check kaartleesbaarheid op telefoon: handkaarten, reveal-kaarten, catalogus en doelwitkeuzes.
-- [ ] Voeg kleine animatie-polish toe waar het spelverloop er duidelijker van wordt, bijvoorbeeld trekken, afleggen en meteorietmomenten.
 - [ ] Check de gepubliceerde GitHub Pages-versie op telefoonformaat na de volgende inhoudelijke wijziging.
 
 ## Later, niet blokkerend

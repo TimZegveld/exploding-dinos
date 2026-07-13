@@ -8,6 +8,7 @@ function loadGame() {
   const harness = createBrowserHarness();
   harness.runBrowserScript("src/cards.js");
   harness.runBrowserScript("src/players.js");
+  harness.runBrowserScript("src/rules.js");
   harness.runBrowserScript("game.js");
   return harness;
 }

@@ -370,6 +370,7 @@ h2 {
 }
 
 .deck {
+  position: relative;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -379,6 +380,22 @@ h2 {
     linear-gradient(color-mix(in srgb, var(--card-ink), transparent 95%), color-mix(in srgb, var(--card-ink), transparent 80%)),
     var(--card-back) center / cover no-repeat;
   transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.deck.is-drawing {
+  animation: deck-draw-pulse 360ms ease-out;
+}
+
+.deck.is-drawing::after {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border: 2px solid color-mix(in srgb, var(--gold), transparent 16%);
+  border-radius: 7px;
+  opacity: 0;
+  animation: deck-draw-card 360ms ease-out;
+  background: color-mix(in srgb, var(--card), transparent 18%);
+  box-shadow: var(--card-shadow-low);
 }
 
 .deck > span {
@@ -423,10 +440,15 @@ h2 {
 }
 
 .discard {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   color: var(--muted);
+}
+
+.discard.is-receiving {
+  animation: discard-receive-pop 360ms ease-out;
 }
 
 .discard.is-empty {
@@ -1374,6 +1396,22 @@ h2 {
   text-align: left;
 }
 
+.draw-reveal__card.is-draw-arriving {
+  animation: reveal-card-arrive 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.draw-reveal__card.is-meteor-moment {
+  animation:
+    reveal-card-arrive 300ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    meteor-danger-pulse 760ms ease-out;
+}
+
+.draw-reveal__card.is-shelter-save-moment {
+  animation:
+    reveal-card-arrive 300ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    shelter-save-glow 760ms ease-out;
+}
+
 .reveal-actor {
   --player-color: var(--accent);
   display: inline-flex;
@@ -1930,6 +1968,12 @@ h2 {
   animation: meteor-shake 520ms ease-in-out infinite;
 }
 
+.draw-reveal__card.is-meteor-moment.is-shaking {
+  animation:
+    meteor-shake 520ms ease-in-out infinite,
+    meteor-danger-pulse 760ms ease-out;
+}
+
 .draw-reveal__mini-card.is-shaking {
   animation: meteor-shake 520ms ease-in-out infinite;
 }
@@ -2025,6 +2069,101 @@ h2 {
 
   80% {
     transform: translateX(5px) rotate(1deg);
+  }
+}
+
+@keyframes deck-draw-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  42% {
+    transform: translateY(-5px) scale(1.025);
+    box-shadow: 0 14px 0 color-mix(in srgb, var(--card-ink), transparent 86%), 0 0 0 5px color-mix(in srgb, var(--gold), transparent 74%);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes deck-draw-card {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94) rotate(-3deg);
+  }
+
+  38% {
+    opacity: 0.92;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-34px) scale(1.02) rotate(2deg);
+  }
+}
+
+@keyframes discard-receive-pop {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  46% {
+    transform: translateY(-3px) scale(1.025);
+    box-shadow: 0 13px 0 color-mix(in srgb, var(--card-ink), transparent 86%), 0 0 0 5px color-mix(in srgb, var(--accent), transparent 78%);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reveal-card-arrive {
+  0% {
+    opacity: 0.3;
+    transform: translateY(18px) scale(0.94) rotate(-1.5deg);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01) rotate(0.4deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes meteor-danger-pulse {
+  0%,
+  100% {
+    box-shadow: var(--card-shadow-high);
+  }
+
+  42% {
+    box-shadow: var(--card-shadow-high), 0 0 0 7px color-mix(in srgb, var(--danger), transparent 58%), 0 0 34px color-mix(in srgb, var(--danger), transparent 48%);
+  }
+}
+
+@keyframes shelter-save-glow {
+  0%,
+  100% {
+    box-shadow: var(--card-shadow-high);
+  }
+
+  45% {
+    box-shadow: var(--card-shadow-high), 0 0 0 7px color-mix(in srgb, var(--accent), transparent 62%), 0 0 32px color-mix(in srgb, var(--accent-dark), transparent 48%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck,
+  .discard,
+  .draw-reveal__card,
+  .draw-reveal__mini-card {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
