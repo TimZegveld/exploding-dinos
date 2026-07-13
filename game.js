@@ -220,7 +220,6 @@ function render() {
   els.drawButton.disabled = !hasGame || state.current !== "player" || state.gameOver || isInteractionBlocked();
   playerZone.style.setProperty("--player-color", playerColor);
   playerZone.classList.toggle("is-current", state.current === "player" && !state.gameOver);
-  playerZone.classList.toggle("is-acting", state.activity?.owner === "player");
 
   renderOpponents();
   renderOpponentRoster();
@@ -326,7 +325,6 @@ function renderOpponents() {
     seat.className = "opponent-seat";
     seat.style.setProperty("--player-color", player.color);
     seat.classList.toggle("is-current", state.current === player.id && !state.gameOver);
-    seat.classList.toggle("is-acting", state.activity?.owner === player.id);
     seat.classList.toggle("is-eliminated", state.eliminated[player.id]);
 
     const labelWrap = document.createElement("div");
@@ -427,11 +425,12 @@ function renderReveal() {
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
   const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingOracle?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealTarget = pendingAttackReaction?.target ?? activeReveal?.target ?? null;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
   if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingPteroChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
-    removeRevealActor();
+    removeRevealContext();
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
     els.revealButton.disabled = false;
@@ -441,7 +440,7 @@ function renderReveal() {
   els.drawReveal.classList.remove("is-hidden");
   els.revealCard.className = "draw-reveal__card";
   els.revealCard.replaceChildren();
-  renderRevealActor(revealOwner);
+  renderRevealContext(revealOwner, revealTarget);
   els.placementControls.classList.add("is-hidden");
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
@@ -628,6 +627,13 @@ function renderReveal() {
   els.revealButton.disabled = false;
 }
 
+function renderRevealContext(owner, target = null) {
+  removeRevealContext();
+  renderRevealActor(owner);
+  if (!owner || !target || owner === target) return;
+  renderRevealAttackFlow(owner, target);
+}
+
 function renderRevealActor(owner) {
   removeRevealActor();
   const player = getPlayer(owner);
@@ -650,6 +656,51 @@ function renderRevealActor(owner) {
   text.append(name, role);
   actor.append(portrait, text);
   els.revealEyebrow.insertAdjacentElement("afterend", actor);
+}
+
+function renderRevealAttackFlow(owner, target) {
+  const attacker = getPlayer(owner);
+  const defender = getPlayer(target);
+  if (!attacker || !defender) return;
+
+  const flow = document.createElement("div");
+  flow.className = "reveal-attack-flow";
+  flow.setAttribute("aria-label", `${attacker.name} valt ${target === "player" ? "jou" : defender.name} aan`);
+
+  const from = createRevealFlowPlayer(attacker);
+  const arrow = document.createElement("span");
+  arrow.className = "reveal-attack-flow__arrow";
+  arrow.setAttribute("aria-hidden", "true");
+  arrow.textContent = "->";
+  const to = createRevealFlowPlayer(defender);
+
+  flow.append(from, arrow, to);
+  const actor = document.querySelector(".reveal-actor");
+  actor?.insertAdjacentElement("afterend", flow);
+}
+
+function createRevealFlowPlayer(player) {
+  const item = document.createElement("span");
+  item.className = "reveal-attack-flow__player";
+  item.style.setProperty("--player-color", player.color ?? playerColors[0]);
+
+  const portrait = createPlayerPortrait(player, { small: true });
+  const name = document.createElement("strong");
+  name.textContent = player.isHuman ? "Jij" : player.name;
+
+  item.append(portrait, name);
+  return item;
+}
+
+function removeRevealContext() {
+  removeRevealActor();
+  const flow = document.querySelector(".reveal-attack-flow");
+  if (!flow) return;
+  if (typeof flow.remove === "function") {
+    flow.remove();
+  } else if (flow.parentNode && typeof flow.parentNode.removeChild === "function") {
+    flow.parentNode.removeChild(flow);
+  }
 }
 
 function removeRevealActor() {
@@ -1061,6 +1112,7 @@ function showCardMoment({
   faceDown = false,
   shaking = false,
   owner = null,
+  target = null,
   onClose = null,
   onSecondary = null,
   endGame = false,
@@ -1076,6 +1128,7 @@ function showCardMoment({
     faceDown,
     shaking,
     owner,
+    target,
     onClose,
     onSecondary,
     endGame,
@@ -1118,7 +1171,7 @@ function closeCardDetail(playAfterClose = false) {
 
   state.pendingCardDetail = null;
   if (playAfterClose) {
-    playCard(detail.owner, detail.card.id, { skipPlayMoment: true });
+    playCard(detail.owner, detail.card.id);
     return;
   }
 
@@ -1170,21 +1223,21 @@ function playCard(owner, cardId, options = {}) {
     return true;
   };
 
-  if (options.skipPlayMoment) {
-    resolvePlayedCard();
-    render();
-    continueAfterPause();
-    return;
-  }
-
   showCardMoment({
     title: `${label(owner)} speelt`,
     cards: card,
     text: preview.text,
     buttonText: "OK",
     owner,
+    target: getCardMomentTarget(owner, card, preview),
     onClose: resolvePlayedCard
   });
+}
+
+function getCardMomentTarget(owner, card, preview) {
+  if (!isAttackCard(card)) return null;
+  if (card.type === "targetedRaptor" && owner === "player") return null;
+  return preview.target;
 }
 
 function getActionPreview(owner, card) {
@@ -1205,6 +1258,13 @@ function getActionPreview(owner, card) {
   }
 
   if (card.type === "targetedRaptor" && target) {
+    if (owner === "player") {
+      return {
+        target: null,
+        text: `${label(owner)} speelt ${card.name} en kiest zo wie de raptor opjaagt.`
+      };
+    }
+
     return {
       target,
       text: `${label(owner)} speelt ${card.name} op ${objectLabel(target)}.`
@@ -1232,13 +1292,6 @@ function playSetPair(owner, card, options = {}) {
 
   log(`${label(owner)} speelt een paar ${pair.map((item) => item.name).join(" + ")}.`);
   state.activity = { owner, type: "play" };
-  if (options.skipPlayMoment) {
-    startSetPairReward(owner, rewardType, target, pairIds);
-    render();
-    continueAfterPause();
-    return;
-  }
-
   showCardMoment({
     title: `${label(owner)} speelt een paar`,
     cards: pair,
@@ -1463,6 +1516,7 @@ function resolveAttackReactionWithCard(cardId) {
     text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet nu ${shiftedLoad} kaarten trekken, tenzij die zich verdedigt.`,
     buttonText: "OK",
     owner: "player",
+    target: pending.actor,
     onClose: () => resolveRaptorAttack("player", pending.actor, shiftedLoad, returnTo)
   });
 }
@@ -1760,6 +1814,14 @@ function alterFuture(owner) {
     const saferOrder = [...topCards].sort((a, b) => Number(a.type === "meteor") - Number(b.type === "meteor"));
     state.deck.push(...saferOrder.slice().reverse());
     setAction(`${label(owner)} rommelt met de prehistorische tijdlijn.`);
+    showCardMoment({
+      title: "Tijdlijn Kneden",
+      cards: topCards,
+      text: `${label(owner)} heeft de bovenste kaarten opnieuw geordend.`,
+      buttonText: "OK",
+      faceDown: true,
+      owner
+    });
     return;
   }
 
@@ -2043,6 +2105,14 @@ function startBrontoBelly(owner) {
       state.deck.unshift(state.deck.pop());
     }
     setAction(`${label(owner)} laat Bronto Buik de bovenste kaart ${shouldMove ? "onderop schuiven" : "bewaren waar hij ligt"}.`);
+    showCardMoment({
+      title: "Bronto Buik",
+      cards: topCard,
+      text: `${label(owner)} ${shouldMove ? "schuift de bekeken kaart onderop" : "laat de bekeken kaart bovenop liggen"}.`,
+      buttonText: "OK",
+      faceDown: true,
+      owner
+    });
     return;
   }
 
@@ -2078,6 +2148,14 @@ function startPteroPret(owner) {
 
   if (owner !== "player") {
     resolvePteroCards(owner, cards, choosePcPteroTop(cards)?.id);
+    showCardMoment({
+      title: "Ptero Pret",
+      cards,
+      text: `${label(owner)} bekijkt 2 kaarten en herschikt de boven- en onderkant van de trekstapel.`,
+      buttonText: "OK",
+      faceDown: true,
+      owner
+    });
     return;
   }
 
@@ -2203,9 +2281,7 @@ function drawCard(owner, from = "top") {
   setAction(`${label(owner)} heeft een kaart getrokken. Klik verder om de beurt te laten doorgaan.`);
   render();
 
-  if (owner !== "player" && card.type !== "meteor") {
-    window.setTimeout(confirmPendingDraw, card.type === "meteor" ? 1350 : 900);
-  }
+  // NPC draws still wait for the shared OK button so every hidden card moment is user-paced.
 }
 
 function confirmPendingDraw() {

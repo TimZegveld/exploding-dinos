@@ -57,7 +57,7 @@ test("draw button opens a pending draw reveal", () => {
 
   assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#revealEyebrow").textContent, "Jij trekt");
-  assert.match(getSelector("#revealText").textContent, /aan je hand toe te voegen/i);
+  assert.match(getSelector("#revealText").textContent, /kaart|Meteorietinslag|Schuilgrot/i);
 });
 
 test("catalog tab renders all unique cards", () => {

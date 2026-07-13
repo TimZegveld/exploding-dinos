@@ -61,6 +61,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:
@@ -210,11 +211,6 @@ h2 {
 .player-zone.is-current {
   border-color: var(--player-color);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 72%), var(--shadow-current);
-}
-
-.opponent-seat.is-acting,
-.player-zone.is-acting {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--player-color), transparent 58%), 0 0 24px color-mix(in srgb, var(--player-color), transparent 55%);
 }
 
 .opponent-seat.is-eliminated {
@@ -1540,7 +1536,7 @@ h2 {
 
 .draw-reveal__panel {
   width: min(430px, 100%);
-  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1603,6 +1599,43 @@ h2 {
   color: var(--muted);
   font-size: 0.74rem;
   font-weight: 850;
+}
+
+.reveal-attack-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px auto 0;
+  max-width: 100%;
+}
+
+.reveal-attack-flow__player {
+  --player-color: var(--accent);
+  display: inline-grid;
+  justify-items: center;
+  gap: 5px;
+  min-width: 88px;
+  border: 1px solid color-mix(in srgb, var(--player-color), var(--line) 45%);
+  border-radius: 8px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--player-color), var(--surface) 84%);
+}
+
+.reveal-attack-flow__player strong {
+  max-width: 96px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.72rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reveal-attack-flow__arrow {
+  color: var(--accent-dark);
+  font-size: 1.25rem;
+  font-weight: 950;
 }
 
 .draw-reveal__card.end-card {
@@ -2150,10 +2183,29 @@ h2 {
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 760px) {
+  :root {
+    --hand-card-width: 112px;
+    --table-card-width: 132px;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 18% 8%, var(--bg-glow-gold), transparent 30%),
+      radial-gradient(circle at 82% 0%, var(--bg-glow-accent), transparent 28%),
+      linear-gradient(160deg, var(--bg-start) 0%, var(--bg) 48%, var(--bg-end) 100%);
+  }
+
+  .game-shell {
+    gap: 12px;
+    min-height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  }
+
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 10px;
   }
 
   .topbar-actions,
@@ -2162,12 +2214,129 @@ h2 {
     width: 100%;
   }
 
+  h1 {
+    font-size: clamp(1.85rem, 12vw, 3.1rem);
+  }
+
   .page-tab {
     flex: 1;
+    min-height: 44px;
+  }
+
+  .status-pill {
+    min-height: 44px;
+    padding: 11px 14px;
   }
 
   .table {
+    grid-template-rows: auto auto auto;
+    gap: 12px;
     padding: 12px;
+  }
+
+  .opponents {
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 8px;
+  }
+
+  .opponent-seat,
+  .player-zone {
+    padding: 8px;
+  }
+
+  .opponent-seat .player-label {
+    align-items: center;
+    margin-bottom: 0;
+  }
+
+  .opponent-seat .player-portrait {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .opponent-seat .player-name-block > span {
+    max-width: 82px;
+    overflow: hidden;
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .opponent-seat .player-name-block small {
+    display: none;
+  }
+
+  .opponent-seat .player-label strong {
+    font-size: 0.74rem;
+    white-space: nowrap;
+  }
+
+  .pc-hand {
+    display: none;
+  }
+
+  .center-zone {
+    grid-template-columns: repeat(2, minmax(118px, var(--table-card-width)));
+    gap: 12px;
+  }
+
+  .deck,
+  .discard {
+    padding: 10px;
+  }
+
+  .deck-count {
+    width: 52px;
+    height: 52px;
+    font-size: 1.3rem;
+  }
+
+  .player-zone {
+    position: sticky;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 5;
+    background: color-mix(in srgb, var(--panel), transparent 8%);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .player-label {
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .hand {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--hand-card-width), 100%), 1fr));
+    gap: 8px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .hand .card-button {
+    width: 100%;
+    scroll-snap-align: unset;
+  }
+
+  .card-button,
+  .card-back {
+    width: var(--hand-card-width);
+  }
+
+  .side-panel {
+    gap: 10px;
+  }
+
+  .panel-section {
+    padding: 12px;
+  }
+
+  .log {
+    max-height: 150px;
+    font-size: 0.84rem;
   }
 
   .catalog-page {
@@ -2184,13 +2353,148 @@ h2 {
     gap: 10px;
   }
 
-  .center-zone {
-    grid-template-columns: 1fr;
+  .start-modal,
+  .catalog-detail,
+  .draw-reveal {
+    align-items: end;
+    padding: 10px;
   }
 
-  .card-button,
-  .card-back {
-    width: calc(50% - 5px);
-    aspect-ratio: var(--card-ratio);
+  .start-modal__panel,
+  .catalog-detail__panel,
+  .draw-reveal__panel {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    padding: 14px;
+  }
+
+  .opponent-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: min(58dvh, 520px);
+  }
+
+  .roster-card {
+    min-height: 126px;
+  }
+
+  .draw-reveal__card {
+    width: min(246px, 74vw);
+    margin: 12px auto;
+    padding: 14px;
+  }
+
+  .draw-reveal__card.card-face {
+    width: min(260px, 76vw);
+    padding: 10px;
+  }
+
+  .draw-reveal__card.is-multi {
+    grid-template-columns: repeat(auto-fit, minmax(min(112px, 100%), 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .draw-reveal__card.is-ptero-choice {
+    grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr));
+  }
+
+  .draw-reveal__mini-card {
+    padding: 8px;
+  }
+
+  .reveal-actor {
+    max-width: 100%;
+  }
+
+  .reveal-attack-flow {
+    gap: 6px;
+  }
+
+  .reveal-attack-flow__player {
+    min-width: 76px;
+    padding: 7px 6px;
+  }
+
+  .reveal-attack-flow__player strong {
+    max-width: 72px;
+  }
+
+  .draw-reveal__text {
+    min-height: 0;
+    font-size: 0.95rem;
+  }
+
+  .reveal-actions {
+    position: sticky;
+    bottom: -14px;
+    margin: 10px -14px -14px;
+    padding: 10px 14px 14px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel), transparent 24%), var(--panel) 26%);
+  }
+
+  #revealButton,
+  .secondary-action,
+  #newGameButton,
+  #startGameButton,
+  #closeCatalogDetail {
+    min-height: 44px;
+  }
+
+  .end-card__scene {
+    width: min(286px, 74vw);
+  }
+}
+
+@media (max-width: 430px) {
+  :root {
+    --hand-card-width: 104px;
+    --table-card-width: 118px;
+  }
+
+  .game-shell {
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-left: max(8px, env(safe-area-inset-left));
+  }
+
+  .opponents {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .center-zone {
+    grid-template-columns: repeat(2, minmax(104px, var(--table-card-width)));
+  }
+
+  .deck,
+  .discard {
+    border-width: 2px;
+    padding: 8px;
+  }
+
+  .discard__top-card.card-face .card-face__text {
+    min-height: 34px;
+    font-size: 0.5rem;
+  }
+
+  .catalog-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .opponent-roster {
+    gap: 8px;
+  }
+
+  .roster-card {
+    min-height: 118px;
+    padding: 10px 6px;
+  }
+
+  .roster-card .player-portrait {
+    flex-basis: 54px;
+    width: 54px;
+    height: 54px;
+  }
+
+  .draw-reveal__card.is-multi {
+    grid-template-columns: repeat(auto-fit, minmax(min(96px, 100%), 1fr));
   }
 }

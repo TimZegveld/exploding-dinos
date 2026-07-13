@@ -2,6 +2,8 @@
 
 Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 120 kaarten totaal, met een compacte dino-pootafdruk set voor 2-3 spelers.
 
+Speel online: https://timzegveld.github.io/exploding-dinos/
+
 ## Starten
 
 Open `index.html` in je browser. Er is geen build-step nodig.
@@ -26,9 +28,16 @@ De huidige tests dekken deck/card helpers en een kleine fake-DOM smoke-test voor
 
 ## Online zetten
 
-De game is geschikt voor statische hosting, omdat alles uit HTML, CSS, JavaScript en assets bestaat. De voorkeursroute voor later is GitHub Pages.
+De game is geschikt voor statische hosting, omdat alles uit HTML, CSS, JavaScript en assets bestaat. De voorkeursroute is GitHub Pages.
 
-Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zet GitHub Pages pas aan nadat de testdekking verder is uitgebreid en de mobiele weergave is gecontroleerd. Zie `CARD_CHECKLIST.md` voor de release-checklist.
+Gebruik deze instellingen in GitHub:
+
+- `Settings > Pages`
+- Source: `Deploy from a branch`
+- Branch: `main`
+- Folder: `/root`
+
+Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `CARD_CHECKLIST.md` voor de release-checklist.
 
 ## Code-indeling
 
