@@ -6,12 +6,37 @@ Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireer
 
 Open `index.html` in je browser. Er is geen build-step nodig.
 
+Voor lokaal testen op een telefoon kun je de map via een kleine webserver delen op je eigen wifi-netwerk:
+
+```powershell
+python -m http.server 8000 --bind 0.0.0.0
+```
+
+Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
+
+## Testen
+
+De eerste geautomatiseerde testlaag staat in `tests/` en gebruikt Node's ingebouwde test-runner.
+
+```powershell
+npm test
+```
+
+De huidige tests dekken deck/card helpers en een kleine fake-DOM smoke-test voor spelstart, kaart trekken en de catalogus. Voor publicatie moeten hier nog gerichte regeltests en echte browserchecks bij komen.
+
+## Online zetten
+
+De game is geschikt voor statische hosting, omdat alles uit HTML, CSS, JavaScript en assets bestaat. De voorkeursroute voor later is GitHub Pages.
+
+Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zet GitHub Pages pas aan nadat de testdekking verder is uitgebreid en de mobiele weergave is gecontroleerd. Zie `CARD_CHECKLIST.md` voor de release-checklist.
+
 ## Code-indeling
 
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
 - `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
 - `game.js`: huidige spelstate, beurtregels, pc-keuzes, renderlogica en event handlers.
 - `styles.css`: tafel, kaartfronts, modals, persona- en eindschermstyling.
+- `tests/`: Node-tests en fake-DOM smoke-tests.
 
 De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
 
@@ -68,8 +93,8 @@ Statuslegenda:
 
 ## Mogelijke volgende iteraties
 
-- Betere kaartbalans en meer kaarttypes.
-- Local co-op tegen een rampage-deck.
-- Animaties en eigen kaartillustraties.
+- Verdere testdekking voor spelregels en browserflows.
+- GitHub Pages-publicatie na test- en mobiele releasecheck.
+- Betere kaartbalans na meerdere proefpotjes.
 - Moeilijkheidsgraden voor de pc.
-- Set-combo's voor `Dino Snack`.
+- Extra kaartvarianten, meer kaarttypes of set-combo's.
