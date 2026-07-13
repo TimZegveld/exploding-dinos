@@ -54,15 +54,15 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 - [x] Voeg vaste persona-id's, dinorassen, portretpaden en beeldprompts toe in `src/players.js`.
 - [x] Laat spelers bij een nieuw spel 1-4 NPC's uit het roster kiezen.
 - [x] Toon spelerportret/initialen bij NPC-stoelen, doelwitkeuzes en kaartmomenten.
-- [ ] Genereer portret voor Rex de Archeoloog (man): dino met monocle en veldhoed tussen fossielen.
-- [ ] Genereer portret voor Nova de Vulkaanwachter (vrouw): dino met veiligheidsbril en gloeiende lavalantaarn.
-- [ ] Genereer portret voor Kiki de Bottenfluisteraar (vrouw): dino met bottenketting en slimme glimlach.
-- [ ] Genereer portret voor Bram Brulbaard (man): dino met nette baard, sjerp en grote operahouding.
-- [ ] Genereer portret voor Luna de Tijdlijnkundige (vrouw): dino met sterrenmantel en zandloper.
-- [ ] Genereer portret voor Otto de Kaartkapitein (man): dino met kapiteinspet en stapel kaarten.
-- [ ] Genereer portret voor Mira de Mosridder (vrouw): dino met mosmantel en houten schild.
-- [ ] Genereer portret voor Puck de Pootafdrukker (man): dino met inktpot en pootafdrukstempels.
-- [ ] Genereer portret voor Tara de Trucjager (vrouw): dino met jagershoedje en kaarttrucs.
+- [x] Genereer portret voor Rex de Archeoloog (man): T. rex met monocle en veldhoed tussen fossielen.
+- [x] Genereer portret voor Nova de Vulkaanwachter (vrouw): Parasaurolophus met veiligheidsbril en gloeiende lavalantaarn.
+- [x] Genereer portret voor Kiki de Bottenfluisteraar (vrouw): Velociraptor met bottenketting en slimme glimlach.
+- [x] Genereer portret voor Bram Brulbaard (man): Carnotaurus met nette baard, sjerp en grote operahouding.
+- [x] Genereer portret voor Luna de Tijdlijnkundige (vrouw): Triceratops met sterrenmantel en zandloper.
+- [x] Genereer portret voor Otto de Kaartkapitein (man): Pteranodon met kapiteinspet en stapel kaarten.
+- [x] Genereer portret voor Mira de Mosridder (vrouw): Ankylosaurus met mosmantel en houten schild.
+- [x] Genereer portret voor Puck de Pootafdrukker (man): Stegosaurus met inktpot en pootafdrukstempels.
+- [x] Genereer portret voor Tara de Trucjager (vrouw): Dilophosaurus met jagershoedje en kaarttrucs.
 
 ## Per kaart afronden
 
