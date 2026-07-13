@@ -15,6 +15,7 @@ const opponentPersonas = [
     speciesShort: "T. rex",
     initials: "RA",
     playStyle: "balanced",
+    color: "#d45d32",
     portrait: "assets/players/portraits/rex-archeoloog.png",
     portraitPrompt: `${portraitPromptBase}, Tyrannosaurus rex with a broad snout and tiny arms, curious dinosaur archaeologist wearing a monocle and field hat, surrounded by fossils and small excavation tools`
   },
@@ -27,6 +28,7 @@ const opponentPersonas = [
     speciesShort: "Parasaurolophus",
     initials: "NV",
     playStyle: "bold",
+    color: "#e05f4f",
     portrait: "assets/players/portraits/nova-vulkaanwachter.png",
     portraitPrompt: `${portraitPromptBase}, Parasaurolophus with a long backward head crest, confident dinosaur volcano watcher wearing safety goggles, holding a glowing lava lantern, warm volcanic rim light`
   },
@@ -39,6 +41,7 @@ const opponentPersonas = [
     speciesShort: "Velociraptor",
     initials: "KB",
     playStyle: "sneaky",
+    color: "#7a56a6",
     portrait: "assets/players/portraits/kiki-bottenfluisteraar.png",
     portraitPrompt: `${portraitPromptBase}, feathered Velociraptor with alert eyes and small sickle claws, clever dinosaur bone whisperer with a bone necklace and smart mischievous smile, fossil shapes in the background`
   },
@@ -51,6 +54,7 @@ const opponentPersonas = [
     speciesShort: "Carnotaurus",
     initials: "BB",
     playStyle: "aggressive",
+    color: "#b33b2e",
     portrait: "assets/players/portraits/bram-brulbaard.png",
     portraitPrompt: `${portraitPromptBase}, Carnotaurus with two short brow horns and a sturdy head, theatrical dinosaur with a neat beard, sash, and grand opera-singing posture, powerful but playful roar energy`
   },
@@ -63,6 +67,7 @@ const opponentPersonas = [
     speciesShort: "Triceratops",
     initials: "LT",
     playStyle: "careful",
+    color: "#2d6f9f",
     portrait: "assets/players/portraits/luna-tijdlijnkundige.png",
     portraitPrompt: `${portraitPromptBase}, Triceratops with three horns and a rounded frill, thoughtful dinosaur timeline scholar wearing a starry cloak and holding a small hourglass, amber time glow`
   },
@@ -75,6 +80,7 @@ const opponentPersonas = [
     speciesShort: "Pteranodon",
     initials: "OK",
     playStyle: "balanced",
+    color: "#2f8f8a",
     portrait: "assets/players/portraits/otto-kaartkapitein.png",
     portraitPrompt: `${portraitPromptBase}, Pteranodon with a long beak and swept head crest, cheerful flying reptile card captain wearing a captain hat, holding a fan of blank playing cards, nautical adventure mood`
   },
@@ -87,6 +93,7 @@ const opponentPersonas = [
     speciesShort: "Ankylosaurus",
     initials: "MM",
     playStyle: "defensive",
+    color: "#4f8f3a",
     portrait: "assets/players/portraits/mira-mosridder.png",
     portraitPrompt: `${portraitPromptBase}, Ankylosaurus with bony armor plates and a sturdy rounded face, brave dinosaur moss knight wearing a soft moss cloak and carrying a small wooden shield, gentle forest guardian mood`
   },
@@ -99,6 +106,7 @@ const opponentPersonas = [
     speciesShort: "Stegosaurus",
     initials: "PP",
     playStyle: "chaotic",
+    color: "#b36a22",
     portrait: "assets/players/portraits/puck-pootafdrukker.png",
     portraitPrompt: `${portraitPromptBase}, Stegosaurus with friendly face and visible back plates, lively dinosaur paw-print maker with an ink pot and paw stamp tools, playful messy creative energy`
   },
@@ -111,6 +119,7 @@ const opponentPersonas = [
     speciesShort: "Dilophosaurus",
     initials: "TT",
     playStyle: "tricky",
+    color: "#c45a8a",
     portrait: "assets/players/portraits/tara-trucjager.png",
     portraitPrompt: `${portraitPromptBase}, Dilophosaurus with two delicate head crests, agile dinosaur trick hunter wearing a small hunter hat and performing blank card tricks, sly friendly grin`
   }
@@ -136,7 +145,7 @@ function createPlayers(selection) {
     ...opponents.map((persona, index) => ({
       ...persona,
       id: `pc${index + 1}`,
-      color: playerColors[index + 1],
+      color: persona.color ?? playerColors[(index % (playerColors.length - 1)) + 1],
       isHuman: false
     }))
   ];

@@ -71,6 +71,8 @@ const els = {
   playerHand: document.querySelector("#playerHand"),
   drawButton: document.querySelector("#drawButton"),
   newGameButton: document.querySelector("#newGameButton"),
+  startModal: document.querySelector("#startModal"),
+  startGameButton: document.querySelector("#startGameButton"),
   opponentRoster: document.querySelector("#opponentRoster"),
   opponentSelectionSummary: document.querySelector("#opponentSelectionSummary"),
   actionText: document.querySelector("#actionText"),
@@ -99,6 +101,7 @@ function getSelectedOpponentIds() {
 }
 
 function startGame() {
+  closeStartModal();
   const selectedOpponents = getSelectedOpponentIds();
   const players = createPlayers(selectedOpponents);
   const playerCount = players.length;
@@ -144,6 +147,38 @@ function startGame() {
   render();
 }
 
+function openStartModal() {
+  activeReveal = null;
+  clearPendingInteractions();
+  if (state.players.length > 0) {
+    state.gameOver = true;
+  }
+  els.startModal.classList.remove("is-hidden");
+  setAction("Kies je tegenspelers om een nieuw spel te starten.");
+  renderOpponentRoster();
+  render();
+}
+
+function closeStartModal() {
+  els.startModal.classList.add("is-hidden");
+}
+
+function clearPendingInteractions() {
+  state.pendingDraw = null;
+  state.pendingMeteorPlacement = null;
+  state.pendingOracle = null;
+  state.pendingDigChoice = null;
+  state.pendingFossilChoice = null;
+  state.pendingDiscardChoice = null;
+  state.pendingBrontoChoice = null;
+  state.pendingPteroChoice = null;
+  state.pendingStealTarget = null;
+  state.pendingNopeReaction = null;
+  state.pendingAttackReaction = null;
+  state.pendingRaptorTarget = null;
+  state.pendingCardDetail = null;
+}
+
 function log(message) {
   const li = document.createElement("li");
   li.textContent = message;
@@ -161,11 +196,14 @@ function render() {
   const currentPlayer = getPlayer(state.current);
   const playerZone = document.querySelector(".player-zone");
   const playerColor = getPlayer("player")?.color ?? playerColors[0];
+  const hasGame = state.players.length > 0;
 
   renderPageChrome();
   els.turnStatus.textContent = state.gameOver
     ? "Spel afgelopen"
-    : state.current === "player"
+    : !hasGame
+      ? "Kies tegenspelers"
+      : state.current === "player"
       ? "Jouw beurt"
       : `${currentPlayer?.name ?? "PC"} denkt na`;
   els.turnStatus.style.setProperty("--player-color", currentPlayer?.color ?? playerColor);
@@ -174,10 +212,12 @@ function render() {
   renderDiscardPile();
   els.playerHint.textContent = state.eliminated.player
     ? "Uitgeschakeld"
-    : state.current === "player" && !state.gameOver
+    : !hasGame
+      ? "Start een spel"
+      : state.current === "player" && !state.gameOver
       ? `${state.pendingTurns.player} beurt(en) open`
       : "Wacht op de pc";
-  els.drawButton.disabled = state.current !== "player" || state.gameOver || isInteractionBlocked();
+  els.drawButton.disabled = !hasGame || state.current !== "player" || state.gameOver || isInteractionBlocked();
   playerZone.style.setProperty("--player-color", playerColor);
   playerZone.classList.toggle("is-current", state.current === "player" && !state.gameOver);
   playerZone.classList.toggle("is-acting", state.activity?.owner === "player");
@@ -229,11 +269,11 @@ function renderOpponentRoster() {
     button.className = "roster-card";
     button.type = "button";
     button.dataset.selected = String(isSelected);
-    button.style.setProperty("--player-color", playerColors[(index % (playerColors.length - 1)) + 1]);
+    button.style.setProperty("--player-color", persona.color ?? playerColors[(index % (playerColors.length - 1)) + 1]);
     button.setAttribute("aria-pressed", String(isSelected));
     button.setAttribute("aria-label", `${persona.name} ${isSelected ? "niet meer kiezen" : "kiezen"}`);
 
-    const portrait = createPlayerPortrait(persona, { small: true });
+    const portrait = createPlayerPortrait(persona);
 
     const text = document.createElement("span");
     text.className = "roster-card__text";
@@ -264,6 +304,11 @@ function toggleOpponentSelection(personaId) {
   }
 
   renderOpponentRoster();
+}
+
+function confirmStartSelection() {
+  closeStartModal();
+  startGame();
 }
 
 function showPage(page) {
@@ -2413,7 +2458,7 @@ function endGame(winner, reason) {
     endGame: true,
     winner,
     owner: winner ?? "player",
-    onClose: startGame
+    onClose: openStartModal
   });
   render();
 }
@@ -2530,7 +2575,8 @@ function nextActivePlayer(owner) {
 }
 
 els.drawButton.addEventListener("click", () => drawCard("player"));
-els.newGameButton.addEventListener("click", startGame);
+els.newGameButton.addEventListener("click", openStartModal);
+els.startGameButton.addEventListener("click", confirmStartSelection);
 els.showGamePage.addEventListener("click", () => showPage("game"));
 els.showCatalogPage.addEventListener("click", () => showPage("catalog"));
 els.closeCatalogDetail.addEventListener("click", closeCatalogCard);
@@ -2636,4 +2682,5 @@ els.revealSecondaryButton.addEventListener("click", () => {
   }
 });
 
-startGame();
+render();
+openStartModal();

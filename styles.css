@@ -176,7 +176,8 @@ h2 {
 .table.is-hidden,
 .side-panel.is-hidden,
 .catalog-page.is-hidden,
-.catalog-detail.is-hidden {
+.catalog-detail.is-hidden,
+.start-modal.is-hidden {
   display: none;
 }
 
@@ -358,7 +359,8 @@ h2 {
 
 .deck:hover:not(:disabled),
 .card-button:hover,
-#newGameButton:hover {
+#newGameButton:hover,
+#startGameButton:hover {
   transform: translateY(-2px);
 }
 
@@ -1272,6 +1274,17 @@ h2 {
   backdrop-filter: blur(5px);
 }
 
+.start-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 32;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: var(--overlay);
+  backdrop-filter: blur(5px);
+}
+
 .catalog-detail__panel {
   width: min(440px, 100%);
   border: 1px solid var(--line);
@@ -1280,6 +1293,22 @@ h2 {
   background: var(--panel);
   box-shadow: var(--shadow);
   text-align: center;
+}
+
+.start-modal__panel {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow), 0 0 0 4px color-mix(in srgb, var(--accent), transparent 72%);
+  text-align: center;
+}
+
+.start-modal__panel h2 {
+  margin-bottom: 12px;
 }
 
 .catalog-detail__card {
@@ -1339,7 +1368,7 @@ h2 {
 
 .setup-control {
   display: grid;
-  gap: 6px;
+  gap: 10px;
   margin: 12px 0;
   color: var(--muted);
   font-size: 0.86rem;
@@ -1371,26 +1400,33 @@ h2 {
 
 .opponent-roster {
   display: grid;
-  gap: 8px;
-  max-height: 330px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-height: none;
   overflow: auto;
-  padding-right: 2px;
 }
 
 .roster-card {
   --player-color: var(--accent);
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  justify-items: center;
+  gap: 9px;
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 7px;
+  padding: 12px 8px;
   color: var(--ink);
   background: var(--surface);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
+}
+
+.roster-card .player-portrait {
+  flex-basis: 62px;
+  width: 62px;
+  height: 62px;
 }
 
 .roster-card[data-selected="true"] {
@@ -1402,6 +1438,7 @@ h2 {
 .roster-card__text {
   display: grid;
   min-width: 0;
+  width: 100%;
 }
 
 .roster-card__text strong,
@@ -1412,7 +1449,7 @@ h2 {
 }
 
 .roster-card__text strong {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.1;
 }
 
@@ -1434,7 +1471,8 @@ h2 {
   line-height: 1.45;
 }
 
-#newGameButton {
+#newGameButton,
+#startGameButton {
   width: 100%;
   border: 0;
   border-radius: 8px;
@@ -1443,6 +1481,12 @@ h2 {
   background: var(--accent);
   cursor: pointer;
   font-weight: 900;
+}
+
+@media (max-width: 620px) {
+  .opponent-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .log {
