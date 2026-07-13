@@ -50,6 +50,10 @@ Doel: kaartregels, kaartfronts en voortgang op 1 plek bijhouden. Een kaart is pa
 
 ## Persona-portretten
 
+- [x] Houd het NPC-roster op 9 persona's.
+- [x] Voeg vaste persona-id's, dinorassen, portretpaden en beeldprompts toe in `src/players.js`.
+- [x] Laat spelers bij een nieuw spel 1-4 NPC's uit het roster kiezen.
+- [x] Toon spelerportret/initialen bij NPC-stoelen, doelwitkeuzes en kaartmomenten.
 - [ ] Genereer portret voor Rex de Archeoloog (man): dino met monocle en veldhoed tussen fossielen.
 - [ ] Genereer portret voor Nova de Vulkaanwachter (vrouw): dino met veiligheidsbril en gloeiende lavalantaarn.
 - [ ] Genereer portret voor Kiki de Bottenfluisteraar (vrouw): dino met bottenketting en slimme glimlach.

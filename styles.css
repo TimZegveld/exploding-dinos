@@ -197,6 +197,8 @@ h2 {
 }
 
 .player-portrait {
+  --player-color: var(--accent);
+  position: relative;
   display: grid;
   flex: 0 0 42px;
   width: 42px;
@@ -210,6 +212,20 @@ h2 {
   box-shadow: 0 4px 0 rgba(37, 29, 23, 0.16);
   font-size: 0.78rem;
   font-weight: 950;
+  overflow: hidden;
+}
+
+.player-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-portrait--small {
+  flex-basis: 34px;
+  width: 34px;
+  height: 34px;
+  font-size: 0.68rem;
 }
 
 .player-name-block {
@@ -1298,6 +1314,18 @@ h2 {
   font-weight: 800;
 }
 
+.setup-control__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.setup-control__header strong {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+}
+
 .setup-control select {
   width: 100%;
   border: 1px solid var(--line);
@@ -1307,6 +1335,58 @@ h2 {
   background: #fffdf7;
   font: inherit;
   font-weight: 850;
+}
+
+.opponent-roster {
+  display: grid;
+  gap: 8px;
+  max-height: 330px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.roster-card {
+  --player-color: var(--accent);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px;
+  color: var(--ink);
+  background: #fffdf7;
+  cursor: pointer;
+  text-align: left;
+}
+
+.roster-card[data-selected="true"] {
+  border-color: var(--player-color);
+  background: color-mix(in srgb, var(--player-color), #fffdf7 86%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--player-color), transparent 64%);
+}
+
+.roster-card__text {
+  display: grid;
+  min-width: 0;
+}
+
+.roster-card__text strong,
+.roster-card__text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roster-card__text strong {
+  font-size: 0.82rem;
+  line-height: 1.1;
+}
+
+.roster-card__text small {
+  color: var(--muted);
+  font-size: 0.72rem;
 }
 
 .panel-section {
@@ -1403,6 +1483,42 @@ h2 {
   background: var(--card);
   box-shadow: 0 12px 0 rgba(37, 29, 23, 0.16);
   text-align: left;
+}
+
+.reveal-actor {
+  --player-color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--player-color), var(--line) 50%);
+  border-radius: 999px;
+  padding: 6px 12px 6px 7px;
+  background: color-mix(in srgb, var(--player-color), #fffdf7 88%);
+  text-align: left;
+}
+
+.reveal-actor__text {
+  display: grid;
+  min-width: 0;
+}
+
+.reveal-actor__text strong,
+.reveal-actor__text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reveal-actor__text strong {
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+
+.reveal-actor__text small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
 }
 
 .draw-reveal__card.end-card {
@@ -1773,6 +1889,10 @@ h2 {
 }
 
 .raptor-target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 136px;
   border: 2px solid var(--ink);
   color: var(--ink);

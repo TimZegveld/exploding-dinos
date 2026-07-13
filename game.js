@@ -4,6 +4,7 @@ const {
   MAX_OPPONENTS,
   DEFAULT_OPPONENTS,
   playerColors,
+  opponentPersonas,
   createPlayers
 } = globalThis.ExplodingDinosPlayers;
 const {
@@ -46,6 +47,7 @@ let state = structuredClone(initialState);
 let activeReveal = null;
 let currentPage = "game";
 let selectedCatalogType = null;
+let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 
 const els = {
   gameTable: document.querySelector("#gameTable"),
@@ -69,7 +71,8 @@ const els = {
   playerHand: document.querySelector("#playerHand"),
   drawButton: document.querySelector("#drawButton"),
   newGameButton: document.querySelector("#newGameButton"),
-  opponentCount: document.querySelector("#opponentCount"),
+  opponentRoster: document.querySelector("#opponentRoster"),
+  opponentSelectionSummary: document.querySelector("#opponentSelectionSummary"),
   actionText: document.querySelector("#actionText"),
   gameLog: document.querySelector("#gameLog"),
   drawReveal: document.querySelector("#drawReveal"),
@@ -84,13 +87,20 @@ const els = {
 };
 
 function getOpponentCount() {
-  const selected = Number(els.opponentCount?.value ?? DEFAULT_OPPONENTS);
-  return Math.max(MIN_OPPONENTS, Math.min(MAX_OPPONENTS, selected));
+  return Math.max(MIN_OPPONENTS, Math.min(MAX_OPPONENTS, selectedOpponentIds.length));
+}
+
+function getSelectedOpponentIds() {
+  if (selectedOpponentIds.length < MIN_OPPONENTS) {
+    selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
+  }
+
+  return selectedOpponentIds.slice(0, MAX_OPPONENTS);
 }
 
 function startGame() {
-  const opponentCount = getOpponentCount();
-  const players = createPlayers(opponentCount);
+  const selectedOpponents = getSelectedOpponentIds();
+  const players = createPlayers(selectedOpponents);
   const playerCount = players.length;
 
   state = structuredClone(initialState);
@@ -128,6 +138,7 @@ function startGame() {
   state.deck = shuffle(drawPile);
 
   log(`Nieuw Party Pack spel gestart met ${playerCount} spelers.`);
+  log(`Tegenstanders: ${players.filter((player) => !player.isHuman).map((player) => player.name).join(", ")}.`);
   log(`Stapel bevat ${meteors} Meteorietinslag en ${extraDefuses} extra Schuilgrot.`);
   setAction("Speel actiekaarten, maak paren met soortkaarten, of trek om je beurt te eindigen.");
   render();
@@ -172,6 +183,7 @@ function render() {
   playerZone.classList.toggle("is-acting", state.activity?.owner === "player");
 
   renderOpponents();
+  renderOpponentRoster();
   renderPlayerHand();
   renderReveal();
   renderCatalogDetail();
@@ -186,6 +198,57 @@ function renderPageChrome() {
   els.showCatalogPage.classList.toggle("is-active", isCatalog);
   els.showGamePage.setAttribute("aria-current", isCatalog ? "false" : "page");
   els.showCatalogPage.setAttribute("aria-current", isCatalog ? "page" : "false");
+}
+
+function renderOpponentRoster() {
+  if (!els.opponentRoster) return;
+
+  els.opponentRoster.replaceChildren();
+  const selected = new Set(selectedOpponentIds);
+  const countText = `${selectedOpponentIds.length} gekozen`;
+  els.opponentSelectionSummary.textContent = countText;
+
+  opponentPersonas.forEach((persona, index) => {
+    const button = document.createElement("button");
+    const isSelected = selected.has(persona.personaId);
+    button.className = "roster-card";
+    button.type = "button";
+    button.dataset.selected = String(isSelected);
+    button.style.setProperty("--player-color", playerColors[(index % (playerColors.length - 1)) + 1]);
+    button.setAttribute("aria-pressed", String(isSelected));
+    button.setAttribute("aria-label", `${persona.name} ${isSelected ? "niet meer kiezen" : "kiezen"}`);
+
+    const portrait = createPlayerPortrait(persona, { small: true });
+
+    const text = document.createElement("span");
+    text.className = "roster-card__text";
+
+    const name = document.createElement("strong");
+    name.textContent = persona.name;
+
+    const role = document.createElement("small");
+    role.textContent = playerSubtitle(persona);
+
+    text.append(name, role);
+    button.append(portrait, text);
+    button.addEventListener("click", () => toggleOpponentSelection(persona.personaId));
+    els.opponentRoster.append(button);
+  });
+}
+
+function toggleOpponentSelection(personaId) {
+  const isSelected = selectedOpponentIds.includes(personaId);
+
+  if (isSelected) {
+    if (selectedOpponentIds.length <= MIN_OPPONENTS) return;
+    selectedOpponentIds = selectedOpponentIds.filter((id) => id !== personaId);
+  } else if (selectedOpponentIds.length < MAX_OPPONENTS) {
+    selectedOpponentIds = [...selectedOpponentIds, personaId];
+  } else {
+    selectedOpponentIds = [...selectedOpponentIds.slice(1), personaId];
+  }
+
+  renderOpponentRoster();
 }
 
 function showPage(page) {
@@ -213,9 +276,8 @@ function renderOpponents() {
     identity.className = "player-identity";
 
     const portrait = document.createElement("div");
-    portrait.className = "player-portrait";
-    portrait.setAttribute("aria-label", `Portret placeholder voor ${player.name}`);
-    portrait.textContent = player.initials ?? player.name.slice(0, 2);
+    portrait.className = "player-portrait-wrap";
+    portrait.append(createPlayerPortrait(player));
 
     const textWrap = document.createElement("div");
     textWrap.className = "player-name-block";
@@ -224,7 +286,7 @@ function renderOpponents() {
     name.textContent = player.name;
 
     const role = document.createElement("small");
-    role.textContent = player.role ?? "Dino";
+    role.textContent = playerSubtitle(player);
 
     const count = document.createElement("strong");
     count.textContent = state.eliminated[player.id]
@@ -246,6 +308,32 @@ function renderOpponents() {
     seat.append(labelWrap, hand);
     els.opponents.append(seat);
   });
+}
+
+function createPlayerPortrait(player, options = {}) {
+  const portrait = document.createElement("span");
+  portrait.className = "player-portrait";
+  if (options.small) portrait.classList.add("player-portrait--small");
+  portrait.style.setProperty("--player-color", player.color ?? playerColors[1]);
+  portrait.setAttribute("aria-label", `Portret van ${player.name}`);
+
+  if (player.portrait) {
+    const image = document.createElement("img");
+    image.src = player.portrait;
+    image.alt = "";
+    image.loading = "lazy";
+    image.addEventListener("error", () => {
+      image.remove();
+      portrait.classList.add("is-fallback");
+      portrait.textContent = player.initials ?? player.name.slice(0, 2);
+    }, { once: true });
+    portrait.append(image);
+  } else {
+    portrait.classList.add("is-fallback");
+    portrait.textContent = player.initials ?? player.name.slice(0, 2);
+  }
+
+  return portrait;
 }
 
 function renderPlayerHand() {
@@ -278,11 +366,12 @@ function renderReveal() {
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingOracle?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
   if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingPteroChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
     els.drawReveal.classList.add("is-hidden");
+    removeRevealActor();
     els.placementControls.classList.add("is-hidden");
     els.revealSecondaryButton.classList.add("is-hidden");
     els.revealButton.disabled = false;
@@ -292,6 +381,7 @@ function renderReveal() {
   els.drawReveal.classList.remove("is-hidden");
   els.revealCard.className = "draw-reveal__card";
   els.revealCard.replaceChildren();
+  renderRevealActor(revealOwner);
   els.placementControls.classList.add("is-hidden");
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
@@ -472,6 +562,40 @@ function renderReveal() {
   }
 
   els.revealButton.disabled = false;
+}
+
+function renderRevealActor(owner) {
+  removeRevealActor();
+  const player = getPlayer(owner);
+  if (!player) return;
+
+  const actor = document.createElement("div");
+  actor.className = "reveal-actor";
+  actor.style.setProperty("--player-color", player.color ?? playerColors[0]);
+
+  const portrait = createPlayerPortrait(player);
+  const text = document.createElement("span");
+  text.className = "reveal-actor__text";
+
+  const name = document.createElement("strong");
+  name.textContent = player.name;
+
+  const role = document.createElement("small");
+  role.textContent = player.isHuman ? "Speler" : playerSubtitle(player);
+
+  text.append(name, role);
+  actor.append(portrait, text);
+  els.revealEyebrow.insertAdjacentElement("afterend", actor);
+}
+
+function removeRevealActor() {
+  const actor = document.querySelector(".reveal-actor");
+  if (!actor) return;
+  if (typeof actor.remove === "function") {
+    actor.remove();
+  } else if (actor.parentNode && typeof actor.parentNode.removeChild === "function") {
+    actor.parentNode.removeChild(actor);
+  }
 }
 
 function renderOpenRevealCard(card, isShaking = false) {
@@ -729,12 +853,13 @@ function renderTargetChoices(pendingStealTarget) {
   els.revealCard.classList.add("is-multi", "is-raptor-target");
 
   pendingStealTarget.targets.forEach((target) => {
+    const player = getPlayer(target);
     const button = document.createElement("button");
     button.className = "draw-reveal__mini-card raptor-target";
     button.type = "button";
     button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
     button.dataset.selected = String(target === pendingStealTarget.selectedTarget);
-    button.textContent = `${label(target)} (${getHand(target).length})`;
+    button.append(createPlayerPortrait(player, { small: true }), document.createTextNode(`${label(target)} (${getHand(target).length})`));
     button.addEventListener("click", () => selectStealTarget(target));
     els.revealCard.append(button);
   });
@@ -776,12 +901,13 @@ function renderRaptorTargetChoices(pendingRaptorTarget) {
   els.revealCard.classList.add("is-multi", "is-raptor-target");
 
   pendingRaptorTarget.targets.forEach((target) => {
+    const player = getPlayer(target);
     const button = document.createElement("button");
     button.className = "draw-reveal__mini-card raptor-target";
     button.type = "button";
     button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
     button.dataset.selected = String(target === pendingRaptorTarget.selectedTarget);
-    button.textContent = label(target);
+    button.append(createPlayerPortrait(player, { small: true }), document.createTextNode(label(target)));
     button.addEventListener("click", () => selectRaptorTarget(target));
     els.revealCard.append(button);
   });
@@ -796,37 +922,28 @@ function renderEndGameReveal(reveal) {
 
   const scene = document.createElement("div");
   scene.className = "end-card__scene";
-  scene.setAttribute("aria-hidden", "true");
 
-  const dino = document.createElement("span");
-  dino.className = "end-card__dino";
+  const winner = getPlayer(reveal.winner);
+  const dino = winner
+    ? createPlayerPortrait(winner)
+    : document.createElement("span");
+  dino.classList.add("end-card__dino");
+  if (!winner) {
+    dino.setAttribute("aria-hidden", "true");
+  }
 
   const burst = document.createElement("span");
   burst.className = "end-card__burst";
 
   scene.append(burst, dino);
 
-  const setup = document.createElement("label");
+  const setup = document.createElement("p");
   setup.className = "end-card__setup";
-  setup.setAttribute("for", "endOpponentCount");
 
   const setupText = document.createElement("span");
-  setupText.textContent = "Tegenspelers";
+  setupText.textContent = `${selectedOpponentIds.length} tegenstander${selectedOpponentIds.length === 1 ? "" : "s"} geselecteerd in het roster.`;
 
-  const select = document.createElement("select");
-  select.id = "endOpponentCount";
-  for (let count = MIN_OPPONENTS; count <= MAX_OPPONENTS; count += 1) {
-    const option = document.createElement("option");
-    option.value = String(count);
-    option.textContent = `${count} pc${count === 1 ? "" : "'s"}`;
-    select.append(option);
-  }
-  select.value = els.opponentCount.value;
-  select.addEventListener("change", () => {
-    els.opponentCount.value = select.value;
-  });
-
-  setup.append(setupText, select);
+  setup.append(setupText);
   els.revealCard.append(title, scene, setup);
 }
 
@@ -2204,6 +2321,12 @@ function subjectPronoun(owner, capitalize = false) {
   const player = getPlayer(owner);
   const pronoun = player?.gender === "female" ? "zij" : player?.gender === "male" ? "hij" : "die";
   return capitalize ? `${pronoun.charAt(0).toUpperCase()}${pronoun.slice(1)}` : pronoun;
+}
+
+function playerSubtitle(player) {
+  if (!player) return "Dino";
+  if (player.isHuman) return "Speler";
+  return [player.role, player.speciesShort ?? player.species].filter(Boolean).join(" - ");
 }
 
 function activePlayers() {

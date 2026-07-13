@@ -65,15 +65,13 @@
         <div class="panel-section">
           <h2>Actie</h2>
           <p id="actionText">Welkom bij de eerste speelbare versie.</p>
-          <label class="setup-control" for="opponentCount">
-            <span>Tegenspelers</span>
-            <select id="opponentCount">
-              <option value="1">1 pc</option>
-              <option value="2">2 pc's</option>
-              <option value="3">3 pc's</option>
-              <option value="4">4 pc's</option>
-            </select>
-          </label>
+          <div class="setup-control">
+            <div class="setup-control__header">
+              <span>Tegenspelers</span>
+              <strong id="opponentSelectionSummary">1 gekozen</strong>
+            </div>
+            <div class="opponent-roster" id="opponentRoster" aria-label="Kies 1 tot 4 tegenspelers"></div>
+          </div>
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
 

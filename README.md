@@ -9,7 +9,7 @@ Open `index.html` in je browser. Er is geen build-step nodig.
 ## Code-indeling
 
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
-- `src/players.js`: pc-persona's, spelerkleuren en speler-aanmaak.
+- `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
 - `game.js`: huidige spelstate, beurtregels, pc-keuzes, renderlogica en event handlers.
 - `styles.css`: tafel, kaartfronts, modals, persona- en eindschermstyling.
 
@@ -23,7 +23,7 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 
 ## Regels in deze iteratie
 
-- Jij speelt tegen 1 tot 4 benoemde pc-tegenspelers met eigen persona, gender en kleuraccent; kies het aantal voor je een nieuw spel start.
+- Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
@@ -31,11 +31,11 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - Bij 2-3 spelers gebruikt de game alleen de dino-pootafdruk kaarten. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
-- Gespeelde kaarten verschijnen eerst groot in beeld. Het effect gaat pas door nadat je klikt.
+- Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.
 - Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
 - Als iemand jou aanvalt, zie je je hand als reactie-keuze. `Brul Terug` blokkeert de aanval; een eigen raptoraanval schuift de aanval door en stapelt de beurten. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
 - Een aanval wordt meteen uitgevochten: het doelwit moet het openstaande aantal kaarten trekken, met ruimte voor acties tussen meerdere trekken. Na de laatste verplichte trek is die beurt voorbij en gaat het spel terug naar de speler die de aanval inzette.
-- Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop en keuze voor het aantal pc-tegenspelers.
+- Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop; de gekozen rosterselectie blijft beschikbaar voor het volgende potje.
 - Trekt iemand een `Meteorietinslag`, dan schudt de kaart zichtbaar. Met `Schuilgrot` kiest de speler geheim waar de meteoriet teruggaat in de stapel; jij kiest daarbij een genummerde positie.
 
 ## Kaarten
