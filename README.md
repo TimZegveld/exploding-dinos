@@ -61,6 +61,9 @@ Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-din
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
+- Je hand wordt op kaarttype gegroepeerd; kaarten binnen hetzelfde type krijgen bij binnenkomst een willekeurige plek.
+- Op telefoon kun je je hand open- en dichtklappen, zodat de trekstapel en tafel meer ruimte houden.
+- Op telefoon zitten Kaarten, Nieuw spel en Logboek achter een sluitbaar menu.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game alleen de dino-pootafdruk kaarten. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.

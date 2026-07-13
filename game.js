@@ -17,6 +17,8 @@ const {
   shuffle
 } = globalThis.ExplodingDinosCards;
 
+const HAND_TYPE_ORDER = Object.keys(cardCatalog);
+
 const initialState = {
   players: [],
   hands: {},
@@ -47,6 +49,9 @@ let state = structuredClone(initialState);
 let activeReveal = null;
 let currentPage = "game";
 let selectedCatalogType = null;
+let isPlayerHandOpen = false;
+let isMobileMenuOpen = false;
+let isMobileLogOpen = false;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 
 const els = {
@@ -63,12 +68,23 @@ const els = {
   showGamePage: document.querySelector("#showGamePage"),
   showCatalogPage: document.querySelector("#showCatalogPage"),
   closeCatalogDetail: document.querySelector("#closeCatalogDetail"),
+  mobileMenuButton: document.querySelector("#mobileMenuButton"),
+  mobileMenu: document.querySelector("#mobileMenu"),
+  closeMobileMenu: document.querySelector("#closeMobileMenu"),
+  mobileGamePageButton: document.querySelector("#mobileGamePageButton"),
+  mobileCatalogPageButton: document.querySelector("#mobileCatalogPageButton"),
+  mobileNewGameButton: document.querySelector("#mobileNewGameButton"),
+  mobileLogButton: document.querySelector("#mobileLogButton"),
+  mobileLogPanel: document.querySelector("#mobileLogPanel"),
+  mobileGameLog: document.querySelector("#mobileGameLog"),
   turnStatus: document.querySelector("#turnStatus"),
   opponents: document.querySelector("#opponents"),
   deckCount: document.querySelector("#deckCount"),
+  discard: document.querySelector(".discard"),
   discardTop: document.querySelector("#discardTop"),
   playerHint: document.querySelector("#playerHint"),
   playerHand: document.querySelector("#playerHand"),
+  handToggle: document.querySelector("#handToggle"),
   drawButton: document.querySelector("#drawButton"),
   newGameButton: document.querySelector("#newGameButton"),
   startModal: document.querySelector("#startModal"),
@@ -108,11 +124,13 @@ function startGame() {
 
   state = structuredClone(initialState);
   state.players = players;
-  state.hands = Object.fromEntries(players.map((player) => [player.id, [makeCard("shelter", true)]]));
+  state.hands = Object.fromEntries(players.map((player) => [player.id, []]));
+  players.forEach((player) => addCardToHand(player.id, makeCard("shelter", true)));
   state.pendingTurns = Object.fromEntries(players.map((player) => [player.id, 1]));
   state.eliminated = Object.fromEntries(players.map((player) => [player.id, false]));
   state.current = "player";
   activeReveal = null;
+  isPlayerHandOpen = false;
   els.gameLog.replaceChildren();
 
   const pool = buildCardPool(playerCount);
@@ -120,7 +138,7 @@ function startGame() {
   for (let i = 0; i < 7; i += 1) {
     players.forEach((player) => {
       const card = pool.pop();
-      if (card) state.hands[player.id].push(card);
+      if (card) addCardToHand(player.id, card);
     });
   }
 
@@ -197,6 +215,7 @@ function render() {
   const playerZone = document.querySelector(".player-zone");
   const playerColor = getPlayer("player")?.color ?? playerColors[0];
   const hasGame = state.players.length > 0;
+  const handCount = getHand("player").length;
 
   renderPageChrome();
   els.turnStatus.textContent = state.gameOver
@@ -220,10 +239,17 @@ function render() {
   els.drawButton.disabled = !hasGame || state.current !== "player" || state.gameOver || isInteractionBlocked();
   playerZone.style.setProperty("--player-color", playerColor);
   playerZone.classList.toggle("is-current", state.current === "player" && !state.gameOver);
+  playerZone.classList.toggle("is-hand-collapsed", !isPlayerHandOpen);
+  if (els.handToggle) {
+    els.handToggle.textContent = isPlayerHandOpen ? `Sluit hand (${handCount})` : `Open hand (${handCount})`;
+    els.handToggle.setAttribute("aria-expanded", String(isPlayerHandOpen));
+    els.handToggle.disabled = !hasGame || state.eliminated.player;
+  }
 
   renderOpponents();
   renderOpponentRoster();
   renderPlayerHand();
+  renderMobileMenu();
   renderReveal();
   renderCatalogDetail();
 }
@@ -232,9 +258,12 @@ function renderDiscardPile() {
   const topCard = state.discard.at(-1);
   els.discardTop.className = "";
   els.discardTop.removeAttribute?.("aria-label");
+  els.discard.classList.toggle("is-empty", !topCard);
 
   if (!topCard) {
-    els.discardTop.textContent = "Nog leeg";
+    els.discardTop.className = "discard__empty";
+    els.discardTop.setAttribute("aria-label", "Aflegstapel is leeg");
+    els.discardTop.textContent = "";
     return;
   }
 
@@ -252,6 +281,40 @@ function renderPageChrome() {
   els.showCatalogPage.classList.toggle("is-active", isCatalog);
   els.showGamePage.setAttribute("aria-current", isCatalog ? "false" : "page");
   els.showCatalogPage.setAttribute("aria-current", isCatalog ? "page" : "false");
+}
+
+function getNopeRevealContext(pendingNopeReaction) {
+  if (!pendingNopeReaction) return {};
+
+  if ((pendingNopeReaction.nopeCount ?? 0) > 0) {
+    return {
+      owner: pendingNopeReaction.lastReactor,
+      target: pendingNopeReaction.reactor
+    };
+  }
+
+  return {
+    owner: pendingNopeReaction.actor,
+    target: pendingNopeReaction.context?.target ?? null
+  };
+}
+
+function renderMobileMenu() {
+  if (!els.mobileMenu) return;
+
+  els.mobileMenu.classList.toggle("is-hidden", !isMobileMenuOpen);
+  els.mobileLogPanel?.classList.toggle("is-hidden", !isMobileLogOpen);
+  els.mobileMenuButton?.setAttribute("aria-expanded", String(isMobileMenuOpen));
+  els.mobileLogButton?.setAttribute("aria-expanded", String(isMobileLogOpen));
+
+  if (!els.mobileGameLog) return;
+
+  els.mobileGameLog.replaceChildren();
+  [...els.gameLog.children].forEach((entry) => {
+    const item = document.createElement("li");
+    item.textContent = entry.textContent;
+    els.mobileGameLog.append(item);
+  });
 }
 
 function renderOpponentRoster() {
@@ -310,6 +373,38 @@ function confirmStartSelection() {
   startGame();
 }
 
+function togglePlayerHand() {
+  isPlayerHandOpen = !isPlayerHandOpen;
+  render();
+}
+
+function openMobileMenu() {
+  isMobileMenuOpen = true;
+  render();
+}
+
+function closeMobileMenu() {
+  isMobileMenuOpen = false;
+  isMobileLogOpen = false;
+  render();
+}
+
+function toggleMobileLog() {
+  isMobileLogOpen = !isMobileLogOpen;
+  render();
+}
+
+function showPageFromMobileMenu(page) {
+  isMobileMenuOpen = false;
+  isMobileLogOpen = false;
+  showPage(page);
+}
+
+function startNewGameFromMobileMenu() {
+  closeMobileMenu();
+  openStartModal();
+}
+
 function showPage(page) {
   currentPage = page;
   if (page === "catalog") {
@@ -345,6 +440,9 @@ function renderOpponents() {
 
     const role = document.createElement("small");
     role.textContent = playerSubtitle(player);
+    role.dataset.mobileText = state.eliminated[player.id]
+      ? "Uitgeschakeld"
+      : `${getHand(player.id).length} kaarten`;
 
     const count = document.createElement("strong");
     count.textContent = state.eliminated[player.id]
@@ -396,7 +494,7 @@ function createPlayerPortrait(player, options = {}) {
 
 function renderPlayerHand() {
   els.playerHand.replaceChildren();
-  getHand("player").forEach((card) => {
+  getSortedHand("player").forEach((card) => {
     const button = document.createElement("button");
     button.className = "card-button";
     button.type = "button";
@@ -424,8 +522,9 @@ function renderReveal() {
   const pendingAttackReaction = state.pendingAttackReaction;
   const pendingRaptorTarget = state.pendingRaptorTarget;
   const pendingDraw = state.pendingDraw;
-  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingOracle?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
-  const revealTarget = pendingAttackReaction?.target ?? activeReveal?.target ?? null;
+  const nopeContext = getNopeRevealContext(pendingNopeReaction);
+  const revealOwner = pendingDraw?.owner ?? pendingAttackReaction?.actor ?? nopeContext.owner ?? pendingNopeReaction?.actor ?? pendingRaptorTarget?.owner ?? pendingStealTarget?.owner ?? pendingPteroChoice?.owner ?? pendingBrontoChoice?.owner ?? pendingDiscardChoice?.owner ?? pendingDigChoice?.owner ?? pendingOracle?.owner ?? pendingPlacement?.owner ?? pendingCardDetail?.owner ?? activeReveal?.owner;
+  const revealTarget = pendingAttackReaction?.target ?? nopeContext.target ?? activeReveal?.target ?? null;
   els.drawReveal.style.setProperty("--player-color", getPlayer(revealOwner)?.color ?? playerColors[0]);
 
   if (!pendingCardDetail && !pendingPlacement && !pendingOracle && !pendingDigChoice && !pendingFossilChoice && !pendingDiscardChoice && !pendingBrontoChoice && !pendingPteroChoice && !pendingStealTarget && !pendingNopeReaction && !pendingAttackReaction && !pendingRaptorTarget && !pendingDraw && !activeReveal) {
@@ -779,12 +878,20 @@ function renderCardFace(element, card, options = {}) {
   title.className = "card-face__title";
   title.textContent = card.name;
 
-  const icon = document.createElement("span");
-  icon.className = "card-face__icon";
-  icon.setAttribute("aria-hidden", "true");
-  renderCardTypeIcon(icon, card.design.icon);
+  header.append(title);
+  if (card.kind === "set") {
+    const icon = document.createElement("span");
+    icon.className = "card-face__icon card-face__icon--set-pair";
+    icon.setAttribute("aria-hidden", "true");
 
-  header.append(title, icon);
+    const image = document.createElement("img");
+    image.src = "assets/cards/icons/set-pair.svg";
+    image.alt = "";
+    icon.append(image);
+    header.append(icon);
+  } else {
+    header.classList.add("card-face__header--no-icon");
+  }
 
   const art = document.createElement("div");
   art.className = "card-face__art";
@@ -888,20 +995,6 @@ function createPawMarker() {
   }
 
   return marker;
-}
-
-function renderCardTypeIcon(icon, type) {
-  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig", "leaf", "impact", "cave"];
-  if (!supportedIcons.includes(type)) {
-    icon.textContent = type;
-    return;
-  }
-
-  icon.classList.add(`card-face__icon--${type}`);
-  const parts = type === "claw" ? 3 : type === "speed" ? 4 : type === "leaf" ? 2 : type === "impact" ? 3 : type === "cave" ? 2 : 1;
-  for (let i = 0; i < parts; i += 1) {
-    icon.append(document.createElement("span"));
-  }
 }
 
 function renderOracleCards(pendingOracle) {
@@ -1009,19 +1102,45 @@ function renderPteroChoices(pendingPteroChoice) {
 
 function renderAttackReactionChoices(pendingAttackReaction) {
   els.revealCard.classList.add("is-multi", "is-attack-reaction");
+  const groupedCards = getSortedHand("player").reduce((groups, card) => {
+    const playable = canPlayAttackReactionCard(card);
+    groups[playable ? "playable" : "disabled"].push({ card, playable });
+    return groups;
+  }, { playable: [], disabled: [] });
 
-  getHand("player").forEach((card) => {
+  if (groupedCards.playable.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "reaction-empty-message";
+    emptyMessage.textContent = "Je hebt geen kaart die deze aanval kan beantwoorden.";
+    els.revealCard.append(emptyMessage);
+  } else {
+    groupedCards.playable.forEach(({ card, playable }) => {
+      els.revealCard.append(createAttackReactionCardButton(card, playable));
+    });
+  }
+
+  if (groupedCards.disabled.length > 0) {
+    const divider = document.createElement("div");
+    divider.className = "reaction-divider";
+    divider.textContent = "Niet speelbaar";
+    els.revealCard.append(divider);
+  }
+
+  groupedCards.disabled.forEach(({ card, playable }) => {
+    els.revealCard.append(createAttackReactionCardButton(card, playable));
+  });
+}
+
+function createAttackReactionCardButton(card, playable) {
     const button = document.createElement("button");
     button.className = "draw-reveal__mini-card";
     button.type = "button";
     button.classList.add(`is-${card.kind}`);
-    const playable = canPlayAttackReactionCard(card);
     button.disabled = !playable;
     button.setAttribute("aria-disabled", String(!playable));
     renderCardFace(button, card, { mini: true });
     button.addEventListener("click", () => resolveAttackReactionWithCard(card.id));
-    els.revealCard.append(button);
-  });
+    return button;
 }
 
 function renderRaptorTargetChoices(pendingRaptorTarget) {
@@ -1622,6 +1741,7 @@ function startNopeChainWithPlayedCard(chain) {
       : "De Brul Terug-keten draait opnieuw om.",
     buttonText: "OK",
     owner: chain.reactor,
+    target: firstNope ? chain.actor : chain.lastReactor,
     onClose: () => {
       continueNopeChain(nextChain);
       return false;
@@ -2221,7 +2341,7 @@ function reclaimDiscardCard(owner, cardId) {
   }
 
   const [card] = state.discard.splice(index, 1);
-  getHand(owner).push(card);
+  addCardToHand(owner, card);
   setAction(`${label(owner)} snackt ${card.name} terug uit de aflegstapel.`);
   showCardMoment({
     title: "Stego Snack",
@@ -2295,7 +2415,7 @@ function confirmPendingDraw() {
     return;
   }
 
-  getHand(owner).push(card);
+  addCardToHand(owner, card);
   consumeTurn(owner);
   setAction(`${label(owner)} neemt ${card.name} in de hand.`);
   render();
@@ -2418,7 +2538,7 @@ function stealCardsAt(owner, target, indexes) {
     if (index >= targetHand.length) return;
     const [stolen] = targetHand.splice(index, 1);
     if (stolen) {
-      getHand(owner).push(stolen);
+      addCardToHand(owner, stolen);
       stolenCards.unshift(stolen);
     }
   });
@@ -2593,6 +2713,35 @@ function getHand(owner) {
   return state.hands[owner] ?? [];
 }
 
+function addCardToHand(owner, card) {
+  assignHandSortKey(card);
+  getHand(owner).push(card);
+}
+
+function assignHandSortKey(card) {
+  card.handSortKey = Math.random();
+  return card;
+}
+
+function getSortedHand(owner) {
+  return [...getHand(owner)].sort(compareCardsForHand);
+}
+
+function compareCardsForHand(a, b) {
+  const typeCompare = handTypeRank(a.type) - handTypeRank(b.type);
+  if (typeCompare !== 0) return typeCompare;
+
+  const keyCompare = (a.handSortKey ?? 0) - (b.handSortKey ?? 0);
+  if (keyCompare !== 0) return keyCompare;
+
+  return String(a.id).localeCompare(String(b.id));
+}
+
+function handTypeRank(type) {
+  const index = HAND_TYPE_ORDER.indexOf(type);
+  return index === -1 ? HAND_TYPE_ORDER.length : index;
+}
+
 function getPlayer(owner) {
   return state.players.find((player) => player.id === owner);
 }
@@ -2651,6 +2800,18 @@ function nextActivePlayer(owner) {
 }
 
 els.drawButton.addEventListener("click", () => drawCard("player"));
+els.handToggle?.addEventListener("click", togglePlayerHand);
+els.mobileMenuButton?.addEventListener("click", openMobileMenu);
+els.closeMobileMenu?.addEventListener("click", closeMobileMenu);
+els.mobileGamePageButton?.addEventListener("click", () => showPageFromMobileMenu("game"));
+els.mobileCatalogPageButton?.addEventListener("click", () => showPageFromMobileMenu("catalog"));
+els.mobileNewGameButton?.addEventListener("click", startNewGameFromMobileMenu);
+els.mobileLogButton?.addEventListener("click", toggleMobileLog);
+els.mobileMenu?.addEventListener("click", (event) => {
+  if (event.target === els.mobileMenu) {
+    closeMobileMenu();
+  }
+});
 els.newGameButton.addEventListener("click", openStartModal);
 els.startGameButton.addEventListener("click", confirmStartSelection);
 els.showGamePage.addEventListener("click", () => showPage("game"));
