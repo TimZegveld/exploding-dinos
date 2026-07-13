@@ -489,6 +489,14 @@ h2 {
     var(--card);
 }
 
+.card-face[data-tone="shelter"] {
+  --face-accent: #3f9277;
+  --face-header: #245c58;
+  background:
+    linear-gradient(180deg, rgba(225, 246, 213, 0.98), rgba(66, 135, 120, 0.76)),
+    var(--card);
+}
+
 .card-face[data-tone="oracle"] .card-face__header {
   background: linear-gradient(135deg, #743d25, #a95d2f);
 }
@@ -549,6 +557,10 @@ h2 {
   background: linear-gradient(135deg, #5c211a, #b83f24);
 }
 
+.card-face[data-tone="shelter"] .card-face__header {
+  background: linear-gradient(135deg, #1f4f4d, #3c856f);
+}
+
 .card-face__header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 25px;
@@ -587,7 +599,8 @@ h2 {
 .card-face__icon--volcano,
 .card-face__icon--dig,
 .card-face__icon--leaf,
-.card-face__icon--impact {
+.card-face__icon--impact,
+.card-face__icon--cave {
   position: relative;
   overflow: hidden;
 }
@@ -600,7 +613,8 @@ h2 {
 .card-face__icon--volcano span,
 .card-face__icon--dig span,
 .card-face__icon--leaf span,
-.card-face__icon--impact span {
+.card-face__icon--impact span,
+.card-face__icon--cave span {
   display: block;
   background: currentColor;
 }
@@ -860,6 +874,25 @@ h2 {
   transform: rotate(45deg);
 }
 
+.card-face__icon--cave span:nth-child(1) {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 17px;
+  height: 15px;
+  border-radius: 12px 12px 3px 3px;
+}
+
+.card-face__icon--cave span:nth-child(2) {
+  position: absolute;
+  left: 9px;
+  bottom: 4px;
+  width: 7px;
+  height: 9px;
+  border-radius: 8px 8px 2px 2px;
+  background: rgba(255, 253, 247, 0.95);
+}
+
 .card-face__art {
   min-height: 0;
   border: 1px solid rgba(37, 29, 23, 0.28);
@@ -933,6 +966,10 @@ h2 {
 
 .card-face[data-tone="meteor"] .card-face__art img {
   object-position: 53% 58%;
+}
+
+.card-face[data-tone="shelter"] .card-face__art img {
+  object-position: 50% 61%;
 }
 
 .card-face__text {
@@ -1547,6 +1584,10 @@ h2 {
 
 .draw-reveal__card.card-face[data-tone="meteor"] .card-face__art img {
   object-position: 53% 54%;
+}
+
+.draw-reveal__card.card-face[data-tone="shelter"] .card-face__art img {
+  object-position: 50% 56%;
 }
 
 .draw-reveal__card strong {

@@ -643,14 +643,14 @@ function createPawMarker() {
 }
 
 function renderCardTypeIcon(icon, type) {
-  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig", "leaf", "impact"];
+  const supportedIcons = ["claw", "speed", "timeline", "fossil", "roar", "volcano", "dig", "leaf", "impact", "cave"];
   if (!supportedIcons.includes(type)) {
     icon.textContent = type;
     return;
   }
 
   icon.classList.add(`card-face__icon--${type}`);
-  const parts = type === "claw" ? 3 : type === "speed" ? 4 : type === "leaf" ? 2 : type === "impact" ? 3 : 1;
+  const parts = type === "claw" ? 3 : type === "speed" ? 4 : type === "leaf" ? 2 : type === "impact" ? 3 : type === "cave" ? 2 : 1;
   for (let i = 0; i < parts; i += 1) {
     icon.append(document.createElement("span"));
   }

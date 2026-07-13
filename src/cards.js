@@ -15,7 +15,12 @@ const cardCatalog = {
     name: "Schuilgrot",
     text: "Redt je automatisch van een Meteorietinslag.",
     kind: "defuse",
-    playable: false
+    playable: false,
+    design: {
+      tone: "shelter",
+      icon: "cave",
+      image: "assets/cards/illustrations/schuilgrot-shelter.png"
+    }
   },
   raptor: {
     name: "Raptor Aanval",
