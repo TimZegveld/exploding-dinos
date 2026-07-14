@@ -11,7 +11,7 @@ function calculateSetupCounts(playerCount, distribution, deckModeForPlayers) {
     mode,
     shelterCount,
     extraDefuses: Math.max(0, shelterCount - playerCount),
-    meteors: Math.max(1, playerCount - 1)
+    meteors: Math.max(1, playerCount + 1)
   };
 }
 

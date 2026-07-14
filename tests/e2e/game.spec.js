@@ -117,6 +117,21 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
       }
     }
   };
+  const oracleRoom = {
+    ...gameRoom,
+    version: 11,
+    game: {
+      ...gameRoom.game,
+      pending: {
+        type: "ORACLE_ORDER",
+        cards: [
+          { id: "oracle-top", type: "sprint", name: "Bovenste kaart", text: "Eerst.", kind: "action" },
+          { id: "oracle-middle", type: "volcano", name: "Middelste kaart", text: "Tweede.", kind: "action" },
+          { id: "oracle-bottom", type: "trike", name: "Onderste kaart", text: "Derde.", kind: "action" }
+        ]
+      }
+    }
+  };
   const drawRoom = {
     ...gameRoom,
     version: 4,
@@ -293,6 +308,18 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Schuilgrot");
   await expect(page.locator("#revealText")).toContainText("terugkomt blijft geheim");
   await expect(page.locator("#revealButton")).toBeDisabled();
+
+  currentRoom = gameRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+
+  currentRoom = oracleRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  const orderedCards = page.locator(".multiplayer-choice__ordered-card");
+  await expect(orderedCards).toHaveCount(3);
+  await orderedCards.nth(0).locator("button").last().click();
+  await expect(orderedCards.nth(0)).toContainText("Middelste kaart");
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(orderedCards.nth(0)).toContainText("Middelste kaart");
 
   currentRoom = gameRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());

@@ -32,13 +32,13 @@ test("setup counts add the right meteors and extra shelters per deck mode", () =
     mode: "compact",
     shelterCount: 3,
     extraDefuses: 1,
-    meteors: 1
+    meteors: 3
   });
   assert.deepEqual(plain(calculateSetupCounts(5, distribution, deckModeForPlayers)), {
     mode: "standard",
     shelterCount: 7,
     extraDefuses: 2,
-    meteors: 4
+    meteors: 6
   });
 });
 

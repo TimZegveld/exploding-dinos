@@ -70,6 +70,7 @@ let showingRoomInfo = false;
 let inspectedOnlineCard = null;
 let onlineHandOpen = false;
 let onlineRevealActions = null;
+let onlineOracleDraft = null;
 
 const DINO_NAME_STARTS = ["Brullende", "Knetterende", "Sluwe", "Dappere", "Machtige", "Flitsende", "Mollige", "Vurige", "Slaperige", "Wilde", "Blije", "Stekelige"];
 const DINO_NAME_ENDS = ["Bronto", "Raptor", "Tricera", "Stego", "Ptero", "Rex", "Ankylo", "Dilo", "Spino", "Carno", "Fossielsnuit", "Staartzwieper"];
@@ -237,7 +238,12 @@ function runOnlineRevealAction(action) {
 }
 
 function renderOnlineOracle(pending) {
-  const order = [...pending.cards];
+  const pendingCardIds = pending.cards.map((card) => card.id);
+  const keepsExistingDraft = onlineOracleDraft
+    && onlineOracleDraft.length === pendingCardIds.length
+    && onlineOracleDraft.every((card) => pendingCardIds.includes(card.id));
+  const order = keepsExistingDraft ? onlineOracleDraft : [...pending.cards];
+  onlineOracleDraft = order;
   const renderOrder = () => {
     const nodes = order.map((card, index) => {
       const wrap = document.createElement("div");
@@ -253,8 +259,16 @@ function renderOnlineOracle(pending) {
       down.textContent = "↓";
       up.disabled = index === 0;
       down.disabled = index === order.length - 1;
-      up.addEventListener("click", () => { [order[index - 1], order[index]] = [order[index], order[index - 1]]; renderOrder(); });
-      down.addEventListener("click", () => { [order[index], order[index + 1]] = [order[index + 1], order[index]]; renderOrder(); });
+      up.addEventListener("click", () => {
+        [order[index - 1], order[index]] = [order[index], order[index - 1]];
+        onlineOracleDraft = order;
+        renderOrder();
+      });
+      down.addEventListener("click", () => {
+        [order[index], order[index + 1]] = [order[index + 1], order[index]];
+        onlineOracleDraft = order;
+        renderOrder();
+      });
       controls.append(up, down);
       wrap.append(position, face, controls);
       return wrap;
@@ -290,6 +304,7 @@ function showOnlineCardDetail(card, playable) {
 }
 
 function renderChoice(pending, game) {
+  if (pending?.type !== "ORACLE_ORDER") onlineOracleDraft = null;
   if (!pending) {
     onlineRevealActions = null;
     elements.choice?.classList.add("is-hidden");
