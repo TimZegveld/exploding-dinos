@@ -200,6 +200,17 @@ h2 {
   text-align: center;
 }
 
+.status-pill.is-forced-draw {
+  border-color: var(--danger);
+  color: var(--on-danger);
+  background: var(--danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger), transparent 68%), var(--shadow-soft);
+}
+
+.status-pill.is-multiple-forced-draws {
+  animation: forced-draw-attention 900ms ease-in-out 2;
+}
+
 .table {
   display: grid;
   grid-template-rows: auto minmax(210px, 1fr) auto;
@@ -440,6 +451,30 @@ h2 {
 .deck:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.deck.is-forced-draw {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--danger), transparent 66%), var(--shadow);
+}
+
+.deck.is-forced-draw::after {
+  content: attr(data-forced-draws);
+  position: absolute;
+  inset: auto 8px 8px;
+  border-radius: 999px;
+  padding: 6px 8px;
+  color: var(--on-danger);
+  background: var(--danger);
+  font-size: 0.7rem;
+  font-weight: 950;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@keyframes forced-draw-attention {
+  50% { transform: scale(1.045); }
 }
 
 .card-button[data-can-play="false"] {
@@ -2399,6 +2434,7 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   .deck,
   .discard,
+  .status-pill,
   .draw-reveal__card,
   .draw-reveal__mini-card {
     animation: none !important;
