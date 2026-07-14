@@ -26,7 +26,13 @@ De eerste geautomatiseerde testlaag staat in `tests/` en gebruikt Node's ingebou
 npm test
 ```
 
-De huidige tests dekken deck/card helpers en een kleine fake-DOM smoke-test voor spelstart, kaart trekken en de catalogus. Voor publicatie moeten hier nog gerichte regeltests en echte browserchecks bij komen.
+De snelle tests dekken deck/card helpers, gerichte spelregels en een fake-DOM smoke-test. Daarnaast draaien echte browserchecks de kernflows op een desktop- en telefoonviewport in Chromium:
+
+```powershell
+npm run test:browser
+```
+
+Installeer bij een nieuwe checkout eerst de ontwikkelafhankelijkheden en Chromium met `npm install` en `npx playwright install chromium`. Met `npm run test:all` draaien beide testlagen achter elkaar.
 
 ## Online zetten
 

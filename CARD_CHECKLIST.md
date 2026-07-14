@@ -4,7 +4,7 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 24 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 27 tests.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
@@ -14,11 +14,11 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 - Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - GitHub Pages staat als live URL in de README; publicatie zelf is dus geen open taak meer.
-- Een structurele echte-browser testlaag ontbreekt nog; Playwright is niet beschikbaar in de huidige runtime.
+- Een Playwright-browserlaag controleert kernflows op desktop en mobiel; verdere gameplayflows kunnen hier stapsgewijs aan worden toegevoegd.
 
 ## Volgende prioriteit
 
-- [ ] Voeg een kleine echte-browser testlaag toe voor desktop en mobiel.
+- [x] Voeg een kleine echte-browser testlaag toe voor desktop en mobiel.
   - Minimaal: startscherm, handkaarten, kaartdetail openen/sluiten, reveal-overlay, catalogus en eindscherm.
   - Check console errors en layout op een telefoonviewport.
   - Gebruik Playwright of een vergelijkbare browser-runner wanneer die beschikbaar is.

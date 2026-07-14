@@ -657,7 +657,7 @@ function renderPlayerHand() {
     button.type = "button";
     button.dataset.kind = card.kind;
     const canPlay = canPlayCard("player", card);
-    button.setAttribute("aria-disabled", String(!canPlay));
+    button.dataset.canPlay = String(canPlay);
     button.disabled = state.gameOver || state.eliminated.player || isHandClickBlocked();
     renderCardFace(button, card);
     button.addEventListener("click", () => inspectPlayerCard(card.id));
