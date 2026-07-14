@@ -1310,6 +1310,217 @@ h2 {
   font-weight: 900;
 }
 
+.start-modal__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.explain-button {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.action-panel .explain-button {
+  margin-bottom: 10px;
+}
+
+.explain-button:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: var(--overlay);
+  backdrop-filter: blur(7px);
+}
+
+.tutorial.is-hidden,
+.tutorial__placement.is-hidden {
+  display: none;
+}
+
+.tutorial__panel {
+  width: min(600px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow), 0 0 42px rgba(226, 170, 69, 0.18);
+}
+
+.tutorial__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tutorial__header h2,
+.tutorial__scene h3 {
+  margin: 0;
+}
+
+.tutorial__close {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.tutorial__progress {
+  height: 7px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--surface-soft);
+}
+
+.tutorial__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold), var(--danger));
+  transition: width 220ms ease;
+}
+
+.tutorial__step {
+  margin: 8px 0 14px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.tutorial__scene {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background: radial-gradient(circle at 50% 20%, rgba(226, 170, 69, 0.14), transparent 52%), var(--surface-soft);
+  text-align: center;
+}
+
+.tutorial__scene.is-explosion {
+  box-shadow: inset 0 0 36px rgba(228, 94, 78, 0.2);
+}
+
+.tutorial__scene.is-defuse {
+  box-shadow: inset 0 0 36px rgba(85, 184, 122, 0.2);
+}
+
+.tutorial__cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 190px;
+  margin-top: 14px;
+}
+
+.tutorial__card.card-face {
+  box-sizing: border-box;
+  flex: 0 0 124px;
+  width: 124px;
+  aspect-ratio: var(--card-ratio);
+  min-height: 0;
+  padding: 8px;
+  text-align: left;
+}
+
+.tutorial__card.card-face .card-face__title {
+  font-size: 0.7rem;
+}
+
+.tutorial__card.card-face .card-face__text {
+  font-size: 0.55rem;
+}
+
+.tutorial__scene.is-explosion .tutorial__card {
+  animation: meteor-shake 520ms ease-in-out infinite;
+}
+
+.tutorial__text {
+  min-height: 48px;
+  margin: 16px 0;
+  color: var(--muted);
+  line-height: 1.45;
+  text-align: center;
+}
+
+.tutorial__placement {
+  margin: 0 0 16px;
+}
+
+.tutorial__placement label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 900;
+}
+
+.tutorial__placement select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  font-weight: 800;
+}
+
+.tutorial__placement p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.tutorial__actions {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.55fr) minmax(180px, 1.45fr);
+  gap: 10px;
+}
+
+#tutorialNextButton {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--on-danger);
+  background: var(--danger);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.tutorial__skip {
+  display: block;
+  margin: 12px auto 0;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 @media (max-width: 620px) {
   .opponent-roster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2397,17 +2608,30 @@ h2 {
 
   .start-modal,
   .catalog-detail,
-  .draw-reveal {
+  .draw-reveal,
+  .tutorial {
     align-items: end;
     padding: 10px;
   }
 
   .start-modal__panel,
   .catalog-detail__panel,
-  .draw-reveal__panel {
+  .draw-reveal__panel,
+  .tutorial__panel {
     width: 100%;
     max-height: calc(100dvh - 20px);
     padding: 14px;
+  }
+
+  .tutorial__cards {
+    min-height: 154px;
+  }
+
+  .tutorial__card.card-face {
+    flex-basis: min(112px, 34vw);
+    width: min(112px, 34vw);
+    aspect-ratio: var(--card-ratio);
+    min-height: 0;
   }
 
   .opponent-roster {
@@ -2478,12 +2702,21 @@ h2 {
   .secondary-action,
   #newGameButton,
   #startGameButton,
+  .explain-button,
+  #tutorialNextButton,
   #closeCatalogDetail {
     min-height: 44px;
   }
 
   .end-card__scene {
     width: min(286px, 74vw);
+  }
+}
+
+@media (max-width: 430px) {
+  .start-modal__actions,
+  .tutorial__actions {
+    grid-template-columns: 1fr;
   }
 }
 

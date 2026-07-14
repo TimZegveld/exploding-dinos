@@ -47,6 +47,31 @@ test("een trek opent de reveal-overlay", async ({ page }) => {
   await expect(page.locator("#revealButton")).toBeEnabled();
 });
 
+test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
+  await page.locator("#startExplainButton").click();
+  await expect(page.locator("#tutorial")).toBeVisible();
+  await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");
+  const tutorialCard = await page.locator(".tutorial__card").first().boundingBox();
+  expect(Math.abs((tutorialCard.width / tutorialCard.height) - (5 / 7))).toBeLessThan(0.02);
+
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("Actiekaarten");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("beurt is voorbij");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("geen Schuilgrot");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("automatisch gebruikt");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialPlacement")).toBeVisible();
+  await page.locator("#tutorialPlacementSelect").selectOption("bottom");
+  await expect(page.locator("#tutorialPlacementHint")).toContainText("gevaar blijft");
+  await page.locator("#tutorialNextButton").click();
+
+  await expect(page.locator("#tutorial")).toBeHidden();
+  await expect(page.locator("#startModal")).toBeVisible();
+});
+
 test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   await startGame(page);
   if (await page.locator("#mobileMenuButton").isVisible()) {

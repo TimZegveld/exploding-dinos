@@ -84,6 +84,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
 - Iedere pc-tegenspeler heeft een eigen speelstijl die kaartkeuze, doelwitkeuze, blokkeren, risico nemen en deckcontrole subtiel beinvloedt.
 - De startselectie adviseert beginners om met 1 tegenstander te beginnen; extra tegenstanders zorgen voor meer chaos.
+- Via `Hoe speel je?` opent een korte interactieve oefenronde over actie- en soortkaarten, een beurt beëindigen door te trekken, ontploffen zonder Schuilgrot, automatisch ontmantelen en het geheim terugplaatsen van de Meteorietinslag. De oefening verandert een lopend spel niet.
 - Trek je een `Meteorietinslag` zonder `Schuilgrot`, dan verlies je.
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.

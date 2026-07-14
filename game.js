@@ -214,6 +214,7 @@ let isMobileMenuOpen = false;
 let isMobileLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
+let tutorialStep = 0;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 
 const els = {
@@ -235,6 +236,7 @@ const els = {
   closeMobileMenu: document.querySelector("#closeMobileMenu"),
   mobileGamePageButton: document.querySelector("#mobileGamePageButton"),
   mobileCatalogPageButton: document.querySelector("#mobileCatalogPageButton"),
+  mobileExplainButton: document.querySelector("#mobileExplainButton"),
   mobileNewGameButton: document.querySelector("#mobileNewGameButton"),
   mobileLogButton: document.querySelector("#mobileLogButton"),
   mobileLogPanel: document.querySelector("#mobileLogPanel"),
@@ -249,7 +251,9 @@ const els = {
   handToggle: document.querySelector("#handToggle"),
   drawButton: document.querySelector("#drawButton"),
   newGameButton: document.querySelector("#newGameButton"),
+  explainButton: document.querySelector("#explainButton"),
   startModal: document.querySelector("#startModal"),
+  startExplainButton: document.querySelector("#startExplainButton"),
   startGameButton: document.querySelector("#startGameButton"),
   opponentRoster: document.querySelector("#opponentRoster"),
   opponentSelectionSummary: document.querySelector("#opponentSelectionSummary"),
@@ -263,8 +267,126 @@ const els = {
   revealSecondaryButton: document.querySelector("#revealSecondaryButton"),
   placementControls: document.querySelector("#placementControls"),
   placementSelect: document.querySelector("#placementSelect"),
-  placementHint: document.querySelector("#placementHint")
+  placementHint: document.querySelector("#placementHint"),
+  tutorial: document.querySelector("#tutorial"),
+  tutorialScene: document.querySelector("#tutorialScene"),
+  tutorialText: document.querySelector("#tutorialText"),
+  tutorialProgress: document.querySelector("#tutorialProgress"),
+  tutorialProgressBar: document.querySelector("#tutorialProgressBar"),
+  tutorialPlacement: document.querySelector("#tutorialPlacement"),
+  tutorialPlacementSelect: document.querySelector("#tutorialPlacementSelect"),
+  tutorialPlacementHint: document.querySelector("#tutorialPlacementHint"),
+  tutorialBackButton: document.querySelector("#tutorialBackButton"),
+  tutorialNextButton: document.querySelector("#tutorialNextButton"),
+  tutorialSkipButton: document.querySelector("#tutorialSkipButton"),
+  closeTutorialButton: document.querySelector("#closeTutorialButton")
 };
+
+const tutorialSteps = [
+  {
+    title: "Blijf als laatste dino over",
+    text: "Om de beurt speel je kaarten en trek je één kaart. Wie als laatste niet is ontploft, wint.",
+    button: "Bekijk de andere kaarten",
+    cards: ["meteor", "shelter"],
+    tone: "goal"
+  },
+  {
+    title: "Kaarten helpen je overleven en dwarsbomen",
+    text: "Actiekaarten laten je aanvallen, vooruitkijken of de stapel veranderen. Twee gelijke soortkaarten speel je samen voor een extra effect.",
+    button: "Zo eindigt je beurt",
+    cards: ["raptor", "trike", "miniRaptor"],
+    tone: "cards"
+  },
+  {
+    title: "Trekken beëindigt je beurt",
+    text: "Speel eerst zoveel kaarten als je wilt. Klik daarna op de trekstapel: je trekt één kaart en je beurt is voorbij.",
+    button: "Laat een tegenstander trekken",
+    cards: ["volcano"],
+    tone: "turn"
+  },
+  {
+    title: "Zonder Schuilgrot ontplof je",
+    text: "De tegenstander trekt een Meteorietinslag en heeft geen Schuilgrot. Die dino is uitgeschakeld.",
+    button: "Trek hem nu zelf",
+    cards: ["meteor"],
+    tone: "explosion"
+  },
+  {
+    title: "Schuilgrot ontmantelt de inslag",
+    text: "Jouw Schuilgrot wordt automatisch gebruikt en afgelegd. Je overleeft, maar de Meteorietinslag moet terug in de stapel.",
+    button: "Plaats de meteoriet terug",
+    cards: ["meteor", "shelter"],
+    tone: "defuse"
+  },
+  {
+    title: "Maak de volgende trek gevaarlijk",
+    text: "Je kiest een geheime plek. Je wijst dus niet rechtstreeks iemand aan: die speler moet de Meteorietinslag later trekken.",
+    button: "Begrepen — terug naar het spel",
+    cards: ["meteor"],
+    tone: "placement"
+  }
+];
+
+function openTutorial() {
+  tutorialStep = 0;
+  closeMobileMenu();
+  els.tutorial.classList.remove("is-hidden");
+  renderTutorial();
+  els.closeTutorialButton.focus?.();
+}
+
+function closeTutorial() {
+  els.tutorial.classList.add("is-hidden");
+}
+
+function renderTutorial() {
+  const step = tutorialSteps[tutorialStep];
+  els.tutorialProgress.textContent = `Stap ${tutorialStep + 1} van ${tutorialSteps.length}`;
+  els.tutorialProgressBar.style.width = `${((tutorialStep + 1) / tutorialSteps.length) * 100}%`;
+  els.tutorialScene.className = `tutorial__scene is-${step.tone}`;
+  els.tutorialScene.replaceChildren();
+
+  const title = document.createElement("h3");
+  title.textContent = step.title;
+  const cards = document.createElement("div");
+  cards.className = "tutorial__cards";
+  step.cards.forEach((type) => {
+    const card = document.createElement("div");
+    card.className = "tutorial__card card-face";
+    renderCardFace(card, makeCard(type, true), { mini: true });
+    cards.append(card);
+  });
+  els.tutorialScene.append(title, cards);
+  els.tutorialText.textContent = step.text;
+  els.tutorialBackButton.disabled = tutorialStep === 0;
+  els.tutorialNextButton.textContent = step.button;
+  els.tutorialPlacement.classList.toggle("is-hidden", step.tone !== "placement");
+  updateTutorialPlacementHint();
+}
+
+function advanceTutorial() {
+  if (tutorialStep >= tutorialSteps.length - 1) {
+    closeTutorial();
+    return;
+  }
+  tutorialStep += 1;
+  renderTutorial();
+}
+
+function retreatTutorial() {
+  if (tutorialStep === 0) return;
+  tutorialStep -= 1;
+  renderTutorial();
+}
+
+function updateTutorialPlacementHint() {
+  const hints = {
+    top: "De volgende speler trekt hem als eerste: riskant en gemeen.",
+    middle: "De inslag blijft nog even verborgen en duikt later weer op.",
+    bottom: "Nu veilig, maar het gevaar blijft in het spel."
+  };
+  els.tutorialPlacementHint.textContent = hints[els.tutorialPlacementSelect.value];
+}
 
 function getOpponentCount() {
   return Math.max(MIN_OPPONENTS, Math.min(MAX_OPPONENTS, selectedOpponentIds.length));
@@ -3065,6 +3187,7 @@ els.mobileMenuButton?.addEventListener("click", openMobileMenu);
 els.closeMobileMenu?.addEventListener("click", closeMobileMenu);
 els.mobileGamePageButton?.addEventListener("click", () => showPageFromMobileMenu("game"));
 els.mobileCatalogPageButton?.addEventListener("click", () => showPageFromMobileMenu("catalog"));
+els.mobileExplainButton?.addEventListener("click", openTutorial);
 els.mobileNewGameButton?.addEventListener("click", startNewGameFromMobileMenu);
 els.mobileLogButton?.addEventListener("click", toggleMobileLog);
 els.mobileMenu?.addEventListener("click", (event) => {
@@ -3073,7 +3196,20 @@ els.mobileMenu?.addEventListener("click", (event) => {
   }
 });
 els.newGameButton.addEventListener("click", openStartModal);
+els.explainButton?.addEventListener("click", openTutorial);
+els.startExplainButton?.addEventListener("click", openTutorial);
 els.startGameButton.addEventListener("click", confirmStartSelection);
+els.closeTutorialButton?.addEventListener("click", closeTutorial);
+els.tutorialSkipButton?.addEventListener("click", closeTutorial);
+els.tutorialBackButton?.addEventListener("click", retreatTutorial);
+els.tutorialNextButton?.addEventListener("click", advanceTutorial);
+els.tutorialPlacementSelect?.addEventListener("change", updateTutorialPlacementHint);
+els.tutorial?.addEventListener("click", (event) => {
+  if (event.target === els.tutorial) closeTutorial();
+});
+document.addEventListener?.("keydown", (event) => {
+  if (event.key === "Escape" && !els.tutorial.classList.contains("is-hidden")) closeTutorial();
+});
 els.showGamePage.addEventListener("click", () => showPage("game"));
 els.showCatalogPage.addEventListener("click", () => showPage("catalog"));
 els.closeCatalogDetail.addEventListener("click", closeCatalogCard);

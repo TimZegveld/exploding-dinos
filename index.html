@@ -71,6 +71,7 @@
         <div class="panel-section action-panel">
           <h2>Actie</h2>
           <p id="actionText">Welkom bij de eerste speelbare versie.</p>
+          <button class="explain-button" id="explainButton" type="button">Hoe speel je?</button>
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
 
@@ -89,6 +90,7 @@
           <div class="mobile-menu__actions">
             <button id="mobileGamePageButton" type="button">Spel</button>
             <button id="mobileCatalogPageButton" type="button">Kaarten</button>
+            <button id="mobileExplainButton" type="button">Hoe speel je?</button>
             <button id="mobileNewGameButton" type="button">Nieuw spel</button>
             <button id="mobileLogButton" type="button" aria-expanded="false" aria-controls="mobileLogPanel">Logboek</button>
           </div>
@@ -121,7 +123,40 @@
             <p class="setup-control__hint">Eerste potje? Kies 1 tegenstander om het spel rustig te leren. Iedere NPC speelt merkbaar anders, maar hun stijl ontdek je pas tijdens het potje.</p>
             <div class="opponent-roster" id="opponentRoster" aria-label="Kies 1 tot 4 tegenspelers"></div>
           </div>
-          <button id="startGameButton" type="button">Start spel</button>
+          <div class="start-modal__actions">
+            <button class="explain-button" id="startExplainButton" type="button">Hoe speel je?</button>
+            <button id="startGameButton" type="button">Start spel</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tutorial is-hidden" id="tutorial" aria-modal="true" role="dialog" aria-labelledby="tutorialTitle">
+        <div class="tutorial__panel">
+          <div class="tutorial__header">
+            <div>
+              <p class="eyebrow">Korte oefenronde</p>
+              <h2 id="tutorialTitle">Zo overleef je</h2>
+            </div>
+            <button class="tutorial__close" id="closeTutorialButton" type="button" aria-label="Uitleg sluiten">&times;</button>
+          </div>
+          <div class="tutorial__progress" aria-hidden="true"><span id="tutorialProgressBar"></span></div>
+          <p class="tutorial__step" id="tutorialProgress">Stap 1 van 4</p>
+          <div class="tutorial__scene" id="tutorialScene"></div>
+          <p class="tutorial__text" id="tutorialText"></p>
+          <div class="tutorial__placement is-hidden" id="tutorialPlacement">
+            <label for="tutorialPlacementSelect">Waar leg je de Meteorietinslag terug?</label>
+            <select id="tutorialPlacementSelect">
+              <option value="top">Bovenop — gevaar voor de volgende trek</option>
+              <option value="middle">Middenin — gevaar voor later</option>
+              <option value="bottom">Onderop — voorlopig veilig</option>
+            </select>
+            <p id="tutorialPlacementHint"></p>
+          </div>
+          <div class="tutorial__actions">
+            <button class="secondary-action" id="tutorialBackButton" type="button">Terug</button>
+            <button id="tutorialNextButton" type="button">Verder</button>
+          </div>
+          <button class="tutorial__skip" id="tutorialSkipButton" type="button">Uitleg overslaan</button>
         </div>
       </section>
 

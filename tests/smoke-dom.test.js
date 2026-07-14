@@ -266,6 +266,32 @@ test("draw button opens a pending draw reveal", () => {
   assert.match(getSelector("#revealText").textContent, /kaart|Meteorietinslag|Schuilgrot/i);
 });
 
+test("interactive tutorial explains explosion, shelter and replacement without changing the game", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+  const before = JSON.stringify(sandbox.state);
+
+  getSelector("#explainButton").click();
+  assert.equal(getSelector("#tutorial").classList.contains("is-hidden"), false);
+  assert.equal(getSelector("#tutorialProgress").textContent, "Stap 1 van 6");
+
+  getSelector("#tutorialNextButton").click();
+  assert.match(getSelector("#tutorialText").textContent, /Actiekaarten/i);
+  getSelector("#tutorialNextButton").click();
+  assert.match(getSelector("#tutorialText").textContent, /Trekken beëindigt je beurt|beurt is voorbij/i);
+  getSelector("#tutorialNextButton").click();
+  assert.match(getSelector("#tutorialText").textContent, /geen Schuilgrot/i);
+  getSelector("#tutorialNextButton").click();
+  assert.match(getSelector("#tutorialText").textContent, /automatisch gebruikt/i);
+  getSelector("#tutorialNextButton").click();
+  assert.equal(getSelector("#tutorialProgress").textContent, "Stap 6 van 6");
+  assert.equal(getSelector("#tutorialPlacement").classList.contains("is-hidden"), false);
+  getSelector("#tutorialNextButton").click();
+
+  assert.equal(getSelector("#tutorial").classList.contains("is-hidden"), true);
+  assert.equal(JSON.stringify(sandbox.state), before);
+});
+
 test("catalog tab renders all unique cards", () => {
   const { getSelector, sandbox } = loadGame();
   const expectedCount = Object.keys(sandbox.ExplodingDinosCards.cardCatalog).length;
