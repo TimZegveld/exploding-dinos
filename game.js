@@ -20,6 +20,7 @@ const {
   applyRaptorAttack,
   calculateSetupCounts,
   determineSetPairRewardType,
+  getCardTurnEffect,
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,
@@ -1550,9 +1551,10 @@ function getActionPreview(owner, card) {
   }
 
   if (card.type === "raptor" && target) {
+    const nextTarget = nextActivePlayer(owner);
     return {
-      target,
-      text: `${label(owner)} speelt ${card.name} op ${objectLabel(target)}.`
+      target: nextTarget,
+      text: `${label(owner)} speelt ${card.name}. De raptor jaagt op de volgende speler: ${objectLabel(nextTarget)}.`
     };
   }
 
@@ -1680,17 +1682,20 @@ function findPairForCard(hand, card) {
 
 function resolveCard(owner, card, context = {}) {
   const target = context.target ?? chooseDefaultTarget(owner);
+  const turnEffect = getCardTurnEffect(card);
 
-  if (card.type === "sprint") {
+  if (turnEffect === "skipTurn") {
     resolveSprint(owner);
     return;
   }
 
   if (card.type === "raptor") {
-    if (!target) return;
+    const raptorTarget = context.target ?? nextActivePlayer(owner);
+    if (!raptorTarget || raptorTarget === owner) return;
     const returnTo = getAttackReturn(owner, context.returnTo);
     const attackLoad = getAttackLoad(owner, context.attackLoad);
-    resolveRaptorAttack(owner, target, attackLoad, returnTo);
+    endTurnForPlayedCard(owner, card);
+    resolveRaptorAttack(owner, raptorTarget, attackLoad, returnTo);
     return;
   }
 
@@ -1698,9 +1703,11 @@ function resolveCard(owner, card, context = {}) {
     const returnTo = getAttackReturn(owner, context.returnTo);
     const attackLoad = getAttackLoad(owner, context.attackLoad);
     if (context.target) {
+      endTurnForPlayedCard(owner, card);
       resolveRaptorTarget(owner, context.target, attackLoad, returnTo);
       return;
     }
+    endTurnForPlayedCard(owner, card);
     chooseRaptorTarget(owner, attackLoad, returnTo);
     return;
   }
@@ -2011,13 +2018,27 @@ function finishNopeChain(chain) {
 }
 
 function chooseNopeChainReactor(chain) {
-  const candidates = activeOpponentsOf(chain.lastReactor).filter((id) => {
-    if (chain.skipPlayer && chain.nopeCount === 0 && id === "player") return false;
-    return getHand(id).some((card) => card.type === "nope");
-  });
+  const candidates = getNopeChainCandidates(chain).filter((id) => getHand(id).some((card) => card.type === "nope"));
   if (candidates.length === 0) return null;
   if (candidates.includes("player")) return "player";
   return candidates[0];
+}
+
+function getNopeChainCandidates(chain) {
+  if ((chain.nopeCount ?? 0) > 0) {
+    return activeOpponentsOf(chain.lastReactor);
+  }
+
+  if (chain.skipPlayer) {
+    return [];
+  }
+
+  const target = chain.context?.target;
+  if (!target || target === chain.actor || state.eliminated[target]) {
+    return [];
+  }
+
+  return [target];
 }
 
 function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
@@ -2066,10 +2087,10 @@ function resolveRaptorTarget(owner, target, attackLoad = RAPTOR_TURN_LOAD, retur
 
 function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {
   if (!target || state.eliminated[target]) return;
-  state.attackReturn = { target, returnTo };
+  state.attackReturn = null;
   state.pendingTurns = applyRaptorAttack(state.pendingTurns, target, attackLoad);
   state.current = target;
-  setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} kaart(en) trekken voordat ${label(returnTo)} verdergaat.`);
+  setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} kaart(en) trekken.`);
   render();
   continueAfterPause();
 }
@@ -2692,6 +2713,15 @@ function consumeTurn(owner) {
   state.pendingTurns[owner] -= 1;
   if (state.pendingTurns[owner] <= 0) {
     state.pendingTurns[owner] = 1;
+    finishOwnerTurns(owner);
+  }
+}
+
+function endTurnForPlayedCard(owner, card) {
+  if (getCardTurnEffect(card) !== "endTurn") return;
+
+  state.pendingTurns[owner] = 1;
+  if (state.current === owner) {
     finishOwnerTurns(owner);
   }
 }

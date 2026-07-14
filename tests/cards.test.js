@@ -63,3 +63,12 @@ test("makeCard resolves catalog data and illustration variants", () => {
   assert.notEqual(firstVariant.id, secondVariant.id);
   assert.notEqual(firstVariant.design.image, secondVariant.design.image);
 });
+
+test("every catalog card declares its turn effect", () => {
+  const { cardCatalog } = loadCardsModule();
+  const allowedEffects = new Set(["none", "continue", "skipTurn", "endTurn"]);
+
+  Object.entries(cardCatalog).forEach(([type, card]) => {
+    assert.ok(allowedEffects.has(card.turnEffect), `${type} has a valid turnEffect`);
+  });
+});

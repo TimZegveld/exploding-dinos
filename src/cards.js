@@ -5,6 +5,7 @@ const cardCatalog = {
     text: "Trek je deze zonder Schuilgrot, dan ben je uitgeschakeld.",
     kind: "danger",
     playable: false,
+    turnEffect: "none",
     design: {
       tone: "meteor",
       icon: "impact",
@@ -16,6 +17,7 @@ const cardCatalog = {
     text: "Redt je automatisch van een Meteorietinslag.",
     kind: "defuse",
     playable: false,
+    turnEffect: "none",
     design: {
       tone: "shelter",
       icon: "cave",
@@ -24,9 +26,10 @@ const cardCatalog = {
   },
   raptor: {
     name: "Raptor Aanval",
-    text: "Het doelwit moet nu 2 kaarten trekken.",
+    text: "De volgende speler moet nu 2 kaarten trekken.",
     kind: "action",
     playable: true,
+    turnEffect: "endTurn",
     design: {
       tone: "raptor",
       icon: "claw",
@@ -38,6 +41,7 @@ const cardCatalog = {
     text: "Kies wie nu 2 kaarten moet trekken.",
     kind: "action",
     playable: true,
+    turnEffect: "endTurn",
     design: {
       tone: "targeted-raptor",
       icon: "claw",
@@ -49,6 +53,7 @@ const cardCatalog = {
     text: "Sla je beurt over. Bij extra beurten sprint je er 1 extra kwijt.",
     kind: "action",
     playable: true,
+    turnEffect: "skipTurn",
     design: {
       tone: "sprint",
       icon: "speed",
@@ -60,6 +65,7 @@ const cardCatalog = {
     text: "Bekijk de bovenste 3. Meteorietinslag en Schuilgrot worden gemeld.",
     kind: "action",
     playable: true,
+    turnEffect: "continue",
     design: {
       tone: "trike",
       icon: "timeline",
@@ -71,6 +77,7 @@ const cardCatalog = {
     text: "Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde.",
     kind: "action",
     playable: true,
+    turnEffect: "continue",
     design: {
       tone: "oracle",
       icon: "timeline",
@@ -82,6 +89,7 @@ const cardCatalog = {
     text: "Schud de trekstapel en bekijk daarna de bovenste kaart.",
     kind: "action",
     playable: true,
+    turnEffect: "continue",
     design: {
       tone: "volcano",
       icon: "volcano",
@@ -93,6 +101,7 @@ const cardCatalog = {
     text: "Bekijk onderop. Neem die kaart, of trek blind van boven.",
     kind: "action",
     playable: true,
+    turnEffect: "continue",
     design: {
       tone: "dig",
       icon: "dig",
@@ -104,6 +113,7 @@ const cardCatalog = {
     text: "Kies een gesloten kaart van de ander en steel die.",
     kind: "action",
     playable: true,
+    turnEffect: "continue",
     design: {
       tone: "fossil",
       icon: "fossil",
@@ -115,6 +125,7 @@ const cardCatalog = {
     text: "Reageer op een actiekaart van de ander en blokkeer die.",
     kind: "action",
     playable: false,
+    turnEffect: "none",
     design: {
       tone: "nope",
       icon: "roar",
@@ -126,6 +137,7 @@ const cardCatalog = {
     text: "Joker voor een soortpaar. Activeert de volledige beloning van de andere soortkaart.",
     kind: "set",
     playable: false,
+    turnEffect: "continue",
     design: {
       tone: "feral",
       icon: "claw",
@@ -142,6 +154,7 @@ const cardCatalog = {
     text: "Speel als paar. Kies een doelwit en steel snel 1 willekeurige kaart.",
     kind: "set",
     playable: false,
+    turnEffect: "continue",
     design: {
       tone: "mini-raptor",
       icon: "claw",
@@ -159,6 +172,7 @@ const cardCatalog = {
     text: "Speel als paar. Neem 1 oudere niet-meteor kaart terug uit de aflegstapel.",
     kind: "set",
     playable: false,
+    turnEffect: "continue",
     design: {
       tone: "stego-snack",
       icon: "leaf",
@@ -175,6 +189,7 @@ const cardCatalog = {
     text: "Speel als paar. Bekijk bovenop; laat liggen of schuif onderop.",
     kind: "set",
     playable: false,
+    turnEffect: "continue",
     design: {
       tone: "bronto-buik",
       icon: "leaf",
@@ -191,6 +206,7 @@ const cardCatalog = {
     text: "Speel als paar. Tuk 1 open beurt weg zonder te trekken.",
     kind: "set",
     playable: false,
+    turnEffect: "skipTurn",
     design: {
       tone: "tricera-tuk",
       icon: "leaf",
@@ -207,6 +223,7 @@ const cardCatalog = {
     text: "Speel als paar. Bekijk bovenste 2; leg 1 bovenop en 1 onderop.",
     kind: "set",
     playable: false,
+    turnEffect: "continue",
     design: {
       tone: "ptero-pret",
       icon: "speed",

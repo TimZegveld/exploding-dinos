@@ -68,10 +68,17 @@ function isNopeChainBlocked(nopeCount) {
   return (nopeCount ?? 0) % 2 === 1;
 }
 
+function getCardTurnEffect(card) {
+  if (card?.turnEffect) return card.turnEffect;
+  if (card?.playable) return "continue";
+  return "none";
+}
+
 globalThis.ExplodingDinosRules = {
   applyRaptorAttack,
   calculateSetupCounts,
   determineSetPairRewardType,
+  getCardTurnEffect,
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,

@@ -209,6 +209,52 @@ test("nope reactions expose the original target for reveal context", () => {
   assert.equal(chainContext.target, "player");
 });
 
+test("raptor attack ends the played card owner's turn", () => {
+  const { getSelector, sandbox } = loadGame();
+  const { makeCard } = sandbox.ExplodingDinosCards;
+
+  getSelector("#startGameButton").click();
+  sandbox.window.setTimeout = () => 0;
+
+  const raptor = makeCard("raptor", true);
+  const playerHand = sandbox.getHand("player");
+  playerHand.splice(0, playerHand.length, raptor);
+  sandbox.getHand("pc1").splice(0);
+
+  sandbox.playCard("player", raptor.id);
+  getSelector("#revealButton").click();
+
+  assert.equal(getSelector("#turnStatus").textContent, "Rex de Archeoloog denkt na");
+  assert.equal(getSelector("#drawButton").disabled, true);
+});
+
+test("normal raptor attacks the next player without offering unrelated Brul Terug", () => {
+  const { getSelector, sandbox } = loadGame();
+  const { makeCard } = sandbox.ExplodingDinosCards;
+
+  getSelector("#opponentRoster").children[1].click();
+  getSelector("#startGameButton").click();
+  sandbox.window.setTimeout = () => 0;
+
+  sandbox.getHand("player").splice(0, sandbox.getHand("player").length, makeCard("nope", true));
+  sandbox.consumeTurn("player");
+  sandbox.render();
+
+  const raptor = makeCard("raptor", true);
+  sandbox.getHand("pc1").splice(0, sandbox.getHand("pc1").length, raptor);
+  sandbox.getHand("pc2").splice(0);
+
+  sandbox.playCard("pc1", raptor.id);
+
+  assert.match(getSelector("#revealText").textContent, /volgende speler: Nova de Vulkaanwachter/);
+
+  getSelector("#revealButton").click();
+
+  assert.equal(getSelector("#turnStatus").textContent, "Nova de Vulkaanwachter denkt na");
+  assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), true);
+  assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
+});
+
 test("draw button opens a pending draw reveal", () => {
   const { getSelector } = loadGame();
 
