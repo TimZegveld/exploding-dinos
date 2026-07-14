@@ -41,6 +41,7 @@ test("startscherm start een speelbaar spel en kaartdetail sluit weer", async ({ 
 
 test("multiplayer opent via een losse knop zonder singleplayer te starten", async ({ page }) => {
   await expect(page.locator("#startModal")).toBeVisible();
+  await expect(page.locator(".multiplayer-development-note")).toContainText("In ontwikkeling");
   await page.locator("#openMultiplayerButton").click();
   await expect(page.locator("#multiplayerModal")).toBeVisible();
   await expect(page.locator("#multiplayerJoinView")).toBeVisible();

@@ -20,7 +20,7 @@ Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
 
 ## Multiplayer-lobby
 
-Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Daar kun je een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige, bewerkbare dinonaam en kan met de dobbelknop een nieuwe genereren. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Deze modus is nog in ontwikkeling en kan daarom veranderen of tijdelijk niet beschikbaar zijn. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige, bewerkbare dinonaam en kan met de dobbelknop een nieuwe genereren. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
 
 Start de roomserver lokaal in een tweede terminal:
 
@@ -30,7 +30,7 @@ npm run start:server
 
 Open de website via `http://localhost:8000`; de lokale configuratie verbindt dan automatisch met `http://localhost:3000`. Open een tweede browser of privévenster om de uitnodigingslink te testen.
 
-Voor GitHub Pages deploy je `server/server.js` als Node-webservice, bijvoorbeeld op Render. Vul daarna de publieke HTTPS-URL in bij `apiBase` in `src/multiplayer-config.js`. Stel op de server bij voorkeur `ALLOWED_ORIGIN` in op de exacte GitHub Pages-origin, bijvoorbeeld `https://timzegveld.github.io`.
+De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten.
 
 De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
 
