@@ -6,7 +6,7 @@
     <title>Exploding Dinos</title>
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" href="assets/favicon.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=20260714-2">
+    <link rel="stylesheet" href="styles.css?v=20260714-4">
   </head>
   <body>
     <main class="game-shell">
@@ -127,6 +127,59 @@
             <button class="explain-button" id="startExplainButton" type="button">Hoe speel je?</button>
             <button id="startGameButton" type="button">Start spel</button>
           </div>
+          <div class="multiplayer-entry">
+            <span>Of speel met vrienden op andere apparaten</span>
+            <button class="secondary-action" id="openMultiplayerButton" type="button">Join multiplayer-room</button>
+            <small class="multiplayer-development-note">In ontwikkeling: de online modus kan nog veranderen of tijdelijk niet beschikbaar zijn.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="multiplayer-modal is-hidden" id="multiplayerModal" aria-modal="true" role="dialog" aria-labelledby="multiplayerTitle">
+        <div class="multiplayer-modal__panel">
+          <div class="multiplayer-modal__header">
+            <div>
+              <p class="eyebrow">Online met vrienden</p>
+              <h2 id="multiplayerTitle">Multiplayer-room</h2>
+            </div>
+            <button class="multiplayer-modal__close" id="closeMultiplayerButton" type="button" aria-label="Multiplayer sluiten">&times;</button>
+          </div>
+
+          <div id="multiplayerJoinView">
+            <label class="multiplayer-field" for="multiplayerName">
+              <span>Jouw naam</span>
+              <span class="multiplayer-name-input">
+                <input id="multiplayerName" maxlength="24" autocomplete="nickname" placeholder="Bijvoorbeeld Brullende Bronto">
+                <button class="secondary-action" id="randomizeDinoNameButton" type="button" aria-label="Nieuwe willekeurige dinonaam" title="Nieuwe dinonaam">🎲</button>
+              </span>
+            </label>
+            <label class="multiplayer-field is-hidden" id="multiplayerRoomCodeField" for="multiplayerRoomCode">
+              <span>Roomcode</span>
+              <input id="multiplayerRoomCode" maxlength="6" readonly aria-readonly="true">
+            </label>
+            <p class="multiplayer-status" id="multiplayerStatus" aria-live="polite">Maak een nieuwe room of vul de code van een vriend in.</p>
+            <div class="multiplayer-actions">
+              <button class="secondary-action" id="createRoomButton" type="button">Nieuwe room maken</button>
+              <button class="is-hidden" id="joinRoomButton" type="button">Deelnemen</button>
+            </div>
+          </div>
+
+          <div class="multiplayer-lobby is-hidden" id="multiplayerLobby">
+            <div class="multiplayer-room-code">
+              <span>Roomcode</span>
+              <strong id="activeRoomCode">------</strong>
+            </div>
+            <button class="secondary-action" id="copyRoomLinkButton" type="button">Kopieer uitnodigingslink</button>
+            <p class="multiplayer-status" id="lobbyStatus" aria-live="polite">Verbonden met de room.</p>
+            <ul class="multiplayer-players" id="multiplayerPlayers"></ul>
+            <div class="multiplayer-actions">
+              <button class="secondary-action" id="leaveRoomButton" type="button">Room verlaten</button>
+              <button class="secondary-action is-hidden" id="stopMultiplayerGameButton" type="button">Spel stoppen</button>
+              <button id="multiplayerStartButton" type="button" disabled>Start multiplayer</button>
+            </div>
+            <p class="multiplayer-note" id="multiplayerStartNote">De gedeelde lobby werkt. De spelbesturing wordt in de volgende multiplayerlaag aangesloten.</p>
+          </div>
+
         </div>
       </section>
 
@@ -180,9 +233,16 @@
 
     <script src="src/runtime.js?v=20260714-3"></script>
     <script src="src/state.js?v=20260714-3"></script>
-    <script src="src/cards.js?v=20260714-3"></script>
+    <script src="src/cards.js?v=20260714-4"></script>
     <script src="src/players.js?v=20260714-3"></script>
     <script src="src/rules.js?v=20260714-3"></script>
-    <script src="game.js?v=20260714-3"></script>
+    <script src="src/protocol.js?v=20260714-1"></script>
+    <script src="src/ui/view-model.js?v=20260714-2"></script>
+    <script src="src/ui/game-view.js?v=20260714-2"></script>
+    <script src="src/ui/reveal-view.js?v=20260714-2"></script>
+    <script src="src/ui/choice-view.js?v=20260714-2"></script>
+    <script src="game.js?v=20260714-5"></script>
+    <script src="src/multiplayer-config.js?v=20260714-3"></script>
+    <script src="src/multiplayer.js?v=20260714-12"></script>
   </body>
 </html>

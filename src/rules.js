@@ -74,7 +74,7 @@ function getCardTurnEffect(card) {
   return "none";
 }
 
-globalThis.ExplodingDinosRules = {
+const ExplodingDinosRules = {
   applyRaptorAttack,
   calculateSetupCounts,
   determineSetPairRewardType,
@@ -84,4 +84,6 @@ globalThis.ExplodingDinosRules = {
   resolveIncomingAttackLoad,
   resolveMeteorDraw
 };
+globalThis.ExplodingDinosRules = ExplodingDinosRules;
+if (typeof module !== "undefined" && module.exports) module.exports = ExplodingDinosRules;
 })();

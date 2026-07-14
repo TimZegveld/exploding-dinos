@@ -18,6 +18,22 @@ python -m http.server 8000 --bind 0.0.0.0
 
 Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
 
+## Multiplayer-lobby
+
+Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Deze modus is nog in ontwikkeling en kan daarom veranderen of tijdelijk niet beschikbaar zijn. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige, bewerkbare dinonaam en kan met de dobbelknop een nieuwe genereren. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+
+Start de roomserver lokaal in een tweede terminal:
+
+```powershell
+npm run start:server
+```
+
+Open de website via `http://localhost:8000`; de lokale configuratie verbindt dan automatisch met `http://localhost:3000`. Open een tweede browser of privévenster om de uitnodigingslink te testen.
+
+De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten.
+
+De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
+
 ## Testen
 
 De eerste geautomatiseerde testlaag staat in `tests/` en gebruikt Node's ingebouwde test-runner.
@@ -54,6 +70,8 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 - `src/runtime.js`: injecteerbare willekeur en planning voor deterministische tests.
 - `src/state.js`: initiële spelstate, interactieregister en state-invarianten.
 - `src/rules.js`: pure, DOM-onafhankelijke spelregels.
+- `src/multiplayer.js`: losse room-lobby, polling en lokale reconnectsessie.
+- `server/`: stateless HTTP-laag en tijdelijk roombeheer voor de multiplayer-lobby.
 - `game.js`: beurtworkflows, pc-keuzes, renderlogica en event handlers; nieuwe state- en regellogica hoort waar mogelijk in `src/`.
 - `styles.css`: tafel, kaartfronts, responsive bediening, modals, persona- en eindschermstyling.
 - `tests/`: Node-tests, fake-DOM smoke-tests en Playwright-browserflows.
@@ -120,8 +138,8 @@ Statuslegenda:
 
 | Type | Kaart | Aantal | Regel in deze iteratie | Status |
 |---|---:|---:|---|---|
-| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. | klaar |
-| `shelter` | Schuilgrot | 10 | Wordt automatisch gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet geheim terug in de stapel. | klaar |
+| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. | klaar |
+| `shelter` | Schuilgrot | 10 | Wordt automatisch en voor iedereen zichtbaar gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet op een geheime positie terug in de stapel. | klaar |
 | `raptor` | Raptor Aanval | 5 | De volgende speler moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar |
 | `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |
 | `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
@@ -136,7 +154,7 @@ Statuslegenda:
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. Heeft meerdere illustratievarianten. | klaar |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
-| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Heeft meerdere illustratievarianten. | klaar |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Daarna eindigt je beurt. Heeft meerdere illustratievarianten. | klaar |
 
 ## Mogelijke volgende iteraties
 

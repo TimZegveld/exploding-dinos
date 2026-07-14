@@ -11,6 +11,11 @@ function loadGame() {
   harness.runBrowserScript("src/cards.js");
   harness.runBrowserScript("src/players.js");
   harness.runBrowserScript("src/rules.js");
+  harness.runBrowserScript("src/protocol.js");
+  harness.runBrowserScript("src/ui/view-model.js");
+  harness.runBrowserScript("src/ui/game-view.js");
+  harness.runBrowserScript("src/ui/reveal-view.js");
+  harness.runBrowserScript("src/ui/choice-view.js");
   harness.runBrowserScript("game.js");
   return harness;
 }
