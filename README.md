@@ -51,11 +51,16 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
 - `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
-- `game.js`: huidige spelstate, beurtregels, pc-keuzes, renderlogica en event handlers.
+- `src/runtime.js`: injecteerbare willekeur en planning voor deterministische tests.
+- `src/state.js`: initiële spelstate, interactieregister en state-invarianten.
+- `src/rules.js`: pure, DOM-onafhankelijke spelregels.
+- `game.js`: beurtworkflows, pc-keuzes, renderlogica en event handlers; nieuwe state- en regellogica hoort waar mogelijk in `src/`.
 - `styles.css`: tafel, kaartfronts, responsive bediening, modals, persona- en eindschermstyling.
 - `tests/`: Node-tests, fake-DOM smoke-tests en Playwright-browserflows.
 
-De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
+De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Interacties hebben voorlopig nog compatibele `pending*`-velden, maar hun definitie, opschoning en invariantcontrole zijn gecentraliseerd in `src/state.js`. Er mag maximaal één interactieworkflow tegelijk actief zijn.
+
+Gebruik voor nieuwe logica de injecteerbare functies uit `src/runtime.js` in plaats van rechtstreeks `Math.random()` of `window.setTimeout()` aan te roepen. Zo blijven scenario's reproduceerbaar in tests.
 
 Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief.
 

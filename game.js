@@ -1,4 +1,11 @@
 const RAPTOR_TURN_LOAD = 2;
+const { random: runtimeRandom, schedule } = globalThis.ExplodingDinosRuntime;
+const {
+  assertValidInteractionState,
+  clearInteractions,
+  createInitialState,
+  getActiveInteractions
+} = globalThis.ExplodingDinosState;
 const {
   MIN_OPPONENTS,
   MAX_OPPONENTS,
@@ -179,31 +186,7 @@ function hasPcStyleProfile(style) {
   return Boolean(pcStyleProfiles[style]);
 }
 
-const initialState = {
-  players: [],
-  hands: {},
-  deck: [],
-  discard: [],
-  current: "player",
-  pendingTurns: {},
-  eliminated: {},
-  activity: null,
-  pendingDraw: null,
-  pendingMeteorPlacement: null,
-  pendingOracle: null,
-  pendingDigChoice: null,
-  pendingFossilChoice: null,
-  pendingDiscardChoice: null,
-  pendingBrontoChoice: null,
-  pendingPteroChoice: null,
-  pendingStealTarget: null,
-  pendingNopeReaction: null,
-  pendingAttackReaction: null,
-  pendingRaptorTarget: null,
-  pendingCardDetail: null,
-  attackReturn: null,
-  gameOver: false
-};
+const initialState = createInitialState();
 
 let state = structuredClone(initialState);
 let activeReveal = null;
@@ -462,19 +445,7 @@ function closeStartModal() {
 }
 
 function clearPendingInteractions() {
-  state.pendingDraw = null;
-  state.pendingMeteorPlacement = null;
-  state.pendingOracle = null;
-  state.pendingDigChoice = null;
-  state.pendingFossilChoice = null;
-  state.pendingDiscardChoice = null;
-  state.pendingBrontoChoice = null;
-  state.pendingPteroChoice = null;
-  state.pendingStealTarget = null;
-  state.pendingNopeReaction = null;
-  state.pendingAttackReaction = null;
-  state.pendingRaptorTarget = null;
-  state.pendingCardDetail = null;
+  clearInteractions(state);
 }
 
 function log(message) {
@@ -491,6 +462,7 @@ function setAction(message) {
 }
 
 function render() {
+  assertValidInteractionState(state);
   const currentPlayer = getPlayer(state.current);
   const playerZone = document.querySelector(".player-zone");
   const playerColor = getPlayer("player")?.color ?? playerColors[0];
@@ -1588,7 +1560,7 @@ function markMotion(kind, tone = null) {
   const id = motion.id + 1;
   motion = { kind, tone, id };
   window.clearTimeout?.(motionTimer);
-  motionTimer = window.setTimeout(() => {
+  motionTimer = schedule(() => {
     if (motion.id !== id) return;
     motion = { kind: null, tone: null, id };
     els.drawButton.classList.remove("is-drawing");
@@ -2040,7 +2012,7 @@ function choosePcNopeReaction(owner, card) {
       : card.type === "sprint"
         ? nope.sprint
         : nope.default;
-  return Math.random() < clampChance(chance);
+  return runtimeRandom() < clampChance(chance);
 }
 
 function resolvePlayerNopeReaction(actor, card, nopeCardId) {
@@ -2443,7 +2415,7 @@ function stealFossilCard(owner, target) {
   }
 
   if (owner !== "player") {
-    const index = Math.floor(Math.random() * targetHand.length);
+    const index = Math.floor(runtimeRandom() * targetHand.length);
     stealCardAt(owner, target, index);
     return;
   }
@@ -2611,7 +2583,7 @@ function startBrontoBelly(owner) {
   }
 
   if (owner !== "player") {
-    const shouldMove = topCard.type === "meteor" || (topCard.type === "raptor" && Math.random() < pcStyleChance(owner, "brontoRaptorMove", 0.42));
+    const shouldMove = topCard.type === "meteor" || (topCard.type === "raptor" && runtimeRandom() < pcStyleChance(owner, "brontoRaptorMove", 0.42));
     if (shouldMove) {
       state.deck.unshift(state.deck.pop());
     }
@@ -2844,7 +2816,7 @@ function handleMeteor(owner, meteorCard) {
     owner,
     motionTone: "shelter-save",
     onClose: () => {
-      const insertAt = Math.floor(Math.random() * (state.deck.length + 1));
+      const insertAt = Math.floor(runtimeRandom() * (state.deck.length + 1));
       insertMeteorBack(state.deck, meteorCard, insertAt);
       consumeTurn(owner);
       setAction(`${label(owner)} overleeft de Meteorietinslag en stopt hem geheim terug.`);
@@ -2865,7 +2837,7 @@ function confirmMeteorPlacement() {
   render();
 
   if (!state.gameOver && state.current !== "player") {
-    window.setTimeout(pcTurn, 650);
+    schedule(pcTurn, 650);
   }
 }
 
@@ -2921,7 +2893,7 @@ function stealRandomCard(owner, target) {
     return;
   }
 
-  const index = Math.floor(Math.random() * targetHand.length);
+  const index = Math.floor(runtimeRandom() * targetHand.length);
   stealCardAt(owner, target, index);
 }
 
@@ -2993,30 +2965,30 @@ function pcTurn() {
 function choosePcCard(owner) {
   const hand = getHand(owner);
   const sprint = hand.find((card) => card.type === "sprint");
-  if ((state.pendingTurns[owner] ?? 1) > 1 && sprint && Math.random() < pcStyleChance(owner, "sprintEscape", 0.86)) {
+  if ((state.pendingTurns[owner] ?? 1) > 1 && sprint && runtimeRandom() < pcStyleChance(owner, "sprintEscape", 0.86)) {
     return sprint;
   }
 
   const triceraTuk = hand.find((card) => card.type === "triceraTuk" && findPairForCard(hand, card).length === 2);
-  if ((state.pendingTurns[owner] ?? 1) > 1 && triceraTuk && Math.random() < pcStyleChance(owner, "napEscape", 0.72)) {
+  if ((state.pendingTurns[owner] ?? 1) > 1 && triceraTuk && runtimeRandom() < pcStyleChance(owner, "napEscape", 0.72)) {
     return triceraTuk;
   }
 
   const pteroPret = hand.find((card) => card.type === "pteroPret" && findPairForCard(hand, card).length === 2);
-  if (pteroPret && state.deck.length >= 2 && Math.random() < pcStyleChance(owner, "pteroPair", 0.58)) {
+  if (pteroPret && state.deck.length >= 2 && runtimeRandom() < pcStyleChance(owner, "pteroPair", 0.58)) {
     return pteroPret;
   }
 
   const playablePair = choosePcSetPair(owner, hand);
-  if (playablePair && Math.random() < pcStyleChance(owner, "pairPlay", 0.34)) return playablePair;
+  if (playablePair && runtimeRandom() < pcStyleChance(owner, "pairPlay", 0.34)) return playablePair;
 
   const volcano = hand.find((card) => card.type === "volcano");
-  if (volcano && state.deck.length <= 6 && Math.random() < pcStyleChance(owner, "volcanoLowDeck", 0.78)) {
+  if (volcano && state.deck.length <= 6 && runtimeRandom() < pcStyleChance(owner, "volcanoLowDeck", 0.78)) {
     return volcano;
   }
 
   const trike = hand.find((card) => card.type === "trike");
-  if (trike && ((state.pendingTurns[owner] ?? 1) > 1 || state.deck.length <= 8) && Math.random() < pcStyleChance(owner, "trikeRiskCheck", 0.74)) {
+  if (trike && ((state.pendingTurns[owner] ?? 1) > 1 || state.deck.length <= 8) && runtimeRandom() < pcStyleChance(owner, "trikeRiskCheck", 0.74)) {
     return trike;
   }
 
@@ -3025,12 +2997,12 @@ function choosePcCard(owner) {
 
   for (const type of getPcUsefulOrder(owner)) {
     const candidate = playable.find((card) => card.type === type);
-    if (candidate && Math.random() < clampChance(0.68 * pcCardBias(owner, type))) {
+    if (candidate && runtimeRandom() < clampChance(0.68 * pcCardBias(owner, type))) {
       return candidate;
     }
   }
 
-  return Math.random() < pcStyleChance(owner, "fallbackPlay", 0.22) ? playable[0] : null;
+  return runtimeRandom() < pcStyleChance(owner, "fallbackPlay", 0.22) ? playable[0] : null;
 }
 
 function choosePcSetPair(owner, hand) {
@@ -3109,20 +3081,20 @@ function isSetRewardCard(card) {
 }
 
 function isInteractionBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return getActiveInteractions(state).length > 0 || Boolean(activeReveal);
 }
 
 function isGameplayBlockedForPlay() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || activeReveal);
+  return getActiveInteractions(state).some((key) => key !== "pendingCardDetail") || Boolean(activeReveal);
 }
 
 function isHandClickBlocked() {
-  return Boolean(state.pendingDraw || state.pendingMeteorPlacement || state.pendingOracle || state.pendingDigChoice || state.pendingFossilChoice || state.pendingDiscardChoice || state.pendingBrontoChoice || state.pendingPteroChoice || state.pendingStealTarget || state.pendingNopeReaction || state.pendingAttackReaction || state.pendingRaptorTarget || state.pendingCardDetail || activeReveal);
+  return getActiveInteractions(state).length > 0 || Boolean(activeReveal);
 }
 
 function continueAfterPause() {
   if (!state.gameOver && !isInteractionBlocked() && state.current !== "player") {
-    window.setTimeout(pcTurn, 650);
+    schedule(pcTurn, 650);
   }
 }
 
@@ -3136,7 +3108,7 @@ function addCardToHand(owner, card) {
 }
 
 function assignHandSortKey(card) {
-  card.handSortKey = Math.random();
+  card.handSortKey = runtimeRandom();
   return card;
 }
 
@@ -3198,11 +3170,11 @@ function chooseDefaultTarget(owner) {
 }
 
 function choosePcTarget(owner, targets = activeOpponentsOf(owner)) {
-  if (targets.includes("player") && Math.random() < pcStyleChance(owner, "playerTarget", 0.72)) return "player";
+  if (targets.includes("player") && runtimeRandom() < pcStyleChance(owner, "playerTarget", 0.72)) return "player";
   if (getPcStyleProfile(owner).targetRichHand) {
     return [...targets].sort((a, b) => getHand(b).length - getHand(a).length)[0] ?? targets[0];
   }
-  return targets[Math.floor(Math.random() * targets.length)];
+  return targets[Math.floor(runtimeRandom() * targets.length)];
 }
 
 function nextActivePlayer(owner) {

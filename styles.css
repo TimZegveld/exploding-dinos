@@ -1,3 +1,4 @@
+/* Design tokens */
 :root {
   color-scheme: dark;
 
@@ -54,6 +55,7 @@
   --table-card-width: 150px;
 }
 
+/* Base elements and application shell */
 * {
   box-sizing: border-box;
 }
@@ -548,6 +550,7 @@ h2 {
   transition: transform 140ms ease;
 }
 
+/* Shared physical card component and per-card palettes */
 .card-face {
   --face-accent: var(--gold);
   --face-header: #8f4d2c;
@@ -910,6 +913,7 @@ h2 {
   background: var(--card-back) center / cover no-repeat;
 }
 
+/* Catalog and setup dialogs */
 .catalog-page {
   grid-column: 1 / -1;
   display: grid;
@@ -1351,6 +1355,7 @@ h2 {
   transform: translateY(-2px);
 }
 
+/* Interactive tutorial */
 .tutorial {
   position: fixed;
   inset: 0;
@@ -1638,6 +1643,7 @@ h2 {
     shelter-save-glow 760ms ease-out;
 }
 
+/* Card reveal and reaction workflows */
 .reveal-actor {
   --player-color: var(--accent);
   display: inline-flex;
@@ -2275,6 +2281,7 @@ h2 {
   display: none;
 }
 
+/* Motion */
 @keyframes meteor-shake {
   0%,
   100% {
@@ -2393,6 +2400,7 @@ h2 {
   }
 }
 
+/* Responsive table and controls */
 @media (max-width: 760px) {
   :root {
     --hand-card-width: 112px;
@@ -2797,9 +2805,7 @@ h2 {
   .tutorial__actions {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 430px) {
   :root {
     --hand-card-width: 104px;
     --table-card-width: 118px;

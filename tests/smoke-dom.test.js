@@ -6,6 +6,8 @@ const { createBrowserHarness } = require("./browser-harness");
 
 function loadGame() {
   const harness = createBrowserHarness();
+  harness.runBrowserScript("src/runtime.js");
+  harness.runBrowserScript("src/state.js");
   harness.runBrowserScript("src/cards.js");
   harness.runBrowserScript("src/players.js");
   harness.runBrowserScript("src/rules.js");
