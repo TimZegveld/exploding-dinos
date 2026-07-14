@@ -68,17 +68,19 @@ test("alleen de host start en iedere speler krijgt zijn eigen hand", () => {
 test("spelacties vereisen de actuele roomversie", () => {
   const service = createRoomService();
   const host = service.createRoom("Tim");
-  service.joinRoom(host.room.code, "Nova");
+  const guest = service.joinRoom(host.room.code, "Nova");
   const started = service.startRoom(host.room.code, host.token);
+  const actorToken = started.game.currentPlayerId === started.viewerId ? host.token : guest.token;
+  const nextPlayerId = started.game.players.find((player) => player.id !== started.game.currentPlayerId).id;
 
   assert.throws(
-    () => service.performAction(host.room.code, host.token, { type: "DRAW_CARD" }, started.version - 1),
+    () => service.performAction(host.room.code, actorToken, { type: "DRAW_CARD" }, started.version - 1),
     /intussen veranderd/
   );
-  const changed = service.performAction(host.room.code, host.token, { type: "DRAW_CARD" }, started.version);
+  const changed = service.performAction(host.room.code, actorToken, { type: "DRAW_CARD" }, started.version);
   assert.equal(changed.game.pending.type, "DRAW_REVEAL");
-  const confirmed = service.performAction(host.room.code, host.token, { type: "CONFIRM_DRAW" }, changed.version);
-  assert.equal(confirmed.game.currentPlayerId, confirmed.game.players[1].id);
+  const confirmed = service.performAction(host.room.code, actorToken, { type: "CONFIRM_DRAW" }, changed.version);
+  assert.equal(confirmed.game.currentPlayerId, nextPlayerId);
 });
 
 test("een afgelopen potje kan niet in dezelfde room worden herstart", () => {

@@ -42,6 +42,15 @@ test("setup counts add the right meteors and extra shelters per deck mode", () =
   });
 });
 
+test("startspeler wordt uit alle spelers willekeurig gekozen", () => {
+  const { chooseStartingPlayerId } = loadRulesModule();
+  const players = [{ id: "first" }, { id: "middle" }, { id: "last" }];
+
+  assert.equal(chooseStartingPlayerId(players, 0), "first");
+  assert.equal(chooseStartingPlayerId(players, 0.5), "middle");
+  assert.equal(chooseStartingPlayerId(players, 0.999), "last");
+});
+
 test("meteor without shelter discards the meteor and marks no survival", () => {
   const { resolveMeteorDraw } = loadRulesModule();
   const hand = [card("raptor")];

@@ -1,11 +1,15 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { applyAction, publicGame, startGame } = require("../server/game-engine");
+const { applyAction, publicGame, startGame: startRandomGame } = require("../server/game-engine");
 
 const players = [
   { id: "player-a", name: "A" },
   { id: "player-b", name: "B" }
 ];
+
+function startGame(gamePlayers) {
+  return startRandomGame(gamePlayers, 0);
+}
 
 function playCard(game, playerId, cardId) {
   applyAction(game, playerId, { type: "PLAY_CARD", cardId });
@@ -23,6 +27,13 @@ test("online spel deelt acht kaarten en houdt handen geheim", () => {
   assert.equal(viewA.players[1].cardCount, 8);
   assert.equal("hands" in viewA, false);
   assert.notDeepEqual(viewA.hand.map((card) => card.id), viewB.hand.map((card) => card.id));
+});
+
+test("online spel kan met iedere aangesloten speler beginnen", () => {
+  const game = startRandomGame(players, 0.999);
+
+  assert.equal(game.currentPlayerId, "player-b");
+  assert.match(game.log.at(-1), /B is aan de beurt/);
 });
 
 test("trekken voegt een kaart toe en geeft de beurt door", () => {
