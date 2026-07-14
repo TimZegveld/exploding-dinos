@@ -220,10 +220,10 @@ const cardCatalog = {
   },
   pteroPret: {
     name: "Ptero Pret",
-    text: "Speel als paar. Bekijk bovenste 2; leg 1 bovenop en 1 onderop.",
+    text: "Speel als paar. Leg van de bovenste 2 één bovenop en één onderop. Einde beurt.",
     kind: "set",
     playable: false,
-    turnEffect: "continue",
+    turnEffect: "endTurn",
     design: {
       tone: "ptero-pret",
       icon: "speed",
@@ -354,7 +354,7 @@ function buildCardPool(playerCount) {
   return shuffle(cards);
 }
 
-globalThis.ExplodingDinosCards = {
+const ExplodingDinosCards = {
   cardCatalog,
   partyPackDistribution,
   buildCardPool,
@@ -363,4 +363,6 @@ globalThis.ExplodingDinosCards = {
   resolveDesign,
   shuffle
 };
+globalThis.ExplodingDinosCards = ExplodingDinosCards;
+if (typeof module !== "undefined" && module.exports) module.exports = ExplodingDinosCards;
 })();

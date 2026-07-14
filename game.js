@@ -33,6 +33,10 @@ const {
   resolveIncomingAttackLoad,
   resolveMeteorDraw
 } = globalThis.ExplodingDinosRules;
+const { createSingleplayerViewModel } = globalThis.ExplodingDinosViewModel;
+const SharedGameView = globalThis.ExplodingDinosGameView;
+const SharedRevealView = globalThis.ExplodingDinosRevealView;
+const SharedChoiceView = globalThis.ExplodingDinosChoiceView;
 
 const HAND_TYPE_ORDER = Object.keys(cardCatalog);
 
@@ -468,28 +472,33 @@ function render() {
   const playerColor = getPlayer("player")?.color ?? playerColors[0];
   const hasGame = state.players.length > 0;
   const handCount = getHand("player").length;
+  const viewModel = createSingleplayerViewModel({
+    state,
+    viewerId: "player",
+    colors: playerColors,
+    subtitle: playerSubtitle,
+    canPlayCard: (card) => canPlayCard("player", card),
+    drawBlocked: isInteractionBlocked(),
+    handBlocked: isHandClickBlocked(),
+    viewerHand: getSortedHand("player")
+  });
 
   renderPageChrome();
-  els.turnStatus.textContent = state.gameOver
-    ? "Spel afgelopen"
-    : !hasGame
-      ? "Kies tegenspelers"
-      : state.current === "player"
-      ? "Jouw beurt"
-      : `${currentPlayer?.name ?? "PC"} denkt na`;
-  els.turnStatus.style.setProperty("--player-color", currentPlayer?.color ?? playerColor);
-
-  els.deckCount.textContent = state.deck.length;
-  renderDiscardPile();
+  SharedGameView.renderTable({
+    turnStatus: els.turnStatus,
+    deckCount: els.deckCount,
+    discard: els.discard,
+    discardTop: els.discardTop,
+    playerHint: els.playerHint,
+    drawButton: els.drawButton,
+    opponents: els.opponents,
+    playerHand: els.playerHand
+  }, viewModel, {
+    renderCardFace,
+    onCard: (card) => inspectPlayerCard(card.id)
+  });
   els.drawButton.classList.toggle("is-drawing", motion.kind === "draw");
-  els.playerHint.textContent = state.eliminated.player
-    ? "Uitgeschakeld"
-    : !hasGame
-      ? "Start een spel"
-      : state.current === "player" && !state.gameOver
-      ? `${state.pendingTurns.player} beurt(en) open`
-      : "Wacht op de pc";
-  els.drawButton.disabled = !hasGame || state.current !== "player" || state.gameOver || isInteractionBlocked();
+  els.discard.classList.toggle("is-receiving", motion.kind === "discard");
   playerZone.style.setProperty("--player-color", playerColor);
   playerZone.classList.toggle("is-current", state.current === "player" && !state.gameOver);
   playerZone.classList.toggle("is-hand-collapsed", !isPlayerHandOpen);
@@ -499,9 +508,7 @@ function render() {
     els.handToggle.disabled = !hasGame || state.eliminated.player;
   }
 
-  renderOpponents();
   renderOpponentRoster();
-  renderPlayerHand();
   renderMobileMenu();
   renderReveal();
   renderCatalogDetail();
@@ -538,22 +545,8 @@ function syncDialogAccessibility() {
 }
 
 function renderDiscardPile() {
-  const topCard = state.discard.at(-1);
-  els.discardTop.className = "";
-  els.discardTop.removeAttribute?.("aria-label");
-  els.discard.classList.toggle("is-empty", !topCard);
+  SharedGameView.renderDiscard(els.discard, els.discardTop, state.discard.at(-1) ?? null, renderCardFace);
   els.discard.classList.toggle("is-receiving", motion.kind === "discard");
-
-  if (!topCard) {
-    els.discardTop.className = "discard__empty";
-    els.discardTop.setAttribute("aria-label", "Aflegstapel is leeg");
-    els.discardTop.textContent = "";
-    return;
-  }
-
-  els.discardTop.className = "discard__top-card";
-  els.discardTop.setAttribute("aria-label", `Afgelegde kaart: ${topCard.name}`);
-  renderCardFace(els.discardTop, topCard, { mini: true });
 }
 
 function renderPageChrome() {
@@ -698,99 +691,17 @@ function showPage(page) {
 }
 
 function renderOpponents() {
-  els.opponents.replaceChildren();
-  state.players.filter((player) => !player.isHuman).forEach((player) => {
-    const seat = document.createElement("section");
-    seat.className = "opponent-seat";
-    seat.style.setProperty("--player-color", player.color);
-    seat.classList.toggle("is-current", state.current === player.id && !state.gameOver);
-    seat.classList.toggle("is-eliminated", state.eliminated[player.id]);
-
-    const labelWrap = document.createElement("div");
-    labelWrap.className = "player-label";
-
-    const identity = document.createElement("div");
-    identity.className = "player-identity";
-
-    const portrait = document.createElement("div");
-    portrait.className = "player-portrait-wrap";
-    portrait.append(createPlayerPortrait(player));
-
-    const textWrap = document.createElement("div");
-    textWrap.className = "player-name-block";
-
-    const name = document.createElement("span");
-    name.textContent = player.name;
-
-    const role = document.createElement("small");
-    role.textContent = playerSubtitle(player);
-    role.dataset.mobileText = state.eliminated[player.id]
-      ? "Uitgeschakeld"
-      : `${getHand(player.id).length} kaarten`;
-
-    const count = document.createElement("strong");
-    count.textContent = state.eliminated[player.id]
-      ? "Uitgeschakeld"
-      : `${getHand(player.id).length} kaarten`;
-
-    const hand = document.createElement("div");
-    hand.className = "pc-hand";
-    getHand(player.id).forEach(() => {
-      const card = document.createElement("div");
-      card.className = "card-back";
-      card.setAttribute("aria-label", `Gesloten kaart van ${player.name}`);
-      hand.append(card);
-    });
-
-    textWrap.append(name, role);
-    identity.append(portrait, textWrap);
-    labelWrap.append(identity, count);
-    seat.append(labelWrap, hand);
-    els.opponents.append(seat);
-  });
+  const model = createSingleplayerViewModel({ state, viewerId: "player", colors: playerColors, subtitle: playerSubtitle, canPlayCard: (card) => canPlayCard("player", card), drawBlocked: isInteractionBlocked(), handBlocked: isHandClickBlocked(), viewerHand: getSortedHand("player") });
+  SharedGameView.renderOpponents(els.opponents, model.opponents);
 }
 
 function createPlayerPortrait(player, options = {}) {
-  const portrait = document.createElement("span");
-  portrait.className = "player-portrait";
-  if (options.small) portrait.classList.add("player-portrait--small");
-  portrait.style.setProperty("--player-color", player.color ?? playerColors[1]);
-  portrait.setAttribute("aria-label", `Portret van ${player.name}`);
-
-  if (player.portrait) {
-    const image = document.createElement("img");
-    image.src = player.portrait;
-    image.alt = "";
-    image.loading = "lazy";
-    image.addEventListener("error", () => {
-      image.remove();
-      portrait.classList.add("is-fallback");
-      portrait.textContent = player.initials ?? player.name.slice(0, 2);
-    }, { once: true });
-    portrait.append(image);
-  } else {
-    portrait.classList.add("is-fallback");
-    portrait.textContent = player.initials ?? player.name.slice(0, 2);
-  }
-
-  return portrait;
+  return SharedGameView.createPlayerPortrait({ ...player, color: player.color ?? playerColors[1], initials: player.initials ?? player.name.slice(0, 2) }, options);
 }
 
 function renderPlayerHand() {
-  els.playerHand.replaceChildren();
-  getSortedHand("player").forEach((card) => {
-    const button = document.createElement("button");
-    button.className = "card-button";
-    button.type = "button";
-    button.dataset.kind = card.kind;
-    const canPlay = canPlayCard("player", card);
-    button.dataset.canPlay = String(canPlay);
-    button.setAttribute("aria-label", `${card.name}. ${canPlay ? "Speelbaar; tik voor details" : "Nu niet speelbaar; tik voor details"}`);
-    button.disabled = state.gameOver || state.eliminated.player || isHandClickBlocked();
-    renderCardFace(button, card);
-    button.addEventListener("click", () => inspectPlayerCard(card.id));
-    els.playerHand.append(button);
-  });
+  const model = createSingleplayerViewModel({ state, viewerId: "player", colors: playerColors, subtitle: playerSubtitle, canPlayCard: (card) => canPlayCard("player", card), drawBlocked: isInteractionBlocked(), handBlocked: isHandClickBlocked(), viewerHand: getSortedHand("player") });
+  SharedGameView.renderHand(els.playerHand, model.hand, { renderCardFace, onCard: (card) => inspectPlayerCard(card.id) });
 }
 
 function renderReveal() {
@@ -1103,39 +1014,15 @@ function removeRevealActor() {
 }
 
 function renderOpenRevealCard(card, isShaking = false) {
-  els.revealCard.classList.add(`is-${card.kind}`);
-  if (isShaking) {
-    els.revealCard.classList.add("is-shaking");
-  }
-
-  renderCardFace(els.revealCard, card, { large: true });
+  SharedRevealView.openCard(els.revealCard, card, renderCardFace, { shaking: isShaking });
 }
 
 function renderClosedRevealCard() {
-  els.revealCard.classList.add("is-back");
-  els.revealCard.setAttribute("aria-label", "Gesloten dino kaart");
+  SharedRevealView.closedCard(els.revealCard);
 }
 
 function renderRevealCards(cards, options = {}) {
-  els.revealCard.classList.add("is-multi");
-  cards.forEach((card) => {
-    const item = document.createElement("div");
-    item.className = "draw-reveal__mini-card";
-
-    if (options.faceDown) {
-      item.classList.add("is-back");
-      item.setAttribute("aria-label", "Gesloten dino kaart");
-    } else {
-      item.classList.add(`is-${card.kind}`);
-      if (options.shaking) {
-        item.classList.add("is-shaking");
-      }
-
-      renderCardFace(item, card, { mini: true });
-    }
-
-    els.revealCard.append(item);
-  });
+  SharedRevealView.cards(els.revealCard, cards, renderCardFace, options);
 }
 
 const cardKindIcons = {
@@ -1336,66 +1223,26 @@ function renderOracleCards(pendingOracle) {
 function renderStealCardChoices(pendingFossilChoice) {
   els.revealCard.classList.add("is-multi", "is-fossil-choice");
   const selected = new Set(pendingFossilChoice.selectedIndexes ?? []);
-
-  pendingFossilChoice.cards.forEach((card, index) => {
-    const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card is-back fossil-choice";
-    button.type = "button";
-    button.dataset.selected = String(selected.has(index));
-    button.textContent = `Kaart ${index + 1}`;
-    button.addEventListener("click", () => selectStealCard(index));
-    els.revealCard.append(button);
-  });
+  els.revealCard.append(...SharedChoiceView.closedCards(pendingFossilChoice.cards.length, { selected, onSelect: selectStealCard }));
 }
 
 function renderDiscardChoices(pendingDiscardChoice) {
   els.revealCard.classList.add("is-multi", "is-discard-choice");
 
-  pendingDiscardChoice.cards.forEach((card, index) => {
-    const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card";
-    button.type = "button";
-    button.classList.add(`is-${card.kind}`);
-    renderCardFace(button, card, { mini: true });
-    button.addEventListener("click", () => confirmDiscardChoice(index));
-    els.revealCard.append(button);
-  });
+  els.revealCard.append(...SharedChoiceView.cardChoices(pendingDiscardChoice.cards, { renderCardFace, onSelect: (card) => confirmDiscardChoice(pendingDiscardChoice.cards.findIndex((item) => item.id === card.id)) }));
 }
 
 function renderTargetChoices(pendingStealTarget) {
   els.revealCard.classList.add("is-multi", "is-steal-target");
 
-  pendingStealTarget.targets.forEach((target) => {
-    const player = getPlayer(target);
-    const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card steal-target";
-    button.type = "button";
-    button.style.setProperty("--player-color", getPlayer(target)?.color ?? playerColors[0]);
-    button.dataset.selected = String(target === pendingStealTarget.selectedTarget);
-    const name = document.createElement("strong");
-    name.textContent = label(target);
-    const count = document.createElement("span");
-    const cardCount = getHand(target).length;
-    count.textContent = `${cardCount} kaart${cardCount === 1 ? "" : "en"}`;
-    button.append(createPlayerPortrait(player), name, count);
-    button.addEventListener("click", () => selectStealTarget(target));
-    els.revealCard.append(button);
-  });
+  const targets = pendingStealTarget.targets.map((id) => ({ ...getPlayer(id), label: label(id), cardCount: getHand(id).length }));
+  els.revealCard.append(...SharedChoiceView.targetChoices(targets, { selectedId: pendingStealTarget.selectedTarget, onSelect: (target) => selectStealTarget(target.id), createPortrait: createPlayerPortrait }));
 }
 
 function renderPteroChoices(pendingPteroChoice) {
   els.revealCard.classList.add("is-multi", "is-ptero-choice");
 
-  pendingPteroChoice.cards.forEach((card) => {
-    const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card ptero-choice";
-    button.type = "button";
-    button.classList.add(`is-${card.kind}`);
-    button.dataset.selected = String(card.id === pendingPteroChoice.selectedTopId);
-    renderCardFace(button, card, { mini: true });
-    button.addEventListener("click", () => selectPteroTop(card.id));
-    els.revealCard.append(button);
-  });
+  els.revealCard.append(...SharedChoiceView.cardChoices(pendingPteroChoice.cards, { className: "ptero-choice", selectedId: pendingPteroChoice.selectedTopId, renderCardFace, onSelect: (card) => selectPteroTop(card.id) }));
 }
 
 function renderAttackReactionChoices(pendingAttackReaction) {
@@ -1430,15 +1277,7 @@ function renderAttackReactionChoices(pendingAttackReaction) {
 }
 
 function createAttackReactionCardButton(card, playable) {
-    const button = document.createElement("button");
-    button.className = "draw-reveal__mini-card";
-    button.type = "button";
-    button.classList.add(`is-${card.kind}`);
-    button.disabled = !playable;
-    button.setAttribute("aria-disabled", String(!playable));
-    renderCardFace(button, card, { mini: true });
-    button.addEventListener("click", () => resolveAttackReactionWithCard(card.id));
-    return button;
+    return SharedChoiceView.reactionCard(card, { playable, renderCardFace, onSelect: (selected) => resolveAttackReactionWithCard(selected.id) });
 }
 
 function renderRaptorTargetChoices(pendingRaptorTarget) {
@@ -2626,11 +2465,13 @@ function startPteroPret(owner) {
   const cards = state.deck.splice(Math.max(0, state.deck.length - 2)).reverse();
   if (cards.length === 0) {
     setAction("Ptero Pret fladdert rond, maar de trekstapel is leeg.");
+    endTurnForPlayedCard(owner, cardCatalog.pteroPret);
     return;
   }
 
   if (owner !== "player") {
     resolvePteroCards(owner, cards, choosePcPteroTop(owner, cards)?.id);
+    endTurnForPlayedCard(owner, cardCatalog.pteroPret);
     showCardMoment({
       title: "Ptero Pret",
       cards,
@@ -2679,6 +2520,7 @@ function confirmPteroChoice() {
 
   state.pendingPteroChoice = null;
   resolvePteroCards(pendingPteroChoice.owner, pendingPteroChoice.cards, pendingPteroChoice.selectedTopId);
+  endTurnForPlayedCard(pendingPteroChoice.owner, cardCatalog.pteroPret);
   render();
   continueAfterPause();
 }
@@ -3191,7 +3033,10 @@ function nextActivePlayer(owner) {
   return active[0];
 }
 
-els.drawButton.addEventListener("click", () => drawCard("player"));
+els.drawButton.addEventListener("click", () => {
+  if (globalThis.ExplodingDinosMultiplayer?.isActive?.()) return;
+  drawCard("player");
+});
 els.handToggle?.addEventListener("click", togglePlayerHand);
 els.mobileMenuButton?.addEventListener("click", openMobileMenu);
 els.closeMobileMenu?.addEventListener("click", closeMobileMenu);

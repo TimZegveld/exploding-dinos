@@ -72,3 +72,19 @@ test("every catalog card declares its turn effect", () => {
     assert.ok(allowedEffects.has(card.turnEffect), `${type} has a valid turnEffect`);
   });
 });
+
+test("card turn effects match the audited turn rules", () => {
+  const { cardCatalog } = loadCardsModule();
+  const expected = {
+    meteor: "none", shelter: "none", raptor: "endTurn", targetedRaptor: "endTurn",
+    sprint: "skipTurn", trike: "continue", oracle: "continue", volcano: "continue",
+    dig: "continue", fossil: "continue", nope: "none", feral: "continue",
+    miniRaptor: "continue", stegoSnack: "continue", brontoBuik: "continue",
+    triceraTuk: "skipTurn", pteroPret: "endTurn"
+  };
+
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(cardCatalog).map(([type, card]) => [type, card.turnEffect])),
+    expected
+  );
+});
