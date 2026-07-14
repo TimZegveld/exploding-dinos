@@ -81,7 +81,7 @@ test("spelacties vereisen de actuele roomversie", () => {
   assert.equal(confirmed.game.currentPlayerId, confirmed.game.players[1].id);
 });
 
-test("host kan na afloop met dezelfde spelers een nieuw potje starten", () => {
+test("een afgelopen potje kan niet in dezelfde room worden herstart", () => {
   const service = createRoomService();
   const host = service.createRoom("Tim");
   service.joinRoom(host.room.code, "Nova");
@@ -90,11 +90,10 @@ test("host kan na afloop met dezelfde spelers een nieuw potje starten", () => {
   internal.status = "finished";
   internal.game.winnerId = internal.players[0].id;
 
-  const rematch = service.startRoom(host.room.code, host.token);
-
-  assert.equal(rematch.status, "playing");
-  assert.equal(rematch.game.winnerId, null);
-  assert.equal(rematch.game.hand.length, 8);
+  assert.throws(
+    () => service.startRoom(host.room.code, host.token),
+    /nieuwe room/
+  );
 });
 
 test("alleen de host kan een lopend spel voor iedereen stoppen", () => {

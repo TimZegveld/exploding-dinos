@@ -826,6 +826,27 @@ async function leaveRoom() {
   showJoin();
 }
 
+async function startNewRoom() {
+  const oldSession = session;
+  if (!oldSession) return;
+  elements.newGame.disabled = true;
+  if (elements.mobileNewGame) elements.mobileNewGame.disabled = true;
+  stopPolling();
+  try {
+    await request(`/api/rooms/${encodeURIComponent(oldSession.code)}`, { method: "DELETE" });
+  } catch { /* Een nieuwe room maken blijft mogelijk als de oude niet bereikbaar is. */ }
+  saveSession(null);
+  syncRoomUrl(null);
+  activeRoom = null;
+  resetOnlineTable();
+  try {
+    await createRoom();
+  } finally {
+    elements.newGame.disabled = false;
+    if (elements.mobileNewGame) elements.mobileNewGame.disabled = false;
+  }
+}
+
 async function copyRoomLink() {
   const link = invitationUrl(session.code);
   try {
@@ -895,7 +916,7 @@ elements.revealSecondary.addEventListener("click", (event) => {
       elements.mobileMenuButton.setAttribute("aria-expanded", "false");
     }
     if (activeRoom.game.winnerId && activeRoom.isHost) {
-      startOnlineGame();
+      startNewRoom();
       return;
     }
     showingRoomInfo = true;
