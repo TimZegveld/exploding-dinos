@@ -100,9 +100,13 @@ test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {
 });
 
 test("mobiele bediening blijft binnen het scherm", async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith("mobile"), "alleen relevant voor mobiel");
+  test.skip(!testInfo.project.name.includes("mobile"), "alleen relevant voor mobiel");
   await startGame(page);
   await expect(page.locator("#mobileMenuButton")).toBeVisible();
+  const drawButton = await page.locator("#drawButton").boundingBox();
+  const viewport = page.viewportSize();
+  expect(drawButton.y).toBeGreaterThanOrEqual(0);
+  expect(drawButton.y + drawButton.height).toBeLessThanOrEqual(viewport.height);
   await page.locator("#mobileMenuButton").click();
   await expect(page.locator("#mobileMenu")).toBeVisible();
   await page.locator("#mobileCatalogPageButton").click();
@@ -112,4 +116,51 @@ test("mobiele bediening blijft binnen het scherm", async ({ page }, testInfo) =>
     content: document.documentElement.scrollWidth
   }));
   expect(overflow.content).toBeLessThanOrEqual(overflow.viewport + 1);
+});
+
+test("mobiele tafel blijft compact met vier tegenstanders", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "alleen relevant voor mobiel");
+  await page.locator("#opponentRoster .roster-card").nth(1).click();
+  await page.locator("#opponentRoster .roster-card").nth(2).click();
+  await page.locator("#opponentRoster .roster-card").nth(3).click();
+  await expect(page.locator("#opponentSelectionSummary")).toHaveText("4 gekozen");
+  await page.locator("#startGameButton").click();
+  await expect(page.locator("#opponents .opponent-seat")).toHaveCount(4);
+
+  const opponentRail = await page.locator("#opponents").evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+    display: getComputedStyle(element).display
+  }));
+  expect(opponentRail.display).toBe("flex");
+  if (page.viewportSize().width < 500) {
+    expect(opponentRail.scrollWidth).toBeGreaterThan(opponentRail.clientWidth);
+  }
+
+  await page.locator("#handToggle").click();
+  const handRail = await page.locator("#playerHand").evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+    flexWrap: getComputedStyle(element).flexWrap
+  }));
+  expect(handRail.flexWrap).toBe("nowrap");
+  if (page.viewportSize().width < 500) {
+    expect(handRail.scrollWidth).toBeGreaterThan(handRail.clientWidth);
+  }
+});
+
+test("mobiele dialogen krijgen focus en sluiten met Escape", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "alleen relevant voor mobiel");
+  await startGame(page);
+  await page.locator("#mobileMenuButton").click();
+  await expect(page.locator("#closeMobileMenu")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#mobileMenu")).toBeHidden();
+  await expect(page.locator("#mobileMenuButton")).toBeFocused();
+
+  await page.locator("#mobileMenuButton").click();
+  await page.locator("#mobileExplainButton").click();
+  await expect(page.locator("#closeTutorialButton")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#tutorial")).toBeHidden();
 });

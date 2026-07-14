@@ -216,6 +216,8 @@ let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
 let tutorialStep = 0;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
+let activeDialog = null;
+let dialogReturnFocus = null;
 
 const els = {
   gameTable: document.querySelector("#gameTable"),
@@ -332,11 +334,12 @@ function openTutorial() {
   closeMobileMenu();
   els.tutorial.classList.remove("is-hidden");
   renderTutorial();
-  els.closeTutorialButton.focus?.();
+  syncDialogAccessibility();
 }
 
 function closeTutorial() {
   els.tutorial.classList.add("is-hidden");
+  syncDialogAccessibility();
 }
 
 function renderTutorial() {
@@ -530,6 +533,36 @@ function render() {
   renderMobileMenu();
   renderReveal();
   renderCatalogDetail();
+  syncDialogAccessibility();
+}
+
+function getVisibleDialog() {
+  return [els.mobileMenu, els.tutorial, els.startModal, els.catalogDetail, els.drawReveal]
+    .find((dialog) => dialog && !dialog.classList.contains("is-hidden")) ?? null;
+}
+
+function getDialogFocusables(dialog) {
+  if (!dialog?.querySelectorAll) return [];
+  return [...dialog.querySelectorAll("button:not(:disabled), select:not(:disabled), [href], [tabindex]:not([tabindex=\"-1\"])")]
+    .filter((element) => !element.closest(".is-hidden"));
+}
+
+function syncDialogAccessibility() {
+  const nextDialog = getVisibleDialog();
+  document.body?.classList?.toggle("has-open-dialog", Boolean(nextDialog));
+  if (nextDialog === activeDialog) return;
+
+  if (nextDialog) {
+    if (!activeDialog) dialogReturnFocus = document.activeElement ?? null;
+    activeDialog = nextDialog;
+    Promise.resolve().then(() => getDialogFocusables(activeDialog)[0]?.focus?.());
+    return;
+  }
+
+  activeDialog = null;
+  const returnTarget = dialogReturnFocus;
+  dialogReturnFocus = null;
+  Promise.resolve().then(() => returnTarget?.focus?.());
 }
 
 function renderDiscardPile() {
@@ -780,6 +813,7 @@ function renderPlayerHand() {
     button.dataset.kind = card.kind;
     const canPlay = canPlayCard("player", card);
     button.dataset.canPlay = String(canPlay);
+    button.setAttribute("aria-label", `${card.name}. ${canPlay ? "Speelbaar; tik voor details" : "Nu niet speelbaar; tik voor details"}`);
     button.disabled = state.gameOver || state.eliminated.player || isHandClickBlocked();
     renderCardFace(button, card);
     button.addEventListener("click", () => inspectPlayerCard(card.id));
@@ -1275,7 +1309,10 @@ function closeCatalogCard() {
 
 function renderCatalogDetail() {
   els.catalogDetail.classList.toggle("is-hidden", !selectedCatalogType);
-  if (!selectedCatalogType) return;
+  if (!selectedCatalogType) {
+    syncDialogAccessibility();
+    return;
+  }
 
   const card = createCatalogCard(selectedCatalogType);
   els.catalogDetailKind.textContent = getCatalogMeta(selectedCatalogType, card);
@@ -1283,6 +1320,7 @@ function renderCatalogDetail() {
   els.catalogDetailText.textContent = card.text;
   els.catalogDetailCard.className = "catalog-detail__card";
   renderCardFace(els.catalogDetailCard, card, { large: true });
+  syncDialogAccessibility();
 }
 
 function renderOracleCards(pendingOracle) {
@@ -3208,7 +3246,25 @@ els.tutorial?.addEventListener("click", (event) => {
   if (event.target === els.tutorial) closeTutorial();
 });
 document.addEventListener?.("keydown", (event) => {
-  if (event.key === "Escape" && !els.tutorial.classList.contains("is-hidden")) closeTutorial();
+  if (event.key === "Escape") {
+    if (!els.mobileMenu.classList.contains("is-hidden")) closeMobileMenu();
+    else if (!els.tutorial.classList.contains("is-hidden")) closeTutorial();
+    else if (!els.catalogDetail.classList.contains("is-hidden")) closeCatalogCard();
+    return;
+  }
+
+  if (event.key !== "Tab" || !activeDialog) return;
+  const focusables = getDialogFocusables(activeDialog);
+  if (focusables.length === 0) return;
+  const first = focusables[0];
+  const last = focusables.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 });
 els.showGamePage.addEventListener("click", () => showPage("game"));
 els.showCatalogPage.addEventListener("click", () => showPage("catalog"));

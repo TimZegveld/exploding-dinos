@@ -24,6 +24,20 @@ module.exports = defineConfig({
       use: {
         ...devices["Pixel 5"]
       }
+    },
+    {
+      name: "small-mobile-chromium",
+      use: {
+        ...devices["Pixel 5"],
+        viewport: { width: 320, height: 568 }
+      }
+    },
+    {
+      name: "mobile-landscape-chromium",
+      use: {
+        ...devices["Pixel 5"],
+        viewport: { width: 740, height: 360 }
+      }
     }
   ]
 });

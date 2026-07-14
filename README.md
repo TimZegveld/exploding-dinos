@@ -26,7 +26,7 @@ De eerste geautomatiseerde testlaag staat in `tests/` en gebruikt Node's ingebou
 npm test
 ```
 
-De snelle tests dekken deck/card helpers, gerichte spelregels en een fake-DOM smoke-test. Daarnaast draaien echte browserchecks de kernflows op een desktop- en telefoonviewport in Chromium:
+De snelle tests dekken deck/card helpers, gerichte spelregels en een fake-DOM smoke-test. Daarnaast draaien echte browserchecks de kernflows in Chromium op desktop, een Pixel 5, een klein scherm van 320 x 568 en mobiel landschap:
 
 ```powershell
 npm run test:browser
@@ -52,8 +52,8 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
 - `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
 - `game.js`: huidige spelstate, beurtregels, pc-keuzes, renderlogica en event handlers.
-- `styles.css`: tafel, kaartfronts, modals, persona- en eindschermstyling.
-- `tests/`: Node-tests en fake-DOM smoke-tests.
+- `styles.css`: tafel, kaartfronts, responsive bediening, modals, persona- en eindschermstyling.
+- `tests/`: Node-tests, fake-DOM smoke-tests en Playwright-browserflows.
 
 De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blijven worden. Een volgende onderhoudsstap is om renderlogica en spelregels verder te scheiden zodra daar gerichte tests voor staan.
 
@@ -89,8 +89,11 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Een `Schuilgrot` wordt automatisch gebruikt en stopt de meteoriet terug in de trekstapel.
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
 - Je hand wordt op kaarttype gegroepeerd; kaarten binnen hetzelfde type krijgen bij binnenkomst een willekeurige plek.
-- Op telefoon kun je je hand open- en dichtklappen, zodat de trekstapel en tafel meer ruimte houden.
-- Op telefoon zitten Kaarten, Nieuw spel en Logboek achter een sluitbaar menu.
+- Op telefoon staat de primaire trekactie bovenaan het speelveld en blijft deze tijdens het scrollen bereikbaar.
+- Op telefoon staan tegenstanders in een compacte horizontale rij; je hand is een horizontale kaartenrail die open- en dichtgeklapt kan worden.
+- Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
+- Op telefoon zitten Kaarten, Nieuw spel en Logboek achter een sluitbaar menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
+- De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
@@ -132,7 +135,7 @@ Statuslegenda:
 
 ## Mogelijke volgende iteraties
 
-- Verdere testdekking voor spelregels en browserflows.
+- Verdere testdekking voor zeldzame kaartreacties en complete potjes.
 - Betere kaartbalans na meerdere proefpotjes.
 - Moeilijkheidsgraden voor de pc.
 - Extra kaartvarianten, meer kaarttypes of set-combo's.

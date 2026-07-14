@@ -4,7 +4,7 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 27 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 28 tests.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
@@ -14,14 +14,15 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 - Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - GitHub Pages staat als live URL in de README; publicatie zelf is dus geen open taak meer.
-- Een Playwright-browserlaag controleert kernflows op desktop en mobiel; verdere gameplayflows kunnen hier stapsgewijs aan worden toegevoegd.
+- De mobiele layout heeft een compacte sticky header, een bereikbare trekactie, horizontale tegenstander- en handrails, leesbare kaarttekst, touchfeedback en safe-area-ondersteuning.
+- Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
+- De Playwright-browserlaag is groen: 29 tests slagen en 3 niet-relevante desktopvarianten worden overgeslagen. De matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 
 ## Volgende prioriteit
 
-- [x] Voeg een kleine echte-browser testlaag toe voor desktop en mobiel.
-  - Minimaal: startscherm, handkaarten, kaartdetail openen/sluiten, reveal-overlay, catalogus en eindscherm.
-  - Check console errors en layout op een telefoonviewport.
-  - Gebruik Playwright of een vergelijkbare browser-runner wanneer die beschikbaar is.
+- [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.
+  - Controleer Safari safe areas, adresbalk-resize, scrollgedrag van beide rails en mobiel landschap.
+  - Noteer alleen problemen die niet door de huidige Chromium-browsermatrix worden gevangen.
 
 ## Gameplay en balans
 
@@ -33,8 +34,19 @@ Doel: alleen open werk bijhouden. Afgeronde kaart-, artwork-, persona-, README- 
 
 ## Presentatie en mobiele QA
 
-- [ ] Check kaartleesbaarheid op telefoon: handkaarten, reveal-kaarten, catalogus en doelwitkeuzes.
+- [x] Maak de primaire trekactie mobiel direct bereikbaar en houd de header compact.
+- [x] Zet tegenstanders en handkaarten om naar compacte horizontale rails.
+- [x] Verhoog de kleinste kaarttekst en markeer speelbare/niet-speelbare handkaarten.
+- [x] Voeg focusbeheer, Escape-afhandeling, achtergrondscrollblokkering en zichtbare focusstijlen toe.
+- [x] Test handkaarten, reveal-kaarten, catalogus, vier tegenstanders, overflow en dialogen op meerdere mobiele Chromium-viewports.
+- [ ] Controleer kaartleesbaarheid en duimbereik op minstens één echte iPhone en één echt Android-toestel.
 - [ ] Check de gepubliceerde GitHub Pages-versie op telefoonformaat na de volgende inhoudelijke wijziging.
+
+## Testdekking
+
+- [ ] Voeg browserflows toe voor zeldzame reactieketens: meerdere `Brul Terug`-kaarten, doorgeschoven raptoraanvallen en meteorietplaatsing.
+- [ ] Voeg een langere gesimuleerde browserflow toe die meerdere opeenvolgende beurten doorloopt.
+- [ ] Overweeg een automatische toegankelijkheidscheck zodra daarvoor een kleine, stabiele dependency gewenst is.
 
 ## Later, niet blokkerend
 

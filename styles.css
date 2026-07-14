@@ -70,8 +70,23 @@ body {
     linear-gradient(135deg, var(--bg-start) 0%, var(--bg) 46%, var(--bg-end) 100%);
 }
 
+html {
+  overflow-x: hidden;
+}
+
 button {
   font: inherit;
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+body.has-open-dialog {
+  overflow: hidden;
 }
 
 .game-shell {
@@ -2398,19 +2413,28 @@ h2 {
   }
 
   .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .topbar-actions,
-  .status-pill {
-    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    margin: calc(-1 * max(10px, env(safe-area-inset-top))) calc(-1 * max(10px, env(safe-area-inset-right))) 0 calc(-1 * max(10px, env(safe-area-inset-left)));
+    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+    background: color-mix(in srgb, var(--bg), transparent 6%);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(12px);
   }
 
   .topbar-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(88px, auto);
+    gap: 8px;
+  }
+
+  .topbar .eyebrow {
+    display: none;
   }
 
   .page-tabs {
@@ -2422,7 +2446,8 @@ h2 {
   }
 
   h1 {
-    font-size: clamp(1.85rem, 12vw, 3.1rem);
+    font-size: clamp(1.35rem, 7vw, 2rem);
+    white-space: nowrap;
   }
 
   .page-tab {
@@ -2431,8 +2456,11 @@ h2 {
   }
 
   .status-pill {
+    width: auto;
+    min-width: 0;
     min-height: 44px;
-    padding: 11px 14px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
   }
 
   .table {
@@ -2442,13 +2470,24 @@ h2 {
   }
 
   .opponents {
-    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    display: flex;
     gap: 8px;
+    margin-inline: -12px;
+    padding-inline: 12px;
+    overflow-x: auto;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
   }
 
   .opponent-seat,
   .player-zone {
     padding: 8px;
+  }
+
+  .opponent-seat {
+    flex: 0 0 136px;
+    scroll-snap-align: start;
   }
 
   .opponent-seat .player-label {
@@ -2499,8 +2538,21 @@ h2 {
   }
 
   .center-zone {
+    position: sticky;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 8;
+    grid-row: 1;
     grid-template-columns: repeat(2, minmax(118px, var(--table-card-width)));
     gap: 12px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--panel), transparent 4%);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .opponent-zone {
+    grid-row: 2;
   }
 
   .deck,
@@ -2515,8 +2567,8 @@ h2 {
   }
 
   .player-zone {
-    position: sticky;
-    bottom: max(8px, env(safe-area-inset-bottom));
+    position: relative;
+    grid-row: 3;
     z-index: 5;
     background: color-mix(in srgb, var(--panel), transparent 8%);
     box-shadow: var(--shadow-panel);
@@ -2554,19 +2606,35 @@ h2 {
   }
 
   .hand {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(var(--hand-card-width), 100%), 1fr));
+    display: flex;
+    flex-wrap: nowrap;
     gap: 8px;
     min-height: 0;
     margin: 0;
     padding: 0;
-    overflow: visible;
-    scroll-snap-type: none;
+    padding: 3px 3px 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
   }
 
   .hand .card-button {
-    width: 100%;
-    scroll-snap-align: unset;
+    flex: 0 0 var(--hand-card-width);
+    width: var(--hand-card-width);
+    scroll-snap-align: start;
+  }
+
+  .card-button[data-can-play="true"] {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent), transparent 28%), var(--card-shadow);
+  }
+
+  .card-button[data-can-play="false"] {
+    opacity: 0.66;
+  }
+
+  .card-button:active,
+  .deck:active,
+  .mobile-menu__actions button:active {
+    transform: translateY(2px) scale(0.98);
   }
 
   .card-button,
@@ -2621,6 +2689,11 @@ h2 {
     width: 100%;
     max-height: calc(100dvh - 20px);
     padding: 14px;
+    overflow-y: auto;
+  }
+
+  .mobile-menu-button:focus-visible {
+    outline-offset: -4px;
   }
 
   .tutorial__cards {
@@ -2666,6 +2739,12 @@ h2 {
 
   .draw-reveal__mini-card {
     padding: 8px;
+  }
+
+  .draw-reveal__mini-card.card-face .card-face__text,
+  .discard__top-card.card-face .card-face__text {
+    font-size: 0.75rem;
+    line-height: 1.2;
   }
 
   .reveal-actor {
@@ -2732,7 +2811,7 @@ h2 {
   }
 
   .opponents {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
   }
 
   .center-zone {
@@ -2747,7 +2826,7 @@ h2 {
 
   .discard__top-card.card-face .card-face__text {
     min-height: 34px;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
   }
 
   .catalog-grid {

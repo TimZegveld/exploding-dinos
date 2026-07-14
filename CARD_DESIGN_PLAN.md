@@ -90,18 +90,11 @@ assets/
 | `triceraTuk` | Tricera-Tuk | Soortkaart | Slaperige triceratops, knikkend/half slapend. | `sleepy cartoon triceratops nodding off with relaxed expression, cozy plants, calm warm light, no text` |
 | `pteroPret` | Ptero Pret | Soortkaart | Pterodactylus in speelse vlucht, luchtig blauw accent. | `playful cartoon pterodactyl gliding through the sky with joyful expression, clouds and prehistoric cliffs, bright airy colors, no text` |
 
-## Fase 1: basisdesign per kaarttype
+## Fase 1: basisdesign per kaarttype (afgerond)
 
-1. Maak definitieve kaartafmetingen voor digitaal en print.
-2. Maak een herbruikbare kaarttemplate.
-3. Kies definitieve familie-iconen en kleuren.
-4. Genereer of ontwerp 17 basisillustraties, 1 per kaarttype.
-5. Exporteer illustraties naar `assets/cards/illustrations/`.
-6. Voeg per kaarttype assetvelden toe aan `cardCatalog`.
-7. Update de kaart-rendering zodat typekleur, icoon en illustratie zichtbaar zijn.
-8. Test leesbaarheid in handkaarten, aflegstapel en trekstapel.
+De digitale kaartverhoudingen, herbruikbare template, familie-iconen en kleuren zijn geïmplementeerd. Alle 17 kaarttypes hebben illustraties en designmetadata in `cardCatalog`. De rendering ondersteunt hand-, afleg-, catalogus-, mini- en revealvarianten. Mobiele leesbaarheid wordt daarnaast bewaakt door de responsive stylesheet en browsermatrix.
 
-## Fase 2: varianten per individuele kaart
+## Fase 2: varianten per individuele kaart (actief)
 
 Varianten moeten verschillen zonder de kaartfunctie te veranderen. Houd daarom deze lagen gescheiden:
 
@@ -135,7 +128,7 @@ Variantregels:
 
 ## Implementatie-notities
 
-De huidige game gebruikt `card.kind` al voor globale styling. De volgende stap is om `cardCatalog` uit te breiden met designmetadata:
+De game gebruikt `card.kind` voor globale styling en `cardCatalog[type].design` voor familie, kleur, icoon en illustratie:
 
 ```js
 design: {
@@ -146,16 +139,8 @@ design: {
 }
 ```
 
-Daarna kan `renderPlayerHand()` de kaartknop uitbreiden met een illustratievlak en CSS-variabelen per kaart.
+`renderCardFace()` gebruikt deze metadata voor alle kaartformaten. Veelvoorkomende soortkaarten roteren al door meerdere illustraties zonder hun kaartregel te veranderen.
 
 ## Aanbevolen volgende stap
 
-Begin met een visuele proefset van 5 kaarten:
-
-- `meteor` voor gevaar.
-- `shelter` voor verdediging.
-- `sprint` voor actie.
-- `feral` voor joker.
-- `miniRaptor` voor soortkaart.
-
-Als deze vijf samen goed voelen, kan de stijl veilig worden doorgetrokken naar de volledige set.
+Voeg alleen nieuwe illustratievarianten toe wanneer ze een veelvoorkomende kaart visueel beter herkenbaar maken. Bewaak daarbij vooral leesbaarheid op handkaartformaat en test nieuwe uitsneden in hand, reveal, catalogus en mini-card states.
