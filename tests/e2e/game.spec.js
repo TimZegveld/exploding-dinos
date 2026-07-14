@@ -158,6 +158,22 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
       hand: [{ id: "nope-1", type: "nope", name: "Brul Terug", text: "Blokkeer de aanval.", kind: "action" }]
     }
   };
+  const forcedDrawRoom = {
+    ...gameRoom,
+    version: 5,
+    game: { ...gameRoom.game, forcedDrawsRemaining: 2, pending: null }
+  };
+  const forcedDrawRevealRoom = {
+    ...forcedDrawRoom,
+    version: 6,
+    game: {
+      ...forcedDrawRoom.game,
+      pending: {
+        type: "DRAW_REVEAL",
+        cards: [{ id: "forced-draw-1", type: "trike", name: "Triceratops Blik", text: "Bekijk de stapel.", kind: "action" }]
+      }
+    }
+  };
   const stealRevealRoom = {
     ...gameRoom,
     version: 5,
@@ -293,6 +309,23 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Schuilgrot");
   await expect(page.locator("#revealText")).toContainText("terugkomt blijft geheim");
   await expect(page.locator("#revealButton")).toBeDisabled();
+
+  currentRoom = gameRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+
+  currentRoom = forcedDrawRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#turnStatus")).toHaveText("Let op: trek nog 2 kaarten");
+  await expect(page.locator("#turnStatus")).toHaveClass(/is-multiple-forced-draws/);
+  await expect(page.locator("#playerHint")).toHaveText("2 verplichte trekkingen over");
+  await expect(page.locator("#drawButton")).toHaveAttribute("data-forced-draws", "2 verplichte kaarten");
+  await expect(page.locator("#drawButton")).toHaveAttribute("aria-label", "Trek kaart. Nog 2 verplicht.");
+
+  currentRoom = forcedDrawRevealRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Verplichte trekking — nog 2");
+  await expect(page.locator("#revealText")).toContainText("Hierna moet je nog 1 kaart trekken");
+  await expect(page.locator("#revealButton")).toHaveText("Neem kaart — daarna nog 1");
 
   currentRoom = gameRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
