@@ -672,6 +672,21 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   }
   await expect(page.locator("#catalogPage")).toBeVisible();
   await expect(page.locator("#catalogGrid .catalog-card")).toHaveCount(17);
+  const firstCard = page.locator("#catalogGrid .catalog-card").first();
+  await expect(firstCard.locator(".card-face__art img")).toBeVisible();
+  const layeredLayout = await firstCard.evaluate((card) => {
+    const art = card.querySelector(".card-face__art");
+    const text = card.querySelector(".card-face__text");
+    return {
+      artPosition: getComputedStyle(art).position,
+      artHeight: art.getBoundingClientRect().height,
+      cardHeight: card.getBoundingClientRect().height,
+      textBackdrop: getComputedStyle(text).backdropFilter
+    };
+  });
+  expect(layeredLayout.artPosition).toBe("absolute");
+  expect(layeredLayout.artHeight).toBeGreaterThan(layeredLayout.cardHeight * 0.85);
+  expect(layeredLayout.textBackdrop).toContain("blur");
   await page.locator("#catalogGrid .catalog-card").first().click();
   await expect(page.locator("#catalogDetail")).toBeVisible();
   await expect(page.locator("#catalogDetailTitle")).not.toBeEmpty();

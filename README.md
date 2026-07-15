@@ -83,7 +83,7 @@ De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blij
 
 Gebruik voor nieuwe logica de injecteerbare functies uit `src/runtime.js` in plaats van rechtstreeks `Math.random()` of `window.setTimeout()` aan te roepen. Zo blijven scenario's reproduceerbaar in tests.
 
-Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief.
+Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief. Kaarten gebruiken een beeldvullende illustratie met titel- en regeloverlays. De uitsnede komt uit `design.crop` en kan via `design.crops[imagePath]` per illustratie worden verfijnd voor hand-, mini- en grote weergaven.
 
 ## Project-skill
 

@@ -29,6 +29,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
 - Alle kaarttypes hebben een gekoppelde illustratie; veelvoorkomende soortkaarten hebben extra illustratievarianten.
+- Alle kaartformaten gebruiken een beeldvullende illustratie met leesbare titel- en regeloverlays; de focus is data-gestuurd en ondersteunt een override per illustratie.
 - De NPC-selectie geeft beginnersadvies: start met 1 tegenstander; meer spelers geeft meer chaos.
 - Alle 9 NPC's hebben een eigen speelstijlprofiel dat kaartkeuze, doelwitkeuze, blokkeren, risico en deckcontrole beinvloedt.
 - Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.

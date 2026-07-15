@@ -1118,6 +1118,10 @@ function renderCardFace(element, card, options = {}) {
   image.src = card.design.image;
   image.alt = "";
   image.loading = "lazy";
+  const crop = card.design.crop ?? {};
+  image.style.setProperty("--card-art-position", crop.default ?? "50% 50%");
+  image.style.setProperty("--card-art-position-mini", crop.mini ?? crop.default ?? "50% 50%");
+  image.style.setProperty("--card-art-position-large", crop.large ?? crop.default ?? "50% 50%");
   art.append(image);
 
   const text = document.createElement("span");

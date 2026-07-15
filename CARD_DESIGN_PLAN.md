@@ -92,7 +92,7 @@ assets/
 
 ## Fase 1: basisdesign per kaarttype (afgerond)
 
-De digitale kaartverhoudingen, herbruikbare template, familie-iconen en kleuren zijn geïmplementeerd. Alle 17 kaarttypes hebben illustraties en designmetadata in `cardCatalog`. De rendering ondersteunt hand-, afleg-, catalogus-, mini- en revealvarianten. Mobiele leesbaarheid wordt daarnaast bewaakt door de responsive stylesheet en browsermatrix.
+De digitale kaartverhoudingen, herbruikbare template, familie-iconen en kleuren zijn geïmplementeerd. Alle 17 kaarttypes hebben illustraties en designmetadata in `cardCatalog`. De rendering ondersteunt hand-, afleg-, catalogus-, mini- en revealvarianten. De illustratie vult het binnenvlak; titel en kaartregel liggen als contrastrijke lagen over het beeld. Mobiele leesbaarheid wordt daarnaast bewaakt door de responsive stylesheet en browsermatrix.
 
 ## Fase 2: varianten per individuele kaart (actief)
 
@@ -135,12 +135,16 @@ design: {
   family: "action",
   color: "#d79b32",
   icon: "assets/cards/icons/action.svg",
-  image: "assets/cards/illustrations/sprint.png"
+  image: "assets/cards/illustrations/sprint.png",
+  crop: {
+    default: "57% 64%",
+    large: "56% 58%"
+  }
 }
 ```
 
-`renderCardFace()` gebruikt deze metadata voor alle kaartformaten. Veelvoorkomende soortkaarten roteren al door meerdere illustraties zonder hun kaartregel te veranderen.
+`renderCardFace()` gebruikt deze metadata voor alle kaartformaten. Veelvoorkomende soortkaarten roteren al door meerdere illustraties zonder hun kaartregel te veranderen. Een specifieke variant kan de standaardfocus overschrijven met `design.crops[imagePath]`; zonder override erft hij de uitsnede van het kaarttype.
 
 ## Aanbevolen volgende stap
 
-Voeg alleen nieuwe illustratievarianten toe wanneer ze een veelvoorkomende kaart visueel beter herkenbaar maken. Bewaak daarbij vooral leesbaarheid op handkaartformaat en test nieuwe uitsneden in hand, reveal, catalogus en mini-card states.
+Voeg alleen nieuwe illustratievarianten toe wanneer ze een veelvoorkomende kaart visueel beter herkenbaar maken. Stel indien nodig een eigen crop in en bewaak vooral leesbaarheid op handkaartformaat. Test iedere nieuwe uitsnede in hand, reveal, afleg, catalogus en mini-card states.

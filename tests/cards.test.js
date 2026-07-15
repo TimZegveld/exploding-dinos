@@ -71,6 +71,19 @@ test("makeCard resolves catalog data and illustration variants", () => {
   assert.equal(firstVariant.isCompact, true);
   assert.notEqual(firstVariant.id, secondVariant.id);
   assert.notEqual(firstVariant.design.image, secondVariant.design.image);
+  assert.deepEqual(firstVariant.design.crop, secondVariant.design.crop);
+  assert.match(firstVariant.design.crop.default, /^\d+% \d+%$/);
+  assert.match(firstVariant.design.crop.large, /^\d+% \d+%$/);
+});
+
+test("every illustrated card resolves data-driven artwork focus", () => {
+  const { cardCatalog, makeCard } = loadCardsModule();
+
+  Object.keys(cardCatalog).forEach((type) => {
+    const crop = makeCard(type).design.crop;
+    assert.equal(typeof crop.default, "string", `${type} has a default crop`);
+    assert.equal(typeof crop.large, "string", `${type} has a large crop`);
+  });
 });
 
 test("every catalog card declares its turn effect", () => {

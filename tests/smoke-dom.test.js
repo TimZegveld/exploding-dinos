@@ -286,6 +286,20 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
   assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
 });
 
+test("card artwork receives responsive crop metadata", () => {
+  const { getSelector, sandbox } = loadGame();
+  const host = getSelector("#revealCard");
+  const card = sandbox.ExplodingDinosCards.makeCard("raptor", false);
+
+  sandbox.renderCardFace(host, card, { large: true });
+
+  const image = host.children[1].children[0];
+  assert.equal(host.classList.contains("card-face--large"), true);
+  assert.equal(image.style["--card-art-position"], "52% 56%");
+  assert.equal(image.style["--card-art-position-mini"], "52% 56%");
+  assert.equal(image.style["--card-art-position-large"], "52% 50%");
+});
+
 test("opponent hands cap visible card backs and keep the total in a badge", () => {
   const { sandbox } = loadGame();
   const player = (cardCount) => ({

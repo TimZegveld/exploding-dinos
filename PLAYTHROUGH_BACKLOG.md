@@ -35,7 +35,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 ## Visuele afwerking
 
-- [ ] **11. Kaartillustraties meer ruimte geven**  
+- [x] **11. Kaartillustraties meer ruimte geven**
   Vergelijk beeldgerichte kaartlayouts, ondersteun gerichte uitsneden per illustratie en test hand-, reveal-, afleg- en catalogusformaten.
 - [ ] **12. Sluitkruis in gamestijl ontwerpen en implementeren**  
   Maak een herbruikbaar sluiticoon in de stijl van de game en vervang de losse tekstkruisjes in alle dialogen.

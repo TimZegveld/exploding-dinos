@@ -630,8 +630,9 @@ h2 {
   --face-header-bg: linear-gradient(135deg, #7b4128, var(--face-header));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 7px;
+  gap: 0;
   padding: 8px;
+  position: relative;
   overflow: hidden;
   background: var(--face-bg);
 }
@@ -791,14 +792,18 @@ h2 {
 }
 
 .card-face__header {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 25px;
   gap: 6px;
   align-items: center;
-  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--card), transparent 62%);
+  border-radius: 6px 6px 3px 3px;
   padding: 6px;
   color: var(--on-accent);
   background: var(--face-header-bg);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--card-ink), transparent 58%);
 }
 
 .card-face__header--no-icon {
@@ -831,11 +836,25 @@ h2 {
 }
 
 .card-face__art {
+  position: absolute;
+  z-index: 0;
+  inset: 8px;
   min-height: 0;
-  border: 1px solid var(--card-line);
+  border: 1px solid color-mix(in srgb, var(--card-line), transparent 16%);
   border-radius: 6px;
   overflow: hidden;
+  pointer-events: none;
   background: var(--card-art-fallback);
+}
+
+.card-face__art::after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(20, 16, 12, 0.18), transparent 22%, transparent 53%, rgba(20, 16, 12, 0.28) 78%, rgba(20, 16, 12, 0.62)),
+    linear-gradient(90deg, rgba(20, 16, 12, 0.12), transparent 12%, transparent 88%, rgba(20, 16, 12, 0.12));
 }
 
 .card-face__art img {
@@ -843,87 +862,35 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--card-art-position, 50% 50%);
 }
 
-.card-face[data-tone="oracle"] .card-face__art img {
-  object-position: 50% 52%;
+.card-face--mini .card-face__art img {
+  object-position: var(--card-art-position-mini, var(--card-art-position, 50% 50%));
 }
 
-.card-face[data-tone="fossil"] .card-face__art img {
-  object-position: 54% 48%;
-}
-
-.card-face[data-tone="nope"] .card-face__art img {
-  object-position: 47% 46%;
-}
-
-.card-face[data-tone="feral"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.card-face[data-tone="raptor"] .card-face__art img {
-  object-position: 52% 56%;
-}
-
-.card-face[data-tone="targeted-raptor"] .card-face__art img {
-  object-position: 45% 63%;
-}
-
-.card-face[data-tone="sprint"] .card-face__art img {
-  object-position: 57% 64%;
-}
-
-.card-face[data-tone="trike"] .card-face__art img {
-  object-position: 50% 48%;
-}
-
-.card-face[data-tone="volcano"] .card-face__art img {
-  object-position: 50% 42%;
-}
-
-.card-face[data-tone="dig"] .card-face__art img {
-  object-position: 50% 58%;
-}
-
-.card-face[data-tone="mini-raptor"] .card-face__art img {
-  object-position: 52% 66%;
-}
-
-.card-face[data-tone="stego-snack"] .card-face__art img {
-  object-position: 49% 64%;
-}
-
-.card-face[data-tone="bronto-buik"] .card-face__art img {
-  object-position: 50% 57%;
-}
-
-.card-face[data-tone="tricera-tuk"] .card-face__art img {
-  object-position: 50% 58%;
-}
-
-.card-face[data-tone="ptero-pret"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.card-face[data-tone="meteor"] .card-face__art img {
-  object-position: 53% 58%;
-}
-
-.card-face[data-tone="shelter"] .card-face__art img {
-  object-position: 50% 61%;
+.card-face--large .card-face__art img {
+  object-position: var(--card-art-position-large, var(--card-art-position, 50% 50%));
 }
 
 .card-face__text {
+  position: relative;
+  z-index: 2;
+  align-self: end;
   display: block;
   min-height: 43px;
   border-radius: 6px;
   padding: 6px;
-  color: var(--muted);
-  background: var(--card-text-panel);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-ink), transparent 88%);
+  color: var(--card-ink);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 58%), color-mix(in srgb, var(--card), transparent 28%) 44%, color-mix(in srgb, var(--card), transparent 14%));
+  backdrop-filter: blur(2px) saturate(0.82);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--card-ink), transparent 76%),
+    0 -10px 18px color-mix(in srgb, var(--card-ink), transparent 78%);
   font-size: 0.62rem;
   font-weight: 720;
   line-height: 1.2;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--card), transparent 15%);
 }
 
 .card-button strong {
@@ -1905,74 +1872,6 @@ h2 {
   min-height: 66px;
   padding: 10px;
   font-size: 0.92rem;
-}
-
-.draw-reveal__card.card-face[data-tone="oracle"] .card-face__art img {
-  object-position: 50% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="fossil"] .card-face__art img {
-  object-position: 54% 46%;
-}
-
-.draw-reveal__card.card-face[data-tone="nope"] .card-face__art img {
-  object-position: 48% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="feral"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.draw-reveal__card.card-face[data-tone="raptor"] .card-face__art img {
-  object-position: 52% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="targeted-raptor"] .card-face__art img {
-  object-position: 46% 55%;
-}
-
-.draw-reveal__card.card-face[data-tone="sprint"] .card-face__art img {
-  object-position: 56% 58%;
-}
-
-.draw-reveal__card.card-face[data-tone="trike"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="volcano"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.draw-reveal__card.card-face[data-tone="dig"] .card-face__art img {
-  object-position: 50% 56%;
-}
-
-.draw-reveal__card.card-face[data-tone="mini-raptor"] .card-face__art img {
-  object-position: 52% 58%;
-}
-
-.draw-reveal__card.card-face[data-tone="stego-snack"] .card-face__art img {
-  object-position: 50% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="bronto-buik"] .card-face__art img {
-  object-position: 50% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="tricera-tuk"] .card-face__art img {
-  object-position: 50% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="ptero-pret"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="meteor"] .card-face__art img {
-  object-position: 53% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="shelter"] .card-face__art img {
-  object-position: 50% 56%;
 }
 
 .draw-reveal__card strong {
@@ -3179,6 +3078,8 @@ h2 {
 }
 
 .multiplayer-choice__ordered-card > div {
+  position: relative;
+  z-index: 3;
   display: grid;
   gap: 6px;
 }
