@@ -249,7 +249,6 @@ test("multiplayer annuleert een lopende singleplayer-aftelling", () => {
   const scheduled = [];
   sandbox.ExplodingDinosRuntime.configure({ schedule: (callback, delay) => scheduled.push({ callback, delay }) });
   getSelector("#startGameButton").click();
-
   assert.equal(getSelector("#revealButton").classList.contains("is-auto-confirming"), true);
   assert.equal(scheduled[0].delay, 10000);
   sandbox.ExplodingDinosSingleplayer.enterMultiplayerMode();

@@ -73,6 +73,7 @@ let onlineHandOpen = false;
 let onlineRevealActions = null;
 let onlineOracleDraft = null;
 let roomConnectionBusy = false;
+const acknowledgedStartRooms = new Set();
 let roomNameLocked = Boolean(session?.code && session?.token);
 let nameWasGenerated = false;
 
@@ -346,6 +347,31 @@ function renderOnlineEndState(room) {
       : { label: "Roominfo", action: openOnlineRoomInfo }
   });
   elements.revealCard.classList.add("end-card", won ? "is-win" : "is-loss");
+}
+
+function renderOnlineStartState(room) {
+  const { game } = room;
+  const starterIndex = game.players.findIndex((player) => player.id === game.startingPlayerId);
+  if (starterIndex < 0) return false;
+  const turnOrder = [...game.players.slice(starterIndex), ...game.players.slice(0, starterIndex)];
+  const image = document.createElement("img");
+  image.src = "assets/dino-start-race.webp";
+  image.alt = "Dino's racen naar de finish; de winnaar mag beginnen.";
+  image.className = "start-race-image";
+  renderStandardOnlineReveal({
+    title: "De dino-race is beslist!",
+    text: `${turnOrder[0].name} start. Speelvolgorde: ${turnOrder.map((player) => player.name).join(" → ")}.`,
+    nodes: [image],
+    cardClass: "is-start-race",
+    primary: {
+      label: "Spel starten",
+      action: () => {
+        acknowledgedStartRooms.add(room.code);
+        renderOnlineGame(activeRoom);
+      }
+    }
+  });
+  return true;
 }
 
 function showOnlineCardDetail(card, playable) {
@@ -782,6 +808,9 @@ function renderOnlineGame(room) {
   elements.mainHandToggle.disabled = Boolean(game.eliminated[room.viewerId]);
 
   if (game.winnerId) renderOnlineEndState(room);
+  else if (!acknowledgedStartRooms.has(room.code) && renderOnlineStartState(room)) {
+    // De startmelding blijft bij polling staan totdat deze speler zelf bevestigt.
+  }
   else renderChoice(game.pending, game);
   startPolling();
 }
