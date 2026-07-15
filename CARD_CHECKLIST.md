@@ -4,9 +4,9 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Start hier in een nieuwe chat
 
-- Multiplayer is via een pull request naar `main` gemerged en door GitHub Pages gepubliceerd.
-- Werkbranch voor deze statusupdate: `codex/update-multiplayer-release-status`.
-- Laatste functionele commit vóór deze overdracht: `f60839c` (`Mark multiplayer as in development`).
+- De volledige playthrough-backlog met 13 punten staat in PR #6 en is klaar voor review.
+- Werkbranch: `codex/playthrough-backlog`.
+- Laatste functionele commit vóór deze documentatie-update: `13aad5c` (`Stabilize browser and public smoke tests`).
 - Render Blueprint: `render.yaml`; service: `https://exploding-dinos-api.onrender.com`.
 - Healthcheck: `https://exploding-dinos-api.onrender.com/api/health` retourneert `200` met `{"ok":true}`.
 - De frontend gebruikt lokaal `http://localhost:3000` en online automatisch de Render-URL via `src/multiplayer-config.js`.
@@ -17,7 +17,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - De verouderde disclaimer over multiplayer in ontwikkeling is uit de interface en documentatie verwijderd.
 - De dinonaamgenerator bevat 24 begin- en 24 einddelen, bewaakt 576 unieke combinaties van maximaal 24 tekens en probeert automatisch opnieuw bij een conflict met een gegenereerde naam.
 - Het logboek staat op desktop en mobiel standaard verborgen achter het menu, toont eerst de laatste 5 acties en kan naar het volledige bewaarde log schakelen.
-- Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
+- Lokale web- en API-logs worden via `.gitignore` genegeerd; de tijdelijke map `pet-runs/` is verwijderd.
 
 ## Huidige stand
 
@@ -47,14 +47,8 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Volgende prioriteit
 
-- [x] Maak een pull request van `codex/multiplayer-room-lobby` naar `main` en controleer de diff.
-- [x] Merge de branch naar `main`, zodat GitHub Pages de multiplayerfrontend met de Render-URL publiceert.
-- [x] Wacht tot GitHub Pages de multiplayerfrontend heeft gepubliceerd.
-- [x] Voer een publieke rooktest uit:
-  - Maak een room op `https://timzegveld.github.io/exploding-dinos/`.
-  - Open de uitnodigingslink in een tweede browser of privévenster.
-  - Start een potje, trek en speel enkele kaarten en ververs beide spelers eenmaal.
-  - Controleer dat Meteorietinslag en Schuilgrot openbaar zijn en de terugplaatsingspositie geheim blijft.
+- [ ] Review en merge PR #6 van `codex/playthrough-backlog` naar `main`.
+- [ ] Test na de merge de nieuwe GitHub Pages-deployment met `npm run test:public`.
 - [ ] Controleer in Render dat `ALLOWED_ORIGIN=https://timzegveld.github.io` actief is en de laatste deployment groen blijft.
   - Live gecontroleerd op 15 juli 2026: `/api/health` retourneert `ok: true` en de CORS-header is exact `https://timzegveld.github.io`; alleen de visuele bevestiging in het Render-dashboard blijft handmatig.
 - [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.

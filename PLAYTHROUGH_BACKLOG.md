@@ -1,5 +1,7 @@
 # Playthrough-backlog
 
+Alle 13 bevindingen zijn afgerond op branch `codex/playthrough-backlog` en opgenomen in PR #6.
+
 Deze backlog bundelt de bevindingen uit de multiplayer-playthrough. De nummers blijven stabiel, zodat ieder onderwerp afzonderlijk kan worden opgepakt en gecommit. Dezelfde checklist staat in de pull request.
 
 Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
