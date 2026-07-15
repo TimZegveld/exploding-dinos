@@ -733,6 +733,15 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   await expect(reactionTooltip).toBeVisible();
   await expect(reactionTooltip).toContainText("Voordat het effect");
   await expect(reactionTooltip).toContainText("Brul Terug");
+  await page.locator("#closeCatalogDetail").click();
+  await page.locator("#catalogGrid .catalog-card").filter({ hasText: "Brul Terug" }).click();
+  const chainInfo = page.locator("#catalogDetailInfo .is-reaction");
+  await expect(chainInfo).toContainText("Brul Terug mogelijk");
+  await chainInfo.focus();
+  const chainTooltip = chainInfo.locator(".card-detail-info__tooltip");
+  await expect(chainTooltip).toBeVisible();
+  await expect(chainTooltip).toContainText("tweede Brul Terug");
+  await expect(chainTooltip).toContainText("oorspronkelijke effect doorgaat");
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {

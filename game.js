@@ -1153,7 +1153,12 @@ const ruleInfo = {
 
 function renderCardDetailInfo(target, card) {
   const items = (card.rules?.icons ?? []).map((icon) => {
-    const info = ruleInfo[icon];
+    const info = icon === "reaction" && card.type === "nope"
+      ? {
+          label: "Brul Terug mogelijk",
+          explanation: "Tijdens een Brul Terug-keten mag iemand opnieuw Brul Terug spelen. Een tweede Brul Terug heft de eerste op, zodat het oorspronkelijke effect doorgaat. Iedere volgende Brul Terug draait de uitkomst opnieuw om."
+        }
+      : ruleInfo[icon];
     const item = document.createElement("span");
     item.className = `card-detail-info__item is-${icon}`;
     item.setAttribute("tabindex", "0");
@@ -1269,7 +1274,7 @@ function renderCatalogDetail() {
   const deckCount = selectedCatalogType === "meteor" ? getOpponentCount() + 1 : mode === "compact" ? distribution.compact : distribution.total - distribution.compact;
   const ruleRows = [
     ["Timing", card.rules.timing], ["Doelwit", card.rules.target], ["Beurt", card.rules.turn],
-    ["Brul Terug", card.rules.reactable ? "Mogelijk vóór het effect" : "Niet mogelijk"],
+    ["Brul Terug", card.type === "nope" ? "Mogelijk tijdens de keten" : card.rules.reactable ? "Mogelijk vóór het effect" : "Niet mogelijk"],
     ["Informatie", card.rules.visibility], ["In dit deck", `${deckCount} kaarten`]
   ];
   els.catalogDetailRules.replaceChildren(...ruleRows.flatMap(([term, description]) => {

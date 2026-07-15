@@ -31,6 +31,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
   - Tests: pure pariteitstabel per kaarttype, multiplayerketens, reconnect tijdens reactievenster, browserflow met twee spelers.
   - Besluit 15 juli 2026: algemeen reactiemodel bevestigd met expliciet passen en een servergestuurde time-out van 30 seconden.
   - Gerealiseerd: reactie vóór ieder zichtbaar actie-effect; alle actieve spelers kunnen buiten hun beurt reageren; geheime kijk-, herschik- en steelinformatie ontstaat pas na het reactievenster; polling/reconnect hervat dezelfde actie zonder dubbele uitvoering.
+  - Verduidelijkt 15 juli 2026: Brul Terug mag ook op Brul Terug worden gespeeld; iedere kaart draait de ketenuitkomst om. Alle detaillabels hebben uitleg via hover, toetsenbordfocus en tik.
 
 - [x] **EK-02 Raptoraanvallen als volledige beurten modelleren en uitleggen**
   - Officiële referentie: Aanval beëindigt de beurt zonder trekken; slachtoffer voert 2 volledige beurten uit; tegenaanval schuift de volledige last door en telt 2 op.

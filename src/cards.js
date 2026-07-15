@@ -268,7 +268,7 @@ const ruleMetadata = {
   volcano: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Beurt gaat door", reactable: true, visibility: "Bovenkaart geheim" },
   dig: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Eindigt na trek", reactable: true, visibility: "Resultaat geheim" },
   fossil: { timing: "Tijdens je beurt", target: "Speler met kaarten", turn: "Beurt gaat door", reactable: true, visibility: "Overdracht geheim" },
-  nope: { timing: "Tijdens reactievenster", target: "Zichtbare actie", turn: "Verandert beurt niet", reactable: false, visibility: "Openbaar" },
+  nope: { timing: "Tijdens reactievenster", target: "Zichtbare actie of Brul Terug", turn: "Verandert beurt niet", reactable: true, visibility: "Openbaar" },
   feral: { timing: "Als deel van een paar", target: "Soortbeloning", turn: "Volgens soort", reactable: false, visibility: "Openbaar" },
   miniRaptor: { timing: "Speel als paar", target: "Speler met kaarten", turn: "Beurt gaat door", reactable: false, visibility: "Overdracht geheim" },
   stegoSnack: { timing: "Speel als paar", target: "Aflegstapel", turn: "Beurt gaat door", reactable: false, visibility: "Keuze openbaar" },

@@ -106,6 +106,13 @@ test("all 17 cards expose complete shared rule metadata", () => {
   });
 });
 
+test("Brul Terug is marked as reactable during an active chain", () => {
+  const { cardCatalog } = loadCardsModule();
+  assert.equal(cardCatalog.nope.rules.reactable, true);
+  assert.equal(cardCatalog.nope.rules.icons.includes("reaction"), true);
+  assert.match(cardCatalog.nope.rules.target, /Brul Terug/);
+});
+
 test("card turn effects match the audited turn rules", () => {
   const { cardCatalog } = loadCardsModule();
   const expected = {
