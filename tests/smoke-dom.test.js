@@ -122,9 +122,13 @@ test("singleplayer kan met een willekeurige tegenstander beginnen", () => {
 
   assert.notEqual(getSelector("#turnStatus").textContent, "Jouw beurt");
   assert.ok(getSelector("#gameLog").children.some((item) => /begint/.test(item.textContent)));
+  assert.equal(getSelector("#revealEyebrow").textContent, "De dino-race is beslist!");
+  assert.match(getSelector("#revealText").textContent, /Speelvolgorde:/);
   assert.equal(scheduledTurns.length, 1);
-  assert.equal(scheduledTurns[0].callback, sandbox.pcTurn);
-  assert.equal(scheduledTurns[0].delay, 650);
+  assert.equal(scheduledTurns[0].delay, 3000);
+  scheduledTurns[0].callback();
+  assert.equal(scheduledTurns[1].callback, sandbox.pcTurn);
+  assert.equal(scheduledTurns[1].delay, 650);
 });
 
 test("mobile hand toggle collapses and opens the player hand", () => {

@@ -28,6 +28,9 @@ async function startGame(page) {
   await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
   await page.locator("#startGameButton").click();
   await expect(page.locator("#startModal")).toBeHidden();
+  if (await page.locator("#revealEyebrow").getByText("De dino-race is beslist!", { exact: true }).isVisible().catch(() => false)) {
+    await page.locator("#revealButton").click();
+  }
   await expect(page.locator("#playerHand .card-button")).toHaveCount(5);
   await expect(page.locator("#opponents .opponent-seat")).toHaveCount(1);
 }
@@ -743,6 +746,16 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   await expect(chainTooltip).toBeVisible();
   await expect(chainTooltip).toContainText("tweede Brul Terug");
   await expect(chainTooltip).toContainText("oorspronkelijke effect doorgaat");
+});
+
+test("dino-race maakt startspeler en volgorde bekend en sluit automatisch", async ({ page }) => {
+  await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
+  await page.locator("#startGameButton").click();
+  await expect(page.locator("#revealEyebrow")).toHaveText("De dino-race is beslist!");
+  await expect(page.locator("#revealText")).toContainText("Speelvolgorde:");
+  await expect(page.locator(".start-race-image")).toBeVisible();
+  await expect(page.locator("#revealButton")).toContainText("automatisch over 3 sec.");
+  await expect(page.locator("#drawReveal")).toBeHidden({ timeout: 4500 });
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {

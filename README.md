@@ -132,7 +132,8 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
 - De trekstapel start standaard met exact evenveel Meteorietinslagen als spelers (`aantal spelers`).
 - Na afloop maakt de host voor een volgend online potje altijd een nieuwe room met een nieuwe uitnodigingscode.
-- Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen.
+- Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen. Singleplayer toont dit eerst als een dino-race met de winnaar en de volledige speelvolgorde.
+- Gewone singleplayermeldingen met alleen `OK` gaan na 3 seconden automatisch verder. Keuzes, reacties, kaartinspectie en meteorietplaatsing wachten altijd op de speler.
 - Na een online potje ziet iedere speler een duidelijke overwinnings- of verlieskaart; de host kan daar direct een nieuwe room maken.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.

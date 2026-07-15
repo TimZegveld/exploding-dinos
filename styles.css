@@ -2166,6 +2166,26 @@ h2 {
   background: var(--card-action);
 }
 
+.draw-reveal__card.is-start-race {
+  width: min(760px, 82vw);
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.start-race-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#revealButton.is-auto-confirming {
+  border-color: var(--gold);
+  box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--gold), transparent 18%), var(--shadow-soft);
+}
+
 .draw-reveal__card.is-set {
   background: var(--card-set);
 }

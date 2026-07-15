@@ -1,4 +1,5 @@
 const RAPTOR_TURN_LOAD = 2;
+const AUTO_CONFIRM_DELAY_MS = 3000;
 const { random: runtimeRandom, schedule } = globalThis.ExplodingDinosRuntime;
 const {
   assertValidInteractionState,
@@ -207,6 +208,7 @@ let isMobileMenuOpen = false;
 let isFullLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
+let autoConfirmToken = 0;
 let tutorialStep = 0;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 let activeDialog = null;
@@ -437,11 +439,21 @@ function startGame() {
 
   log(`Nieuw Party Pack spel gestart met ${playerCount} spelers.`);
   log(`${label(state.current)} begint.`);
+  const starterIndex = players.findIndex((player) => player.id === state.current);
+  const turnOrder = [...players.slice(starterIndex), ...players.slice(0, starterIndex)];
+  log(`Speelvolgorde: ${turnOrder.map((player) => player.name).join(" → ")}.`);
   log(`Tegenstanders: ${players.filter((player) => !player.isHuman).map((player) => player.name).join(", ")}.`);
   log(`Stapel bevat ${meteors} Meteorietinslag en ${extraDefuses} extra Schuilgrot.`);
   setAction("Speel actiekaarten, maak paren met soortkaarten, of trek om je beurt te eindigen.");
-  render();
-  continueAfterPause();
+  showCardMoment({
+    title: "De dino-race is beslist!",
+    cards: [],
+    image: "assets/dino-start-race.png",
+    text: `${label(state.current)} start. Speelvolgorde: ${turnOrder.map((player) => player.name).join(" → ")}.`,
+    buttonText: "OK",
+    owner: null,
+    autoConfirm: true
+  });
 }
 
 function openStartModal() {
@@ -757,6 +769,8 @@ function renderReveal() {
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
   els.revealSecondaryButton.disabled = false;
+  els.revealButton.classList.remove("is-auto-confirming");
+  delete els.revealButton.dataset.autoConfirm;
   els.revealDetailInfo.classList.add("is-hidden");
   els.revealDetailInfo.replaceChildren();
 
@@ -779,6 +793,13 @@ function renderReveal() {
     els.revealEyebrow.textContent = activeReveal.title;
     if (activeReveal.endGame) {
       renderEndGameReveal(activeReveal);
+    } else if (activeReveal.image) {
+      const image = document.createElement("img");
+      image.src = activeReveal.image;
+      image.alt = "Dino's racen naar de finish; de winnaar mag beginnen.";
+      image.className = "start-race-image";
+      els.revealCard.classList.add("is-start-race");
+      els.revealCard.append(image);
     } else if (activeReveal.cards.length === 1 && activeReveal.faceDown) {
       renderClosedRevealCard();
     } else if (activeReveal.cards.length === 1) {
@@ -799,6 +820,7 @@ function renderReveal() {
       els.revealSecondaryButton.disabled = Boolean(activeReveal.secondaryDisabled);
       els.revealSecondaryButton.classList.remove("is-hidden");
     }
+    if (activeReveal.autoConfirm && activeReveal.buttonText === "OK") armAutoConfirm(activeReveal, () => closeActiveReveal());
     return;
   }
 
@@ -943,6 +965,8 @@ function renderReveal() {
       : `${label(owner)} trekt een gesloten kaart. ${subjectPronoun(owner, true)} houdt hem geheim.`;
     els.revealButton.textContent = owner === "player" ? "Neem kaart in hand" : "OK";
   }
+
+  if (owner !== "player" && els.revealButton.textContent === "OK") armAutoConfirm(pendingDraw, confirmPendingDraw);
 
   els.revealButton.disabled = false;
 }
@@ -1467,7 +1491,9 @@ function showCardMoment({
   onSecondary = null,
   endGame = false,
   winner = null,
-  motionTone = null
+  motionTone = null,
+  image = null,
+  autoConfirm = false
 }) {
   activeReveal = {
     title,
@@ -1484,9 +1510,24 @@ function showCardMoment({
     onSecondary,
     endGame,
     winner,
+    image,
+    autoConfirm: autoConfirm || (buttonText === "OK" && !secondaryButtonText),
     motionTone: motionTone ?? (shaking ? "meteor" : null)
   };
   render();
+}
+
+function armAutoConfirm(subject, callback) {
+  if (!subject || subject.autoConfirmArmed) return;
+  subject.autoConfirmArmed = true;
+  const token = ++autoConfirmToken;
+  els.revealButton.classList.add("is-auto-confirming");
+  els.revealButton.dataset.autoConfirm = "Automatisch verder over 3 seconden";
+  els.revealButton.textContent = `${els.revealButton.textContent} · automatisch over 3 sec.`;
+  schedule(() => {
+    if (token !== autoConfirmToken || (activeReveal !== subject && state.pendingDraw !== subject)) return;
+    callback();
+  }, AUTO_CONFIRM_DELAY_MS);
 }
 
 function markMotion(kind, tone = null) {
@@ -1505,6 +1546,7 @@ function closeActiveReveal(useSecondary = false) {
   if (!activeReveal) return;
 
   const reveal = activeReveal;
+  autoConfirmToken += 1;
   activeReveal = null;
   let callbackResult;
   if (useSecondary && reveal.onSecondary) {
