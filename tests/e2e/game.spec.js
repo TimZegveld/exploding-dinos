@@ -454,6 +454,12 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#playerHand .card-button")).toHaveCount(1);
   await expect(page.locator("#deckCount")).toHaveText("18");
   await expect(page.locator("#playerHand")).not.toContainText("Nova");
+  await page.evaluate(() => eval(`showCardMoment({ title: "Oude singleplayermelding", cards: [], text: "Deze timer mag online niet doorlopen.", buttonText: "OK" });`));
+  await expect(page.locator("#revealButton")).toHaveClass(/is-auto-confirming/);
+  currentRoom = gameRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealButton")).not.toHaveClass(/is-auto-confirming/);
+  await expect(page.locator("#revealButton")).not.toHaveAttribute("data-auto-confirm");
   if (await page.locator("#handToggle").isVisible()) await page.locator("#handToggle").click();
   await page.locator("#playerHand .card-button").click();
   await expect(page.locator("#drawReveal")).toBeVisible();
@@ -591,13 +597,13 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
   await expect(page.locator("#revealEyebrow")).toHaveText("Verloren");
   await expect(page.locator("#revealCard")).toContainText("Nova wint");
-  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/defeat-dino.png");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/defeat-dino.webp");
 
   currentRoom = winnerRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
   await expect(page.locator("#revealEyebrow")).toHaveText("Overwinning");
   await expect(page.locator("#revealCard")).toContainText("Gefeliciteerd!");
-  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.png");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.webp");
   await expect(page.locator("#revealButton")).toHaveText("Nieuwe room maken");
   await page.locator("#revealButton").click();
   await expect(page.locator("#multiplayerLobby")).toBeVisible();
@@ -771,6 +777,15 @@ test("alternatieve passieve bevestigingen krijgen ook de tienseconden-timer", as
     await expect(page.locator("#revealButton")).toHaveText(`${label} · automatisch over 10 sec.`);
     await page.locator("#revealButton").click();
   }
+});
+
+test("multiplayermodus verwijdert een achtergebleven singleplayer-timer", async ({ page }) => {
+  await startGame(page);
+  await page.evaluate(() => eval(`showCardMoment({ title: "Oude melding", cards: [], text: "Alleen singleplayer.", buttonText: "OK" });`));
+  await expect(page.locator("#revealButton")).toHaveClass(/is-auto-confirming/);
+  await page.evaluate(() => window.ExplodingDinosSingleplayer.enterMultiplayerMode());
+  await expect(page.locator("#revealButton")).not.toHaveClass(/is-auto-confirming/);
+  await expect(page.locator("#revealButton")).not.toHaveAttribute("data-auto-confirm");
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {

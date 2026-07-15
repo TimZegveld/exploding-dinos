@@ -1549,6 +1549,16 @@ function armAutoConfirm(subject, callback) {
   }, AUTO_CONFIRM_DELAY_MS);
 }
 
+function enterMultiplayerMode() {
+  autoConfirmToken += 1;
+  window.clearInterval?.(autoConfirmInterval);
+  autoConfirmInterval = null;
+  activeReveal = null;
+  clearPendingInteractions(state);
+  els.revealButton.classList.remove("is-auto-confirming");
+  delete els.revealButton.dataset.autoConfirm;
+}
+
 function markMotion(kind, tone = null) {
   const id = motion.id + 1;
   motion = { kind, tone, id };
@@ -3374,6 +3384,7 @@ els.revealSecondaryButton.addEventListener("click", () => {
 });
 
 globalThis.ExplodingDinosMenu = { render: renderMobileMenu };
+globalThis.ExplodingDinosSingleplayer = { enterMultiplayerMode };
 
 render();
 openStartModal();
