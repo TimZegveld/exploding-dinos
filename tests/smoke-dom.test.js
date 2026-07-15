@@ -219,6 +219,8 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), true);
   assert.equal(getSelector("#catalogPage").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#catalogGrid").children.length, expectedCount);
+  getSelector("#catalogGrid").children[0].click();
+  assert.equal(getSelector("#catalogDetailRules").children.length, 12);
 });
 
 test("attack reaction choices put playable cards above disabled cards", () => {

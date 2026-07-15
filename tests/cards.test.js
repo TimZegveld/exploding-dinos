@@ -95,6 +95,14 @@ test("every catalog card declares its turn effect", () => {
   });
 });
 
+test("all 17 cards expose complete shared rule metadata", () => {
+  const { cardCatalog } = loadCardsModule();
+  assert.equal(Object.keys(cardCatalog).length, 17);
+  Object.entries(cardCatalog).forEach(([type, card]) => {
+    assert.deepEqual(Object.keys(card.rules).sort(), ["reactable", "target", "timing", "turn", "visibility"], type);
+  });
+});
+
 test("card turn effects match the audited turn rules", () => {
   const { cardCatalog } = loadCardsModule();
   const expected = {

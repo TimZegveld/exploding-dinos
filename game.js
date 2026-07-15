@@ -220,6 +220,7 @@ const els = {
   catalogDetailCard: document.querySelector("#catalogDetailCard"),
   catalogDetailTitle: document.querySelector("#catalogDetailTitle"),
   catalogDetailText: document.querySelector("#catalogDetailText"),
+  catalogDetailRules: document.querySelector("#catalogDetailRules"),
   showGamePage: document.querySelector("#showGamePage"),
   showCatalogPage: document.querySelector("#showCatalogPage"),
   closeCatalogDetail: document.querySelector("#closeCatalogDetail"),
@@ -1203,6 +1204,19 @@ function renderCatalogDetail() {
   els.catalogDetailKind.textContent = getCatalogMeta(selectedCatalogType, card);
   els.catalogDetailTitle.textContent = card.name;
   els.catalogDetailText.textContent = card.text;
+  const mode = deckModeForPlayers(getOpponentCount() + 1);
+  const distribution = partyPackDistribution[selectedCatalogType];
+  const deckCount = mode === "compact" ? distribution.compact : distribution.total - distribution.compact;
+  const ruleRows = [
+    ["Timing", card.rules.timing], ["Doelwit", card.rules.target], ["Beurt", card.rules.turn],
+    ["Brul Terug", card.rules.reactable ? "Reactie mogelijk" : "Niet reacteerbaar"],
+    ["Informatie", card.rules.visibility], ["In dit deck", `${deckCount} kaarten`]
+  ];
+  els.catalogDetailRules.replaceChildren(...ruleRows.flatMap(([term, description]) => {
+    const dt = document.createElement("dt"); dt.textContent = term;
+    const dd = document.createElement("dd"); dd.textContent = description;
+    return [dt, dd];
+  }));
   els.catalogDetailCard.className = "catalog-detail__card";
   renderCardFace(els.catalogDetailCard, card, { large: true });
   syncDialogAccessibility();

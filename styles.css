@@ -1173,6 +1173,18 @@ h2 {
   line-height: 1.45;
 }
 
+.catalog-detail__rules {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.35rem 0.8rem;
+  width: min(100%, 34rem);
+  margin: 0 auto 1rem;
+  text-align: left;
+}
+
+.catalog-detail__rules dt { color: var(--accent); font-weight: 900; }
+.catalog-detail__rules dd { margin: 0; color: var(--muted); }
+
 .catalog-detail__card:not(.card-face) {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
