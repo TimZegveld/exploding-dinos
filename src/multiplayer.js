@@ -484,7 +484,7 @@ function renderChoice(pending, game) {
       renderCardFace: globalThis.renderCardFace,
       onSelect: (card) => performGameAction(isDiscard ? { type: "CHOOSE_DISCARD", cardId: card.id } : { type: "PTERO_CHOICE", topCardId: card.id })
     });
-    renderStandardOnlineReveal({ title: isDiscard ? pending.source ?? "Stego Snack" : "Ptero Pret", text: isDiscard ? (pending.source === "Vijf soorten" ? "Kies open één niet-meteor kaart. Schuilgrotten staan bovenaan." : "Kies een oudere kaart uit de aflegstapel om terug te nemen.") : "Kies welke kaart bovenop komt. De andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
+    renderStandardOnlineReveal({ title: isDiscard ? pending.source ?? "Stego Snack" : "Ptero Pret", text: isDiscard ? (pending.source === "Vijf soorten" ? "Kies open één niet-meteor kaart. Schuilgrotten staan bovenaan." : "Kies een oudere kaart uit de aflegstapel om terug te nemen.") : "Dit zijn de bovenste en onderste kaart. Kies welke bovenop blijft; de andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
     return;
   }
   if (pending.type === "PUBLIC_PICK_REVEAL") {
@@ -723,7 +723,7 @@ function renderChoice(pending, game) {
 
   if (pending.type === "PTERO_CHOICE") {
     elements.choiceTitle.textContent = "Ptero Pret";
-    elements.choiceText.textContent = "Kies welke kaart bovenop komt. De andere gaat onderop.";
+    elements.choiceText.textContent = "Dit zijn de bovenste en onderste kaart. Kies welke bovenop blijft; de andere gaat onderop.";
     elements.choiceCards.replaceChildren(...pending.cards.map((card) => {
       const face = cardFace(card);
       face.classList.add("is-choice");

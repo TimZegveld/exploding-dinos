@@ -220,10 +220,10 @@ const cardCatalog = {
   },
   pteroPret: {
     name: "Ptero Pret",
-    text: "Speel als paar. Leg van de bovenste 2 één bovenop en één onderop. Einde beurt.",
+    text: "Speel als paar. Bekijk bovenste en onderste; kies welke bovenop blijft.",
     kind: "set",
     playable: false,
-    turnEffect: "endTurn",
+    turnEffect: "continue",
     design: {
       tone: "ptero-pret",
       icon: "speed",
@@ -274,7 +274,7 @@ const ruleMetadata = {
   stegoSnack: { timing: "Speel als paar", target: "Aflegstapel", turn: "Beurt gaat door", reactable: false, visibility: "Keuze openbaar" },
   brontoBuik: { timing: "Speel als paar", target: "Trekstapel", turn: "Beurt gaat door", reactable: false, visibility: "Bovenkaart geheim" },
   triceraTuk: { timing: "Speel als paar", target: "Jezelf", turn: "Eindigt één beurt", reactable: false, visibility: "Openbaar" },
-  pteroPret: { timing: "Speel als paar", target: "Trekstapel", turn: "Eindigt je beurt", reactable: false, visibility: "Volgorde geheim" }
+  pteroPret: { timing: "Speel als paar", target: "Trekstapel", turn: "Beurt gaat door", reactable: false, visibility: "Keuze geheim" }
 };
 
 Object.entries(ruleMetadata).forEach(([type, rules]) => {

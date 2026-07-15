@@ -172,29 +172,32 @@ test("Tijdlijn Kneden bewaart de gekozen geheime volgorde", () => {
   assert.equal(game.currentPlayerId, "player-a");
 });
 
-test("Ptero Pret-paar legt gekozen kaart bovenop en de andere onderop", () => {
+test("Ptero Pret-paar wisselt bovenste en onderste kaart en laat de beurt doorgaan", () => {
   const game = startGame(players);
   game.hands["player-a"] = [
     { id: "ptero", type: "pteroPret", name: "Ptero Pret" },
     { id: "wild", type: "feral", name: "Wilde Dino" }
   ];
   game.deck = [
-    { id: "old-bottom", type: "sprint", name: "Oud onder" },
     { id: "choice-bottom", type: "trike", name: "Keuze onder" },
+    { id: "middle", type: "sprint", name: "Midden" },
     { id: "choice-top", type: "volcano", name: "Keuze boven" }
   ];
+  game.forcedDrawsRemaining = 2;
 
   assert.deepEqual(publicGame(game, "player-a").playableCardIds, ["ptero"]);
   playCard(game, "player-a", "ptero");
   assert.equal(game.pending.type, "PTERO_CHOICE");
+  assert.deepEqual(game.pending.cards.map((card) => card.id), ["choice-top", "choice-bottom"]);
   assert.equal(publicGame(game, "player-b").pending.type, "WAITING");
 
   applyAction(game, "player-a", { type: "PTERO_CHOICE", topCardId: "choice-bottom" });
   assert.equal(game.deck.at(-1).id, "choice-bottom");
   assert.equal(game.deck[0].id, "choice-top");
+  assert.equal(game.deck[1].id, "middle");
   assert.equal(game.hands["player-a"].length, 0);
-  assert.equal(game.currentPlayerId, "player-b");
-  assert.equal(game.forcedDrawsRemaining, 0);
+  assert.equal(game.currentPlayerId, "player-a");
+  assert.equal(game.forcedDrawsRemaining, 2);
 });
 
 test("Raptor Aanval geeft de volgende speler twee volledige beurten", () => {

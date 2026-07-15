@@ -117,6 +117,14 @@ test("set-pair reward type follows the selected species or the non-feral pair ca
   assert.equal(determineSetPairRewardType([feral, card("feral", "f2")], feral), "feral");
 });
 
+test("Ptero Pret herschikt alleen de bovenste en onderste kaart", () => {
+  const { arrangePteroEdges, getPteroEdgeCards } = loadRulesModule();
+  const deck = [card("trike", "bottom"), card("sprint", "middle"), card("volcano", "top")];
+
+  assert.deepEqual(plain(getPteroEdgeCards(deck).map((item) => item.id)), ["top", "bottom"]);
+  assert.deepEqual(plain(arrangePteroEdges(deck, "bottom").map((item) => item.id)), ["top", "middle", "bottom"]);
+});
+
 test("vijf soorten gebruikt vijf namen of maximaal één Wilde Dino", () => {
   const { selectFiveSpeciesCombo } = loadRulesModule();
   const exact = [card("miniRaptor"), card("stegoSnack"), card("brontoBuik"), card("triceraTuk"), card("pteroPret")];

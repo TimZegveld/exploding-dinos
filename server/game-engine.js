@@ -1,5 +1,5 @@
 const { buildCardPool, deckModeForPlayers, makeCard, partyPackDistribution, shuffle } = require("../src/cards");
-const { calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
+const { arrangePteroEdges, calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, getPteroEdgeCards, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
 const { isChoiceAction } = require("../src/protocol");
 
 const PAIR_REWARD_TYPES = new Set(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
@@ -152,7 +152,7 @@ function resolvePlayedCardEffect(game, playerId, card, context = {}) {
   } else if (card.type === "fossil") {
     game.pending = { type: "FOSSIL_TARGET", playerId };
   } else if (card.type === "pteroPret") {
-    game.pending = { type: "PTERO_CHOICE", playerId, cards: game.deck.slice(-2).reverse() };
+    game.pending = { type: "PTERO_CHOICE", playerId, cards: getPteroEdgeCards(game.deck) };
   } else if (card.type === "miniRaptor") {
     game.pending = { type: "MINI_TARGET", playerId };
   } else if (card.type === "stegoSnack") {
@@ -398,15 +398,9 @@ function resolveChoice(game, playerId, action, now = Date.now()) {
   if (action.type === "PTERO_CHOICE") {
     const pending = requirePending(game, playerId, "PTERO_CHOICE");
     if (!pending.cards.some((card) => card.id === action.topCardId)) fail("Kies één van de twee kaarten.", 400);
-    const topCard = pending.cards.find((card) => card.id === action.topCardId);
-    const bottomCard = pending.cards.find((card) => card.id !== action.topCardId);
-    game.deck.splice(Math.max(0, game.deck.length - pending.cards.length), pending.cards.length);
-    if (bottomCard) game.deck.unshift(bottomCard);
-    if (topCard) game.deck.push(topCard);
+    game.deck = arrangePteroEdges(game.deck, action.topCardId);
     game.pending = null;
-    game.log.push("Ptero Pret legde één kaart bovenop en één kaart onderop.");
-    game.forcedDrawsRemaining = 0;
-    advanceTurn(game);
+    game.log.push("Ptero Pret legde één van de randkaarten bovenop en de andere onderop; de beurt gaat door.");
     return;
   }
   if (action.type === "CHOOSE_TARGET") {

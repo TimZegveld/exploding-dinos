@@ -171,7 +171,7 @@ Statuslegenda:
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. Heeft meerdere illustratievarianten. | klaar |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 trekbeurt over te slaan zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
-| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Daarna eindigt je beurt. Heeft meerdere illustratievarianten. | klaar |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste en onderste kaart te bekijken; kies welke bovenop blijft en welke onderop gaat. Daarna gaat je beurt verder. Heeft meerdere illustratievarianten. | klaar |
 
 ## Mogelijke volgende iteraties
 

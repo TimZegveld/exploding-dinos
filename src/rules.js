@@ -112,15 +112,31 @@ function getCardTurnEffect(card) {
   return "none";
 }
 
+function getPteroEdgeCards(deck) {
+  if (deck.length < 2) return deck.slice();
+  return [deck.at(-1), deck[0]];
+}
+
+function arrangePteroEdges(deck, selectedTopId) {
+  const cards = getPteroEdgeCards(deck);
+  const topCard = cards.find((card) => card.id === selectedTopId) ?? cards[0];
+  const bottomCard = cards.find((card) => card.id !== topCard?.id);
+  const movedIds = new Set(cards.map((card) => card.id));
+  const middle = deck.filter((card) => !movedIds.has(card.id));
+  return [...(bottomCard ? [bottomCard] : []), ...middle, ...(topCard ? [topCard] : [])];
+}
+
 const ExplodingDinosRules = {
   SPECIES_TYPES,
   NOPE_REACTABLE_TYPES,
   applyRaptorAttack,
+  arrangePteroEdges,
   canReactWithNope,
   calculateSetupCounts,
   chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
+  getPteroEdgeCards,
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,

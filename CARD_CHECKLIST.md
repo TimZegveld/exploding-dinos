@@ -21,10 +21,10 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 92 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 93 tests.
 - De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
-- De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` eindigt na het herschikken de beurt.
+- De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` herschikt de bovenste en onderste kaart en laat de beurt doorgaan.
 - `CARD_RULES_AUDIT.md` vergelijkt kaarttekst, README en singleplayer-/multiplayergedrag en legt open regelbesluiten vast.
 - De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.

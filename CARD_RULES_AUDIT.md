@@ -29,7 +29,7 @@ Deze audit vergelijkt de korte kaarttekst in `src/cards.js`, de regels in `READM
 | Stego Snack | Een paar kiest een niet-meteor die al in de aflegstapel lag; het zojuist gespeelde paar is uitgesloten. | "Oudere" betekent feitelijk: aanwezig vóór het paar werd gespeeld. | Leg deze definitie uit in uitgebreid kaartdetail. |
 | Bronto Buik | Een paar bekijkt bovenop en laat de kaart liggen of schuift hem onderop. | Geen functioneel verschil gevonden. | Behouden. |
 | Tricera-Tuk | Een paar slaat één trekbeurt over zonder te trekken. | "Open beurt" was intern jargon. | Opgelost in kaarttekst en README. |
-| Ptero Pret | Een paar bekijkt de bovenste twee, legt één bovenop en één onderop en beëindigt de beurt. | De huidige kaarttekst en README vermelden het beurt-einde. | Behouden. |
+| Ptero Pret | Een paar bekijkt de bovenste en onderste kaart en kiest welke bovenop blijft en welke onderop gaat; daarna gaat de beurt verder. | Singleplayer en multiplayer gebruiken dezelfde twee randkaarten en behouden een eventuele aanvalslast. | Opgelost: het eerdere beurt-einde is verwijderd. |
 
 ## Aanbevolen verbeteringen
 

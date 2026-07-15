@@ -25,11 +25,13 @@ const {
 } = globalThis.ExplodingDinosCards;
 const {
   applyRaptorAttack,
+  arrangePteroEdges,
   calculateSetupCounts,
   canReactWithNope: isNopeReactableCard,
   chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
+  getPteroEdgeCards,
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,
@@ -867,7 +869,7 @@ function renderReveal() {
     els.revealEyebrow.textContent = "Ptero Pret";
     renderPteroChoices(pendingPteroChoice);
     els.revealText.textContent = pendingPteroChoice.cards.length > 1
-      ? "Kies welke kaart bovenop blijft. De andere vliegt naar de bodem van de trekstapel."
+      ? "Dit zijn de bovenste en onderste kaart. Kies welke bovenop blijft; de andere gaat onderop."
       : "Er is maar 1 kaart om te bekijken, dus die blijft bovenop.";
     els.revealButton.textContent = "Vlucht vastleggen";
     els.revealButton.disabled = pendingPteroChoice.cards.length > 1 && !pendingPteroChoice.selectedTopId;
@@ -1666,7 +1668,7 @@ function getSetPairPreviewText(owner, rewardType, target) {
   }
 
   if (rewardType === "pteroPret") {
-    return "Ptero Pret bekijkt de bovenste 2 kaarten en laat er 1 bovenop, 1 onderop.";
+    return "Ptero Pret bekijkt de bovenste en onderste kaart en laat jou kiezen welke bovenop blijft.";
   }
 
   return target
@@ -2551,20 +2553,18 @@ function confirmBrontoChoice(moveToBottom) {
 }
 
 function startPteroPret(owner) {
-  const cards = state.deck.splice(Math.max(0, state.deck.length - 2)).reverse();
+  const cards = getPteroEdgeCards(state.deck);
   if (cards.length === 0) {
     setAction("Ptero Pret fladdert rond, maar de trekstapel is leeg.");
-    endTurnForPlayedCard(owner, cardCatalog.pteroPret);
     return;
   }
 
   if (owner !== "player") {
     resolvePteroCards(owner, cards, choosePcPteroTop(owner, cards)?.id);
-    endTurnForPlayedCard(owner, cardCatalog.pteroPret);
     showCardMoment({
       title: "Ptero Pret",
       cards,
-      text: `${label(owner)} bekijkt 2 kaarten en herschikt de boven- en onderkant van de trekstapel.`,
+      text: `${label(owner)} bekijkt de bovenste en onderste kaart en kiest welke bovenop blijft.`,
       buttonText: "OK",
       faceDown: true,
       owner
@@ -2577,7 +2577,7 @@ function startPteroPret(owner) {
     cards,
     selectedTopId: cards[0]?.id ?? null
   };
-  setAction("Ptero Pret laat je de bovenste 2 kaarten bekijken en 1 kaart veilig bovenop houden.");
+  setAction("Ptero Pret laat je de bovenste en onderste kaart bekijken en kiezen welke bovenop blijft.");
   render();
 }
 
@@ -2609,7 +2609,6 @@ function confirmPteroChoice() {
 
   state.pendingPteroChoice = null;
   resolvePteroCards(pendingPteroChoice.owner, pendingPteroChoice.cards, pendingPteroChoice.selectedTopId);
-  endTurnForPlayedCard(pendingPteroChoice.owner, cardCatalog.pteroPret);
   render();
   continueAfterPause();
 }
@@ -2618,12 +2617,11 @@ function resolvePteroCards(owner, cards, selectedTopId) {
   const topCard = cards.find((card) => card.id === selectedTopId) ?? cards[0];
   const bottomCard = cards.find((card) => card.id !== topCard?.id);
 
-  if (bottomCard) state.deck.unshift(bottomCard);
-  if (topCard) state.deck.push(topCard);
+  state.deck = arrangePteroEdges(state.deck, selectedTopId);
 
   const topText = topCard ? `${topCard.name} blijft bovenop` : "De trekstapel blijft leeg";
   const bottomText = bottomCard ? ` en ${bottomCard.name} vliegt onderop` : "";
-  log(`${label(owner)} laat Ptero Pret de bovenkant herschikken.`);
+  log(`${label(owner)} laat Ptero Pret de boven- en onderkant herschikken.`);
   setAction(`${topText}${bottomText}.`);
 }
 

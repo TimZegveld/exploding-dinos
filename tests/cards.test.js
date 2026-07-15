@@ -113,7 +113,7 @@ test("card turn effects match the audited turn rules", () => {
     sprint: "skipTurn", trike: "continue", oracle: "continue", volcano: "continue",
     dig: "continue", fossil: "continue", nope: "none", feral: "continue",
     miniRaptor: "continue", stegoSnack: "continue", brontoBuik: "continue",
-    triceraTuk: "skipTurn", pteroPret: "endTurn"
+    triceraTuk: "skipTurn", pteroPret: "continue"
   };
 
   assert.deepEqual(
