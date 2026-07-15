@@ -6,7 +6,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 ## Spelregels en balans
 
-- [ ] **1. Tekst van Triceratops Blik corrigeren**  
+- [x] **1. Tekst van Triceratops Blik corrigeren**
   Verwijder de onjuiste claim dat Meteorietinslag en Schuilgrot apart worden gemeld. De kaart laat de bovenste drie kaarten zien.
 - [ ] **2. Party Pack uitbreiden naar 11 Meteorietinslagen**  
   Maak het totale deck 11 meteorieten groot. Gebruik per potje `aantal spelers + 1` meteorieten en houd catalogus, README, singleplayer, multiplayer en tests gelijk.

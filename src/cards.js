@@ -62,7 +62,7 @@ const cardCatalog = {
   },
   trike: {
     name: "Triceratops Blik",
-    text: "Bekijk de bovenste 3. Meteorietinslag en Schuilgrot worden gemeld.",
+    text: "Bekijk de bovenste 3 kaarten.",
     kind: "action",
     playable: true,
     turnEffect: "continue",
