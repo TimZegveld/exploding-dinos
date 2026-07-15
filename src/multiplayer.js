@@ -72,6 +72,7 @@ let onlineHandOpen = false;
 let onlineRevealActions = null;
 let onlineOracleDraft = null;
 let roomConnectionBusy = false;
+let roomNameLocked = Boolean(session?.code && session?.token);
 
 const ROOM_REQUEST_TIMEOUT_MS = Number(config.requestTimeoutMs) || 90000;
 
@@ -125,12 +126,25 @@ function syncRoomUrl(code) {
   } catch { /* De room blijft ook zonder History API bruikbaar. */ }
 }
 
+function syncNameControls() {
+  const disabled = roomConnectionBusy || roomNameLocked;
+  elements.name.disabled = disabled;
+  elements.randomizeName.disabled = disabled;
+  elements.name.setAttribute("aria-readonly", String(roomNameLocked));
+  elements.name.title = roomNameLocked ? "Je naam staat vast zolang je in deze room zit." : "";
+  elements.randomizeName.title = roomNameLocked ? "Verlaat de room om een andere naam te kiezen." : "Nieuwe dinonaam";
+}
+
+function setNameLocked(locked) {
+  roomNameLocked = locked;
+  syncNameControls();
+}
+
 function setBusy(busy, message = "") {
   roomConnectionBusy = busy;
   elements.create.disabled = busy;
   elements.join.disabled = busy;
-  elements.name.disabled = busy;
-  elements.randomizeName.disabled = busy;
+  syncNameControls();
   elements.joinView.setAttribute("aria-busy", String(busy));
   elements.status.classList.toggle("is-loading", busy);
   if (message) elements.status.textContent = message;
@@ -757,6 +771,7 @@ function resetOnlineTable() {
 function showLobby(room) {
   const stoppedOnlineGame = Boolean(activeRoom?.game) && !room.game;
   activeRoom = room;
+  setNameLocked(true);
   if (stoppedOnlineGame) resetOnlineTable();
   showingRoomInfo = false;
   elements.modal.classList.remove("is-hidden");
@@ -778,6 +793,7 @@ function showLobby(room) {
 }
 
 function showJoin() {
+  setNameLocked(false);
   elements.joinView.classList.remove("is-hidden");
   elements.lobby.classList.add("is-hidden");
   const linkedRoom = roomFromUrl();

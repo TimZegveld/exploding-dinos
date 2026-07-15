@@ -17,7 +17,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 - [x] **4. Wachtstatus voor de eerste serveropstart toevoegen**
   Toon een spinner, uitleg over de cold start en duidelijke fout- en timeoutstatussen tijdens maken en deelnemen.
-- [ ] **5. Naam vergrendelen zodra de speler in een room zit**  
+- [x] **5. Naam vergrendelen zodra de speler in een room zit**
   Blokkeer het naamveld en de dobbelknop na maken of deelnemen en ontgrendel ze na het verlaten van de room.
 - [ ] **6. Multiplayerknoppen visueel gelijktrekken**  
   Maak Start multiplayer en Deelnemen consistent met de primaire in-game actieknoppen.

@@ -126,6 +126,38 @@ test("roomverbinding geeft na een timeout een begrijpelijke herkansing", async (
   await expect(page.locator("#createRoomButton")).toBeEnabled();
 });
 
+test("spelersnaam blijft vergrendeld in een room en komt vrij na verlaten", async ({ page }) => {
+  const room = {
+    code: "NAAM01",
+    viewerId: "player-host",
+    isHost: true,
+    players: [{ id: "player-host", name: "Vaste Rex" }],
+    game: null
+  };
+  await page.route("https://api.test/**", async (route) => {
+    await route.fulfill({
+      status: route.request().method() === "POST" ? 201 : 200,
+      contentType: "application/json",
+      body: JSON.stringify({ room, token: "host-token" })
+    });
+  });
+  await page.evaluate(() => { window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test"; });
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#multiplayerName").fill("Vaste Rex");
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerName")).toBeDisabled();
+  await expect(page.locator("#multiplayerName")).toHaveAttribute("aria-readonly", "true");
+  await expect(page.locator("#randomizeDinoNameButton")).toBeDisabled();
+
+  await page.locator("#leaveRoomButton").click();
+  await expect(page.locator("#multiplayerJoinView")).toBeVisible();
+  await expect(page.locator("#multiplayerName")).toBeEnabled();
+  await expect(page.locator("#multiplayerName")).toHaveAttribute("aria-readonly", "false");
+  await expect(page.locator("#randomizeDinoNameButton")).toBeEnabled();
+});
+
 test("host start een online potje en ziet alleen de eigen hand", async ({ page }) => {
   const roomBase = {
     code: "KNET42",
