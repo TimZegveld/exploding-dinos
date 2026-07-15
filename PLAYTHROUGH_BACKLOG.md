@@ -30,7 +30,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 - [x] **9. Logboek standaard verbergen en beperken**
   Plaats het logboek achter het menu en toon standaard alleen de laatste vijf acties, met toegang tot het volledige logboek.
-- [ ] **10. Handen van tegenstanders compact weergeven**  
+- [x] **10. Handen van tegenstanders compact weergeven**
   Toon een vast maximum aan overlappende kaartruggen plus een badge met het totale aantal kaarten. Toon naam en kaartenaantal consistent op desktop en mobiel.
 
 ## Visuele afwerking

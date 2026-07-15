@@ -25,11 +25,13 @@ function createPlayerPortrait(player, options = {}) {
 }
 
 function createOpponentSeat(player) {
+  const visibleCardBacks = Math.min(player.cardCount, 4);
   const seat = document.createElement("section");
   seat.className = "opponent-seat";
   seat.style.setProperty("--player-color", player.color);
   seat.classList.toggle("is-current", player.isCurrent);
   seat.classList.toggle("is-eliminated", player.eliminated);
+  seat.setAttribute("aria-label", `${player.name}, ${player.countLabel}`);
 
   const labelWrap = document.createElement("div");
   labelWrap.className = "player-label";
@@ -49,13 +51,19 @@ function createOpponentSeat(player) {
   count.textContent = player.countLabel;
   const hand = document.createElement("div");
   hand.className = "pc-hand";
+  hand.setAttribute("aria-hidden", "true");
 
-  for (let index = 0; index < player.cardCount; index += 1) {
+  for (let index = 0; index < visibleCardBacks; index += 1) {
     const back = document.createElement("div");
     back.className = "card-back";
-    back.setAttribute("aria-label", `Gesloten kaart van ${player.name}`);
+    back.style.setProperty("--stack-index", index);
     hand.append(back);
   }
+
+  const badge = document.createElement("span");
+  badge.className = "opponent-card-count";
+  badge.textContent = String(player.cardCount);
+  hand.append(badge);
 
   textWrap.append(name, role);
   identity.append(portraitWrap, textWrap);

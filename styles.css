@@ -364,13 +364,48 @@ h2 {
   font-weight: 850;
 }
 
-.pc-hand,
 .hand {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   min-height: calc((var(--hand-card-width) * 7 / 5) + 8px);
   align-content: flex-start;
+}
+
+.pc-hand {
+  position: relative;
+  width: 116px;
+  height: 94px;
+  min-height: 94px;
+}
+
+.pc-hand .card-back {
+  position: absolute;
+  top: 0;
+  left: calc(var(--stack-index) * 13px);
+  width: 62px;
+  height: 87px;
+  padding: 0;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--card-ink), transparent 72%);
+}
+
+.opponent-card-count {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 4px;
+  display: grid;
+  min-width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 7px;
+  color: var(--on-accent);
+  background: var(--player-color);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--card-ink), transparent 70%);
+  font-size: 0.82rem;
+  font-weight: 950;
 }
 
 .center-zone {
@@ -2612,7 +2647,27 @@ h2 {
   }
 
   .pc-hand {
-    display: none;
+    width: 100px;
+    height: 68px;
+    min-height: 68px;
+    margin-top: 6px;
+  }
+
+  .pc-hand .card-back {
+    left: calc(var(--stack-index) * 11px);
+    width: 45px;
+    height: 63px;
+    border-width: 1px;
+    border-radius: 6px;
+  }
+
+  .opponent-card-count {
+    right: 1px;
+    bottom: 2px;
+    min-width: 27px;
+    height: 27px;
+    padding: 0 5px;
+    font-size: 0.72rem;
   }
 
   .center-zone {

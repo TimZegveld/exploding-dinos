@@ -596,6 +596,22 @@ test("een trek opent de reveal-overlay", async ({ page }) => {
   await expect(page.locator("#revealButton")).toBeEnabled();
 });
 
+test("hand van een tegenstander blijft compact en toont het totale aantal", async ({ page }) => {
+  await startGame(page);
+
+  const seat = page.locator("#opponents .opponent-seat").first();
+  await expect(seat.locator(".pc-hand .card-back")).toHaveCount(4);
+  await expect(seat.locator(".opponent-card-count")).toHaveText("8");
+  await expect(seat).toHaveAttribute("aria-label", /8 kaarten/);
+
+  const dimensions = await seat.evaluate((element) => {
+    const hand = element.querySelector(".pc-hand").getBoundingClientRect();
+    const seatBox = element.getBoundingClientRect();
+    return { handWidth: hand.width, seatWidth: seatBox.width };
+  });
+  expect(dimensions.handWidth).toBeLessThanOrEqual(dimensions.seatWidth);
+});
+
 test("logboek staat achter het menu met vijf acties en een volledige weergave", async ({ page }) => {
   await startGame(page);
   await page.evaluate(() => {

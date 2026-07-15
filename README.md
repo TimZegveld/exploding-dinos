@@ -116,7 +116,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
 - Je hand wordt op kaarttype gegroepeerd; kaarten binnen hetzelfde type krijgen bij binnenkomst een willekeurige plek.
 - Op telefoon staat de primaire trekactie bovenaan het speelveld en blijft deze tijdens het scrollen bereikbaar.
-- Op telefoon staan tegenstanders in een compacte horizontale rij; je hand is een horizontale kaartenrail die open- en dichtgeklapt kan worden.
+- Tegenstanderhanden tonen op desktop en telefoon maximaal vier overlappende kaartruggen met een accentbadge voor het werkelijke totaal; naam en kaartenaantal blijven daarbij zichtbaar. Op telefoon staan tegenstanders in een compacte horizontale rij en is je eigen hand een kaartenrail die open- en dichtgeklapt kan worden.
 - Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
 - Op desktop en telefoon zit het Logboek achter het sluitbare menu en is het dus standaard verborgen. Bij openen zie je eerst de laatste 5 acties en kun je naar het volledige bewaarde logboek schakelen. Op telefoon zitten ook Kaarten en Nieuw spel in dit menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.

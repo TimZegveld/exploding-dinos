@@ -77,6 +77,8 @@ test("starting from the modal renders the initial table", () => {
   assert.equal(getSelector("#playerHand").children.length, 8);
   assert.equal(getSelector("#opponents").children.length, 1);
   assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "8 kaarten");
+  assert.equal(getSelector("#opponents").children[0].children[1].children.length, 5);
+  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "8");
   assert.equal(getSelector("#discardTop").textContent, "");
   assert.equal(getSelector("#discardTop").className, "discard__empty");
   assert.equal(getSelector("#discardTop").attributes["aria-label"], "Aflegstapel is leeg");
@@ -282,6 +284,34 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
   assert.equal(getSelector("#turnStatus").textContent, "Nova de Vulkaanwachter denkt na");
   assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), true);
   assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
+});
+
+test("opponent hands cap visible card backs and keep the total in a badge", () => {
+  const { sandbox } = loadGame();
+  const player = (cardCount) => ({
+    id: `pc-${cardCount}`,
+    name: "Nova",
+    initials: "NO",
+    color: "#d45d32",
+    subtitle: `${cardCount} kaarten`,
+    countLabel: `${cardCount} kaarten`,
+    cardCount,
+    eliminated: false,
+    isCurrent: false
+  });
+
+  const emptyHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(0));
+  const smallHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(3));
+  const largeHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(12));
+
+  assert.equal(emptyHand.children[1].children.length, 1);
+  assert.equal(emptyHand.children[1].children[0].textContent, "0");
+  assert.equal(smallHand.children[1].children.length, 4);
+  assert.equal(smallHand.children[1].children.at(-1).textContent, "3");
+  assert.equal(largeHand.children[1].children.length, 5);
+  assert.equal(largeHand.children[1].children.at(-1).textContent, "12");
+  assert.equal(largeHand.attributes["aria-label"], "Nova, 12 kaarten");
+  assert.equal(largeHand.children[1].attributes["aria-hidden"], "true");
 });
 
 test("Triceratops Blik lists cards without separate danger or shelter warnings", () => {
