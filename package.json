@@ -7,6 +7,7 @@
     "start:server": "node server/server.js",
     "test": "node --test tests/*.test.js",
     "test:browser": "playwright test",
+    "test:public": "node tests/public-smoke.js",
     "test:all": "npm test && npm run test:browser"
   },
   "devDependencies": {

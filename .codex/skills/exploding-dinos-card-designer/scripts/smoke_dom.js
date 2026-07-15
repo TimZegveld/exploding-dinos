@@ -16,8 +16,14 @@ class ClassList {
   }
 
   toggle(item, force) {
+    if (force === undefined) {
+      if (this.values.has(item)) this.values.delete(item);
+      else this.values.add(item);
+      return this.values.has(item);
+    }
     if (force) this.values.add(item);
     else this.values.delete(item);
+    return Boolean(force);
   }
 
   contains(item) {
@@ -43,6 +49,7 @@ class Element {
     this.src = "";
     this.alt = "";
     this.loading = "";
+    this.eventListeners = {};
   }
 
   append(...items) {
@@ -68,6 +75,10 @@ class Element {
     return item;
   }
 
+  remove() {
+    this.removed = true;
+  }
+
   get firstElementChild() {
     return this.children[0] ?? null;
   }
@@ -76,7 +87,31 @@ class Element {
     this.attributes[name] = String(value);
   }
 
-  addEventListener() {}
+  getAttribute(name) {
+    return this.attributes[name];
+  }
+
+  addEventListener(type, listener) {
+    this.eventListeners[type] ??= [];
+    this.eventListeners[type].push(listener);
+  }
+
+  click() {
+    const event = {
+      target: this,
+      preventDefault() {},
+      stopImmediatePropagation() {}
+    };
+    (this.eventListeners.click ?? []).forEach((listener) => listener(event));
+  }
+
+  focus() {
+    globalThis.document.activeElement = this;
+  }
+
+  querySelectorAll() {
+    return [];
+  }
 }
 
 const selectors = new Map();
@@ -88,11 +123,26 @@ function getSelector(selector) {
 
 globalThis.document = {
   querySelector: getSelector,
-  createElement: (tag) => new Element(tag)
+  createElement: (tag) => new Element(tag),
+  addEventListener() {},
+  activeElement: null,
+  body: new Element("body")
 };
 
 globalThis.window = {
-  setTimeout: () => 0
+  setTimeout: (callback) => {
+    if (typeof callback === "function") callback();
+    return 0;
+  }
+};
+
+globalThis.location = { href: "https://example.test/index.html", search: "" };
+globalThis.history = { replaceState() {} };
+globalThis.navigator = { clipboard: { writeText: async () => {} } };
+globalThis.sessionStorage = {
+  getItem: () => null,
+  removeItem() {},
+  setItem() {}
 };
 
 globalThis.crypto = {
@@ -105,11 +155,22 @@ function runBrowserScript(relativePath) {
   vm.runInThisContext(source, { filename: relativePath });
 }
 
-runBrowserScript("src/cards.js");
-runBrowserScript("src/players.js");
-runBrowserScript("game.js");
+function scriptsFromIndex() {
+  const projectRoot = path.resolve(__dirname, "../../../../");
+  const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
+  return [...html.matchAll(/<script\s+src=["']([^"']+)["'][^>]*><\/script>/g)]
+    .map((match) => match[1].split("?")[0])
+    .filter((src) => !/^(?:https?:)?\/\//.test(src));
+}
+
+const loadedScripts = scriptsFromIndex();
+loadedScripts.forEach(runBrowserScript);
+
+globalThis.ExplodingDinosRuntime.configure({ random: () => 0 });
+getSelector("#startGameButton").click();
 
 const result = {
+  loadedScripts,
   handCards: getSelector("#playerHand").children.length,
   opponents: getSelector("#opponents").children.length,
   status: getSelector("#turnStatus").textContent,
@@ -129,4 +190,8 @@ if (result.opponents < 1) {
 
 if (result.status !== "Jouw beurt") {
   throw new Error(`Expected initial status "Jouw beurt", got "${result.status}".`);
+}
+
+if (result.loadedScripts[0] !== "src/runtime.js" || !result.loadedScripts.includes("game.js")) {
+  throw new Error(`Expected index.html script order, got: ${result.loadedScripts.join(", ")}`);
 }

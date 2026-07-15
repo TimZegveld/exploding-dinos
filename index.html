@@ -75,17 +75,15 @@
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
 
-        <div class="panel-section log-panel">
-          <h2>Logboek</h2>
-          <ol class="log" id="gameLog"></ol>
-        </div>
       </aside>
+
+      <ol id="gameLog" hidden aria-hidden="true"></ol>
 
       <section class="mobile-menu is-hidden" id="mobileMenu" aria-modal="true" role="dialog" aria-labelledby="mobileMenuTitle">
         <div class="mobile-menu__panel">
           <div class="mobile-menu__header">
             <h2 id="mobileMenuTitle">Menu</h2>
-            <button class="mobile-menu__close" id="closeMobileMenu" type="button" aria-label="Menu sluiten">&times;</button>
+            <button class="mobile-menu__close game-close" id="closeMobileMenu" type="button" aria-label="Menu sluiten"><img src="assets/cards/icons/close.svg" alt=""></button>
           </div>
           <div class="mobile-menu__actions">
             <button id="mobileGamePageButton" type="button">Spel</button>
@@ -97,6 +95,7 @@
           <section class="mobile-log-panel is-hidden" id="mobileLogPanel" aria-labelledby="mobileLogTitle">
             <h3 id="mobileLogTitle">Logboek</h3>
             <ol class="log mobile-log" id="mobileGameLog"></ol>
+            <button class="secondary-action is-hidden" id="mobileLogExpandButton" type="button" aria-expanded="false">Toon volledig logboek</button>
           </section>
         </div>
       </section>
@@ -130,7 +129,6 @@
           <div class="multiplayer-entry">
             <span>Of speel met vrienden op andere apparaten</span>
             <button class="secondary-action" id="openMultiplayerButton" type="button">Join multiplayer-room</button>
-            <small class="multiplayer-development-note">In ontwikkeling: de online modus kan nog veranderen of tijdelijk niet beschikbaar zijn.</small>
           </div>
         </div>
       </section>
@@ -142,7 +140,7 @@
               <p class="eyebrow">Online met vrienden</p>
               <h2 id="multiplayerTitle">Multiplayer-room</h2>
             </div>
-            <button class="multiplayer-modal__close" id="closeMultiplayerButton" type="button" aria-label="Multiplayer sluiten">&times;</button>
+            <button class="multiplayer-modal__close game-close" id="closeMultiplayerButton" type="button" aria-label="Multiplayer sluiten"><img src="assets/cards/icons/close.svg" alt=""></button>
           </div>
 
           <div id="multiplayerJoinView">
@@ -160,7 +158,7 @@
             <p class="multiplayer-status" id="multiplayerStatus" aria-live="polite">Maak een nieuwe room of vul de code van een vriend in.</p>
             <div class="multiplayer-actions">
               <button class="secondary-action" id="createRoomButton" type="button">Nieuwe room maken</button>
-              <button class="is-hidden" id="joinRoomButton" type="button">Deelnemen</button>
+              <button class="primary-action is-hidden" id="joinRoomButton" type="button">Deelnemen</button>
             </div>
           </div>
 
@@ -175,7 +173,7 @@
             <div class="multiplayer-actions">
               <button class="secondary-action" id="leaveRoomButton" type="button">Room verlaten</button>
               <button class="secondary-action is-hidden" id="stopMultiplayerGameButton" type="button">Spel stoppen</button>
-              <button id="multiplayerStartButton" type="button" disabled>Start multiplayer</button>
+              <button class="primary-action" id="multiplayerStartButton" type="button" disabled>Start multiplayer</button>
             </div>
             <p class="multiplayer-note" id="multiplayerStartNote">De gedeelde lobby werkt. De spelbesturing wordt in de volgende multiplayerlaag aangesloten.</p>
           </div>
@@ -190,7 +188,7 @@
               <p class="eyebrow">Korte oefenronde</p>
               <h2 id="tutorialTitle">Zo overleef je</h2>
             </div>
-            <button class="tutorial__close" id="closeTutorialButton" type="button" aria-label="Uitleg sluiten">&times;</button>
+            <button class="tutorial__close game-close" id="closeTutorialButton" type="button" aria-label="Uitleg sluiten"><img src="assets/cards/icons/close.svg" alt=""></button>
           </div>
           <div class="tutorial__progress" aria-hidden="true"><span id="tutorialProgressBar"></span></div>
           <p class="tutorial__step" id="tutorialProgress">Stap 1 van 4</p>
@@ -235,6 +233,7 @@
     <script src="src/state.js?v=20260714-3"></script>
     <script src="src/cards.js?v=20260714-4"></script>
     <script src="src/players.js?v=20260714-3"></script>
+    <script src="src/names.js?v=20260715-1"></script>
     <script src="src/rules.js?v=20260714-3"></script>
     <script src="src/protocol.js?v=20260714-1"></script>
     <script src="src/ui/view-model.js?v=20260714-3"></script>

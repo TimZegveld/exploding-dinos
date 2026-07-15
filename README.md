@@ -1,6 +1,6 @@
 # Exploding Dinos
 
-Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 120 kaarten totaal, met een compacte kaartselectie voor 2-3 spelers.
+Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 122 kaarten totaal, met een compacte kaartselectie voor 2-3 spelers.
 
 Speel online: https://timzegveld.github.io/exploding-dinos/
 
@@ -20,7 +20,9 @@ Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
 
 ## Multiplayer-lobby
 
-Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Deze modus is nog in ontwikkeling en kan daarom veranderen of tijdelijk niet beschikbaar zijn. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige, bewerkbare dinonaam en kan met de dobbelknop een nieuwe genereren. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige dinonaam uit 24 begindelen en 24 einddelen en kan die vóór het maken of joinen met de dobbelknop veranderen. Als een automatisch gekozen naam al in de room voorkomt, probeert de lobby zelf een andere combinatie; een handmatig gekozen dubbele naam geeft een foutmelding. In een room staat de naam vast tot de speler de room verlaat. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+
+De naamdelen staan centraal in `src/names.js`. De 24 begindelen lopen van `Brullende` en `Knetterende` tot `Ondeugende` en `Verstrooide`; de 24 einddelen combineren dinosaurussen zoals `Raptor`, `Brachio` en `Iguanodon` met bijnamen zoals `Fossielsnuit`, `Lavapoot` en `Kiezelbuik`. Dit levert 576 unieke combinaties op binnen de limiet van 24 tekens.
 
 Start de roomserver lokaal in een tweede terminal:
 
@@ -30,7 +32,9 @@ npm run start:server
 
 Open de website via `http://localhost:8000`; de lokale configuratie verbindt dan automatisch met `http://localhost:3000`. Open een tweede browser of privévenster om de uitnodigingslink te testen.
 
-De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten.
+De lokale roomserver is geen oude mock of aparte signalserver: `npm run start:server` draait exact dezelfde servercode uit `server/` die Render gebruikt. Open voor een lokale multiplayerproef altijd `http://localhost:8000` en niet rechtstreeks een `file://`-URL; via `file://` kiest de frontend de publieke Render-API. Singleplayer blijft zonder webserver wel rechtstreeks vanuit `index.html` bruikbaar.
+
+De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten. Tijdens het maken of joinen van een room toont de lobby daarom een laadindicator en uitleg, blokkeert hij dubbele aanvragen en geeft hij na 90 seconden een duidelijke melding om opnieuw te proberen.
 
 De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
 
@@ -50,6 +54,8 @@ npm run test:browser
 
 Installeer bij een nieuwe checkout eerst de ontwikkelafhankelijkheden en Chromium met `npm install` en `npx playwright install chromium`. Met `npm run test:all` draaien beide testlagen achter elkaar.
 
+Met `npm run test:public` draait een expliciete live-rooktest tegen GitHub Pages en Render. Deze maakt met twee geïsoleerde browsersessies tijdelijk een echte room, start en ververst het potje, speelt indien mogelijk een veilige actiekaart en controleert de openbare Meteorietinslag en Schuilgrot plus de geheime terugplaatsing. De test verwijdert de room na afloop en hoort niet bij de standaard lokale suite.
+
 ## Online zetten
 
 De game is geschikt voor statische hosting, omdat alles uit HTML, CSS, JavaScript en assets bestaat. De voorkeursroute is GitHub Pages.
@@ -67,6 +73,7 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
 - `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
+- `src/names.js`: testbare multiplayernaamdelen, combinaties en uitsluiting van eerder geprobeerde namen.
 - `src/runtime.js`: injecteerbare willekeur en planning voor deterministische tests.
 - `src/state.js`: initiële spelstate, interactieregister en state-invarianten.
 - `src/rules.js`: pure, DOM-onafhankelijke spelregels.
@@ -80,11 +87,12 @@ De app gebruikt gewone browserscripts zodat `index.html` direct geopend kan blij
 
 Gebruik voor nieuwe logica de injecteerbare functies uit `src/runtime.js` in plaats van rechtstreeks `Math.random()` of `window.setTimeout()` aan te roepen. Zo blijven scenario's reproduceerbaar in tests.
 
-Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief.
+Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.images`; losse kaartkopieën krijgen bij het maken een vaste illustratievariant zodat meerdere exemplaren herkenbaar blijven zonder spelregels te veranderen. De veelvoorkomende soortkaarten gebruiken deze variantrotatie nu actief. Kaarten gebruiken een beeldvullende illustratie met titel- en regeloverlays. De uitsnede komt uit `design.crop` en kan via `design.crops[imagePath]` per illustratie worden verfijnd voor hand-, mini- en grote weergaven.
 
 ## Project-skill
 
 Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
+De bijbehorende smokeharness leest de lokale scripts rechtstreeks uit `index.html`, voert ze in dezelfde volgorde uit en start via de echte knop een testpotje. Daardoor blijft de snelle skillcontrole synchroon met nieuwe runtime- en UI-modules.
 
 ## NPC-profielen
 
@@ -113,9 +121,10 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Je kunt je handkaarten altijd aanklikken om ze te bekijken. In het kaartdetail kun je terug, of spelen als de kaart op dat moment speelbaar is.
 - Je hand wordt op kaarttype gegroepeerd; kaarten binnen hetzelfde type krijgen bij binnenkomst een willekeurige plek.
 - Op telefoon staat de primaire trekactie bovenaan het speelveld en blijft deze tijdens het scrollen bereikbaar.
-- Op telefoon staan tegenstanders in een compacte horizontale rij; je hand is een horizontale kaartenrail die open- en dichtgeklapt kan worden.
+- Tegenstanderhanden tonen op desktop en telefoon maximaal vier overlappende kaartruggen met een accentbadge voor het werkelijke totaal; naam en kaartenaantal blijven daarbij zichtbaar. Op telefoon staan tegenstanders in een compacte horizontale rij en is je eigen hand een kaartenrail die open- en dichtgeklapt kan worden.
 - Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
-- Op telefoon zitten Kaarten, Nieuw spel en Logboek achter een sluitbaar menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
+- Op desktop en telefoon zit het Logboek achter het sluitbare menu en is het dus standaard verborgen. Bij openen zie je eerst de laatste 5 acties en kun je naar het volledige bewaarde logboek schakelen. Op telefoon zitten ook Kaarten en Nieuw spel in dit menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
+- Menu, uitleg en multiplayer gebruiken hetzelfde toegankelijke ronde sluiticoon in de visuele stijl van de game.
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
@@ -142,12 +151,12 @@ Statuslegenda:
 
 | Type | Kaart | Aantal | Regel in deze iteratie | Status |
 |---|---:|---:|---|---|
-| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. | klaar |
+| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers + 1` exemplaren gebruikt. | klaar |
 | `shelter` | Schuilgrot | 10 | Wordt automatisch en voor iedereen zichtbaar gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet op een geheime positie terug in de stapel. | klaar |
 | `raptor` | Raptor Aanval | 5 | De volgende speler moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar |
 | `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |
 | `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
-| `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten; Meteorietinslag en Schuilgrot worden expliciet gemeld. | klaar |
+| `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten. | klaar |
 | `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar |
 | `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar |
 | `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar |
@@ -157,7 +166,7 @@ Statuslegenda:
 | `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft meerdere illustratievarianten. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. Heeft meerdere illustratievarianten. | klaar |
-| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 open beurt weg te dutten zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
+| `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 trekbeurt over te slaan zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
 | `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Daarna eindigt je beurt. Heeft meerdere illustratievarianten. | klaar |
 
 ## Mogelijke volgende iteraties

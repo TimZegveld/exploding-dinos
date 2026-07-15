@@ -42,7 +42,7 @@ Use this skill to move one Exploding Dinos card forward end to end: gameplay fir
    - Then run the bundled smoke harness when present:
      `& 'C:\Users\Tim\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe' '.codex/skills/exploding-dinos-card-designer/scripts/smoke_dom.js'`
    - Use a browser smoke test only when Playwright is already available in the active tool/runtime. Do not spend time installing dependencies just for this static HTML app unless the user asks.
-   - If a browser test is blocked by sandbox/profile/module-path issues, use the bundled smoke harness instead. It loads `game.js` and verifies startup, event binding, and modal references.
+   - If a browser test is blocked by sandbox/profile/module-path issues, use the bundled smoke harness instead. It derives the local browser scripts from `index.html`, loads them in page order, and verifies startup, event binding, rendering, and modal references.
    - Report any test that could not be completed.
 
 6. Create and show the visual prompt.

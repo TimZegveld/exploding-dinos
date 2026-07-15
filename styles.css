@@ -141,7 +141,7 @@ body.has-open-dialog {
 }
 
 .mobile-menu-button {
-  display: none;
+  display: grid;
   width: 46px;
   height: 46px;
   place-items: center;
@@ -364,13 +364,48 @@ h2 {
   font-weight: 850;
 }
 
-.pc-hand,
 .hand {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   min-height: calc((var(--hand-card-width) * 7 / 5) + 8px);
   align-content: flex-start;
+}
+
+.pc-hand {
+  position: relative;
+  width: 116px;
+  height: 94px;
+  min-height: 94px;
+}
+
+.pc-hand .card-back {
+  position: absolute;
+  top: 0;
+  left: calc(var(--stack-index) * 13px);
+  width: 62px;
+  height: 87px;
+  padding: 0;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--card-ink), transparent 72%);
+}
+
+.opponent-card-count {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 4px;
+  display: grid;
+  min-width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 7px;
+  color: var(--on-accent);
+  background: var(--player-color);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--card-ink), transparent 70%);
+  font-size: 0.82rem;
+  font-weight: 950;
 }
 
 .center-zone {
@@ -595,8 +630,9 @@ h2 {
   --face-header-bg: linear-gradient(135deg, #7b4128, var(--face-header));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 7px;
+  gap: 0;
   padding: 8px;
+  position: relative;
   overflow: hidden;
   background: var(--face-bg);
 }
@@ -756,14 +792,18 @@ h2 {
 }
 
 .card-face__header {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 25px;
   gap: 6px;
   align-items: center;
-  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--card), transparent 62%);
+  border-radius: 6px 6px 3px 3px;
   padding: 6px;
   color: var(--on-accent);
   background: var(--face-header-bg);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--card-ink), transparent 58%);
 }
 
 .card-face__header--no-icon {
@@ -796,11 +836,25 @@ h2 {
 }
 
 .card-face__art {
+  position: absolute;
+  z-index: 0;
+  inset: 8px;
   min-height: 0;
-  border: 1px solid var(--card-line);
+  border: 1px solid color-mix(in srgb, var(--card-line), transparent 16%);
   border-radius: 6px;
   overflow: hidden;
+  pointer-events: none;
   background: var(--card-art-fallback);
+}
+
+.card-face__art::after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(20, 16, 12, 0.18), transparent 22%, transparent 53%, rgba(20, 16, 12, 0.28) 78%, rgba(20, 16, 12, 0.62)),
+    linear-gradient(90deg, rgba(20, 16, 12, 0.12), transparent 12%, transparent 88%, rgba(20, 16, 12, 0.12));
 }
 
 .card-face__art img {
@@ -808,87 +862,35 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--card-art-position, 50% 50%);
 }
 
-.card-face[data-tone="oracle"] .card-face__art img {
-  object-position: 50% 52%;
+.card-face--mini .card-face__art img {
+  object-position: var(--card-art-position-mini, var(--card-art-position, 50% 50%));
 }
 
-.card-face[data-tone="fossil"] .card-face__art img {
-  object-position: 54% 48%;
-}
-
-.card-face[data-tone="nope"] .card-face__art img {
-  object-position: 47% 46%;
-}
-
-.card-face[data-tone="feral"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.card-face[data-tone="raptor"] .card-face__art img {
-  object-position: 52% 56%;
-}
-
-.card-face[data-tone="targeted-raptor"] .card-face__art img {
-  object-position: 45% 63%;
-}
-
-.card-face[data-tone="sprint"] .card-face__art img {
-  object-position: 57% 64%;
-}
-
-.card-face[data-tone="trike"] .card-face__art img {
-  object-position: 50% 48%;
-}
-
-.card-face[data-tone="volcano"] .card-face__art img {
-  object-position: 50% 42%;
-}
-
-.card-face[data-tone="dig"] .card-face__art img {
-  object-position: 50% 58%;
-}
-
-.card-face[data-tone="mini-raptor"] .card-face__art img {
-  object-position: 52% 66%;
-}
-
-.card-face[data-tone="stego-snack"] .card-face__art img {
-  object-position: 49% 64%;
-}
-
-.card-face[data-tone="bronto-buik"] .card-face__art img {
-  object-position: 50% 57%;
-}
-
-.card-face[data-tone="tricera-tuk"] .card-face__art img {
-  object-position: 50% 58%;
-}
-
-.card-face[data-tone="ptero-pret"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.card-face[data-tone="meteor"] .card-face__art img {
-  object-position: 53% 58%;
-}
-
-.card-face[data-tone="shelter"] .card-face__art img {
-  object-position: 50% 61%;
+.card-face--large .card-face__art img {
+  object-position: var(--card-art-position-large, var(--card-art-position, 50% 50%));
 }
 
 .card-face__text {
+  position: relative;
+  z-index: 2;
+  align-self: end;
   display: block;
   min-height: 43px;
   border-radius: 6px;
   padding: 6px;
-  color: var(--muted);
-  background: var(--card-text-panel);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-ink), transparent 88%);
+  color: var(--card-ink);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 58%), color-mix(in srgb, var(--card), transparent 28%) 44%, color-mix(in srgb, var(--card), transparent 14%));
+  backdrop-filter: blur(2px) saturate(0.82);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--card-ink), transparent 76%),
+    0 -10px 18px color-mix(in srgb, var(--card-ink), transparent 78%);
   font-size: 0.62rem;
   font-weight: 720;
   line-height: 1.2;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--card), transparent 15%);
 }
 
 .card-button strong {
@@ -1198,13 +1200,55 @@ h2 {
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--surface-control);
+}
+
+.game-close {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  padding: 0;
+  overflow: hidden;
+  color: var(--on-danger);
+  background:
+    radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--gold), white 28%), transparent 24%),
+    linear-gradient(145deg, var(--accent), var(--accent-dark));
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 62%),
+    0 4px 0 color-mix(in srgb, var(--card-ink), transparent 25%);
   cursor: pointer;
-  font-size: 1.35rem;
-  font-weight: 900;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+}
+
+.game-close img {
+  display: block;
+  width: 27px;
+  height: 27px;
+  pointer-events: none;
+  transition: transform 140ms ease;
+}
+
+.game-close:hover {
+  filter: brightness(1.08) saturate(1.08);
+  transform: translateY(-2px) rotate(-3deg);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 52%),
+    0 6px 0 color-mix(in srgb, var(--card-ink), transparent 25%);
+}
+
+.game-close:hover img {
+  transform: scale(1.08) rotate(4deg);
+}
+
+.game-close:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 58%);
 }
 
 .mobile-menu__actions {
@@ -1239,6 +1283,11 @@ h2 {
 
 .mobile-log {
   max-height: min(46dvh, 420px);
+}
+
+.mobile-log-panel .secondary-action {
+  width: auto;
+  justify-self: start;
 }
 
 .setup-control {
@@ -1355,7 +1404,8 @@ h2 {
 }
 
 #newGameButton,
-#startGameButton {
+#startGameButton,
+.primary-action {
   width: 100%;
   border: 0;
   border-radius: 8px;
@@ -1364,6 +1414,28 @@ h2 {
   background: var(--accent);
   cursor: pointer;
   font-weight: 900;
+}
+
+.primary-action {
+  transition: filter 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.primary-action:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.primary-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-action.is-hidden {
+  display: none;
 }
 
 .start-modal__actions {
@@ -1433,16 +1505,7 @@ h2 {
 }
 
 .tutorial__close {
-  flex: 0 0 auto;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--surface-soft);
-  cursor: pointer;
-  font-size: 1.6rem;
-  line-height: 1;
+  align-self: flex-start;
 }
 
 .tutorial__progress {
@@ -1842,74 +1905,6 @@ h2 {
   min-height: 66px;
   padding: 10px;
   font-size: 0.92rem;
-}
-
-.draw-reveal__card.card-face[data-tone="oracle"] .card-face__art img {
-  object-position: 50% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="fossil"] .card-face__art img {
-  object-position: 54% 46%;
-}
-
-.draw-reveal__card.card-face[data-tone="nope"] .card-face__art img {
-  object-position: 48% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="feral"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.draw-reveal__card.card-face[data-tone="raptor"] .card-face__art img {
-  object-position: 52% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="targeted-raptor"] .card-face__art img {
-  object-position: 46% 55%;
-}
-
-.draw-reveal__card.card-face[data-tone="sprint"] .card-face__art img {
-  object-position: 56% 58%;
-}
-
-.draw-reveal__card.card-face[data-tone="trike"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="volcano"] .card-face__art img {
-  object-position: 50% 43%;
-}
-
-.draw-reveal__card.card-face[data-tone="dig"] .card-face__art img {
-  object-position: 50% 56%;
-}
-
-.draw-reveal__card.card-face[data-tone="mini-raptor"] .card-face__art img {
-  object-position: 52% 58%;
-}
-
-.draw-reveal__card.card-face[data-tone="stego-snack"] .card-face__art img {
-  object-position: 50% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="bronto-buik"] .card-face__art img {
-  object-position: 50% 50%;
-}
-
-.draw-reveal__card.card-face[data-tone="tricera-tuk"] .card-face__art img {
-  object-position: 50% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="ptero-pret"] .card-face__art img {
-  object-position: 50% 45%;
-}
-
-.draw-reveal__card.card-face[data-tone="meteor"] .card-face__art img {
-  object-position: 53% 54%;
-}
-
-.draw-reveal__card.card-face[data-tone="shelter"] .card-face__art img {
-  object-position: 50% 56%;
 }
 
 .draw-reveal__card strong {
@@ -2584,7 +2579,27 @@ h2 {
   }
 
   .pc-hand {
-    display: none;
+    width: 100px;
+    height: 68px;
+    min-height: 68px;
+    margin-top: 6px;
+  }
+
+  .pc-hand .card-back {
+    left: calc(var(--stack-index) * 11px);
+    width: 45px;
+    height: 63px;
+    border-width: 1px;
+    border-radius: 6px;
+  }
+
+  .opponent-card-count {
+    right: 1px;
+    bottom: 2px;
+    min-width: 27px;
+    height: 27px;
+    padding: 0 5px;
+    font-size: 0.72rem;
   }
 
   .center-zone {
@@ -2916,12 +2931,6 @@ h2 {
   font-size: 0.9rem;
 }
 
-.multiplayer-development-note {
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
 .multiplayer-modal {
   position: fixed;
   z-index: 90;
@@ -2963,12 +2972,6 @@ h2 {
 
 .multiplayer-modal__close {
   align-self: flex-start;
-  width: 42px;
-  min-width: 42px;
-  min-height: 42px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 1.7rem;
 }
 
 .multiplayer-field {
@@ -3027,6 +3030,34 @@ h2 {
   color: var(--muted);
 }
 
+.multiplayer-status.is-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.multiplayer-status.is-loading::before {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 3px solid color-mix(in srgb, var(--accent), transparent 70%);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  content: "";
+  animation: multiplayer-server-spin 800ms linear infinite;
+}
+
+@keyframes multiplayer-server-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .multiplayer-status.is-loading::before {
+    animation-duration: 1600ms;
+  }
+}
+
 .multiplayer-room-code {
   margin-bottom: 12px;
   padding: 14px 16px;
@@ -3074,6 +3105,8 @@ h2 {
 }
 
 .multiplayer-choice__ordered-card > div {
+  position: relative;
+  z-index: 3;
   display: grid;
   gap: 6px;
 }

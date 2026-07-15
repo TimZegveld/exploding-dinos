@@ -4,46 +4,54 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Start hier in een nieuwe chat
 
-- Multiplayer is via een pull request naar `main` gemerged en door GitHub Pages gepubliceerd.
-- Werkbranch voor deze statusupdate: `codex/update-multiplayer-release-status`.
-- Laatste functionele commit vóór deze overdracht: `f60839c` (`Mark multiplayer as in development`).
+- De volledige playthrough-backlog met 13 punten staat in PR #6 en is klaar voor review.
+- Werkbranch: `codex/playthrough-backlog`.
+- Laatste functionele commit vóór deze documentatie-update: `13aad5c` (`Stabilize browser and public smoke tests`).
 - Render Blueprint: `render.yaml`; service: `https://exploding-dinos-api.onrender.com`.
 - Healthcheck: `https://exploding-dinos-api.onrender.com/api/health` retourneert `200` met `{"ok":true}`.
 - De frontend gebruikt lokaal `http://localhost:3000` en online automatisch de Render-URL via `src/multiplayer-config.js`.
 - De multiplayerfrontend wordt nu vanaf `main` via GitHub Pages gepubliceerd.
-- Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
+- De roomlobby toont tijdens een Render-cold-start een laadindicator met uitleg, blokkeert dubbele aanvragen en heeft een begrijpelijke timeoutmelding.
+- De spelersnaam en dobbelknop worden vergrendeld zodra een room actief is en komen pas na verlaten weer vrij.
+- De primaire multiplayeracties `Deelnemen` en `Start multiplayer` gebruiken dezelfde knopstijl en interactiestates als de primaire spelacties.
+- De verouderde disclaimer over multiplayer in ontwikkeling is uit de interface en documentatie verwijderd.
+- De dinonaamgenerator bevat 24 begin- en 24 einddelen, bewaakt 576 unieke combinaties van maximaal 24 tekens en probeert automatisch opnieuw bij een conflict met een gegenereerde naam.
+- Het logboek staat op desktop en mobiel standaard verborgen achter het menu, toont eerst de laatste 5 acties en kan naar het volledige bewaarde log schakelen.
+- Lokale web- en API-logs worden via `.gitignore` genegeerd; de tijdelijke map `pet-runs/` is verwijderd.
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 64 tests.
-- De gerichte desktop-Chromiumtest voor de multiplayerflow is groen.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 78 tests.
+- De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` eindigt na het herschikken de beurt.
+- `CARD_RULES_AUDIT.md` vergelijkt kaarttekst, README en singleplayer-/multiplayergedrag en legt open regelbesluiten vast.
 - De eerste testgevoelige spelregels staan in `src/rules.js`: deck/setup-aantallen, meteoriet-afhandeling, aanvalslading/terugkeer, `Brul Terug`-pariteit en soortpaarbeloningstype.
 - Alle 17 kaarttypes staan in `README.md` als `klaar`.
 - Alle kaarttypes hebben een gekoppelde illustratie; veelvoorkomende soortkaarten hebben extra illustratievarianten.
+- Alle kaartformaten gebruiken een beeldvullende illustratie met leesbare titel- en regeloverlays; de focus is data-gestuurd en ondersteunt een override per illustratie.
 - De NPC-selectie geeft beginnersadvies: start met 1 tegenstander; meer spelers geeft meer chaos.
 - Alle 9 NPC's hebben een eigen speelstijlprofiel dat kaartkeuze, doelwitkeuze, blokkeren, risico en deckcontrole beinvloedt.
 - Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.
 - In multiplayer zien alle spelers zowel de getrokken `Meteorietinslag` als de ingezette `Schuilgrot`; alleen de terugplaatsingspositie blijft geheim.
+- Het Party Pack bevat 11 Meteorietinslagen; elk potje gebruikt daarvan `aantal spelers + 1` exemplaren.
 - Elk nieuw spel stopt standaard `aantal spelers + 1` Meteorietinslagen in de trekstapel.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - Singleplayer en multiplayer staan live via GitHub Pages.
 - De mobiele layout heeft een compacte sticky header, een bereikbare trekactie, horizontale tegenstander- en handrails, leesbare kaarttekst, touchfeedback en safe-area-ondersteuning.
+- Tegenstanderhanden gebruiken op desktop en mobiel maximaal vier overlappende kaartruggen en een badge met het volledige kaartenaantal; ook een lege hand toont expliciet `0`.
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
+- Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
+- De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 
 ## Volgende prioriteit
 
-- [x] Maak een pull request van `codex/multiplayer-room-lobby` naar `main` en controleer de diff.
-- [x] Merge de branch naar `main`, zodat GitHub Pages de multiplayerfrontend met de Render-URL publiceert.
-- [x] Wacht tot GitHub Pages de multiplayerfrontend heeft gepubliceerd.
-- [ ] Voer een publieke rooktest uit:
-  - Maak een room op `https://timzegveld.github.io/exploding-dinos/`.
-  - Open de uitnodigingslink in een tweede browser of privévenster.
-  - Start een potje, trek en speel enkele kaarten en ververs beide spelers eenmaal.
-  - Controleer dat Meteorietinslag en Schuilgrot openbaar zijn en de terugplaatsingspositie geheim blijft.
+- [ ] Review en merge PR #6 van `codex/playthrough-backlog` naar `main`.
+- [ ] Test na de merge de nieuwe GitHub Pages-deployment met `npm run test:public`.
+- [ ] Werk na de merge de machinegerichte vervolgstappen uit `NEXT_STEPS_BACKLOG.md` af op een nieuwe branch; start met de regelbesluiten in fase A.
 - [ ] Controleer in Render dat `ALLOWED_ORIGIN=https://timzegveld.github.io` actief is en de laatste deployment groen blijft.
+  - Live gecontroleerd op 15 juli 2026: `/api/health` retourneert `ok: true` en de CORS-header is exact `https://timzegveld.github.io`; alleen de visuele bevestiging in het Render-dashboard blijft handmatig.
 - [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.
   - Controleer Safari safe areas, adresbalk-resize, scrollgedrag van beide rails en mobiel landschap.
   - Noteer alleen problemen die niet door de huidige Chromium-browsermatrix worden gevangen.
@@ -76,7 +84,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 - [ ] Maak de willekeurige room-servertest deterministisch; `spelacties vereisen de actuele roomversie` kan incidenteel een Meteorietinslag trekken terwijl de test een gewone `DRAW_REVEAL` verwacht.
 - [ ] Bepaal of rooms voor productie persistent moeten worden. Ze staan nu alleen in het geheugen en verdwijnen bij een Render-restart of nieuwe deployment.
-- [ ] Houd rekening met de cold start van het gratis Render-plan; de eerste roomaanvraag na inactiviteit kan merkbaar langer duren.
+- [x] Houd rekening met de cold start van het gratis Render-plan met zichtbare wachtstatus, geblokkeerde dubbele acties en een timeoutmelding.
 
 ## Later, niet blokkerend
 

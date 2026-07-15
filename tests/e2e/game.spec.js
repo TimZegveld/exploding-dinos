@@ -11,6 +11,10 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === "error") browserErrors.push(message.text());
   });
   page.browserErrors = browserErrors;
+  await page.addInitScript(() => {
+    window.setInterval = () => 0;
+    window.clearInterval = () => {};
+  });
   await page.goto(gameUrl);
 });
 
@@ -21,6 +25,7 @@ test.afterEach(async ({ page }) => {
 async function startGame(page) {
   await expect(page.locator("#startModal")).toBeVisible();
   await expect(page.locator("#opponentSelectionSummary")).toHaveText("1 gekozen");
+  await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
   await page.locator("#startGameButton").click();
   await expect(page.locator("#startModal")).toBeHidden();
   await expect(page.locator("#playerHand .card-button")).toHaveCount(8);
@@ -41,7 +46,8 @@ test("startscherm start een speelbaar spel en kaartdetail sluit weer", async ({ 
 
 test("multiplayer opent via een losse knop zonder singleplayer te starten", async ({ page }) => {
   await expect(page.locator("#startModal")).toBeVisible();
-  await expect(page.locator(".multiplayer-development-note")).toContainText("In ontwikkeling");
+  await expect(page.locator(".multiplayer-development-note")).toHaveCount(0);
+  await expect(page.locator("#startModal")).not.toContainText("online modus kan nog veranderen");
   await page.locator("#openMultiplayerButton").click();
   await expect(page.locator("#multiplayerModal")).toBeVisible();
   await expect(page.locator("#multiplayerJoinView")).toBeVisible();
@@ -66,9 +72,140 @@ test("multiplayer opent via een losse knop zonder singleplayer te starten", asyn
   await expect(page.locator("#createRoomButton")).toBeHidden();
   await expect(page.locator("#joinRoomButton")).toHaveText("Deelnemen");
   await expect(page.locator("#joinRoomButton")).toBeVisible();
+  await expect(page.locator("#joinRoomButton")).toHaveClass(/primary-action/);
+  await expect(page.locator("#multiplayerStartButton")).toHaveClass(/primary-action/);
   const joinButtonBox = await page.locator("#joinRoomButton").boundingBox();
   const joinActionsBox = await page.locator("#multiplayerJoinView .multiplayer-actions").boundingBox();
   expect(joinButtonBox?.width).toBeCloseTo(joinActionsBox?.width ?? 0, 0);
+});
+
+test("room maken toont uitleg en blokkeert dubbele acties tijdens een cold start", async ({ page }) => {
+  let createRequests = 0;
+  let releaseCreateRequest;
+  const createRequestGate = new Promise((resolve) => { releaseCreateRequest = resolve; });
+  await page.route("https://api.test/api/rooms", async (route) => {
+    createRequests += 1;
+    await createRequestGate;
+    await route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({
+        token: "host-token",
+        room: {
+          code: "WACHT1",
+          viewerId: "player-host",
+          isHost: true,
+          players: [{ id: "player-host", name: "Tim" }],
+          game: null
+        }
+      })
+    });
+  });
+  await page.evaluate(() => { window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test"; });
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#multiplayerName").fill("Tim");
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerStatus")).toHaveClass(/is-loading/);
+  await expect(page.locator("#multiplayerStatus")).toContainText("eerste verbinding");
+  await expect(page.locator("#multiplayerJoinView")).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator("#createRoomButton")).toBeDisabled();
+  await expect(page.locator("#multiplayerName")).toBeDisabled();
+  await page.locator("#createRoomButton").evaluate((button) => button.click());
+  expect(createRequests).toBe(1);
+  releaseCreateRequest();
+
+  await expect(page.locator("#activeRoomCode")).toHaveText("WACHT1");
+  expect(createRequests).toBe(1);
+});
+
+test("roomverbinding geeft na een timeout een begrijpelijke herkansing", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.ExplodingDinosMultiplayerConfig = { apiBase: "https://api.test", requestTimeoutMs: 30 };
+    window.fetch = (_url, options = {}) => new Promise((_resolve, reject) => {
+      options.signal?.addEventListener("abort", () => reject(new DOMException("Afgebroken", "AbortError")));
+    });
+  });
+  await page.reload();
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerStatus")).toContainText("deed er te lang over");
+  await expect(page.locator("#multiplayerStatus")).toContainText("Probeer het opnieuw");
+  await expect(page.locator("#multiplayerStatus")).not.toHaveClass(/is-loading/);
+  await expect(page.locator("#createRoomButton")).toBeEnabled();
+});
+
+test("spelersnaam blijft vergrendeld in een room en komt vrij na verlaten", async ({ page }) => {
+  const room = {
+    code: "NAAM01",
+    viewerId: "player-host",
+    isHost: true,
+    players: [{ id: "player-host", name: "Vaste Rex" }],
+    game: null
+  };
+  await page.route("https://api.test/**", async (route) => {
+    await route.fulfill({
+      status: route.request().method() === "POST" ? 201 : 200,
+      contentType: "application/json",
+      body: JSON.stringify({ room, token: "host-token" })
+    });
+  });
+  await page.evaluate(() => { window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test"; });
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#multiplayerName").fill("Vaste Rex");
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerName")).toBeDisabled();
+  await expect(page.locator("#multiplayerName")).toHaveAttribute("aria-readonly", "true");
+  await expect(page.locator("#randomizeDinoNameButton")).toBeDisabled();
+
+  await page.locator("#leaveRoomButton").click();
+  await expect(page.locator("#multiplayerJoinView")).toBeVisible();
+  await expect(page.locator("#multiplayerName")).toBeEnabled();
+  await expect(page.locator("#multiplayerName")).toHaveAttribute("aria-readonly", "false");
+  await expect(page.locator("#randomizeDinoNameButton")).toBeEnabled();
+});
+
+test("automatische dinonaam kiest bij een conflict zelf een nieuwe naam", async ({ page }) => {
+  await page.evaluate(() => {
+    window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test";
+    window.testJoinNames = [];
+    window.fetch = async (_url, options) => {
+      const name = JSON.parse(options.body).name;
+      window.testJoinNames.push(name);
+      if (window.testJoinNames.length === 1) {
+        return new Response(JSON.stringify({ error: "Deze naam wordt al gebruikt in de room." }), {
+          status: 409,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify({
+        token: "guest-token",
+        room: {
+          code: "NAAM02",
+          viewerId: "player-guest",
+          isHost: false,
+          players: [{ id: "player-guest", name }],
+          game: null
+        }
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    };
+    history.replaceState({}, "", "?room=NAAM02");
+  });
+
+  await page.locator("#openMultiplayerButton").click();
+  const initialName = await page.locator("#multiplayerName").inputValue();
+  await page.locator("#joinRoomButton").click();
+
+  await expect(page.locator("#activeRoomCode")).toHaveText("NAAM02");
+  const receivedNames = await page.evaluate(() => window.testJoinNames);
+  expect(receivedNames).toHaveLength(2);
+  expect(receivedNames[0]).toBe(initialName);
+  expect(receivedNames[1]).not.toBe(initialName);
 });
 
 test("host start een online potje en ziet alleen de eigen hand", async ({ page }) => {
@@ -368,16 +505,11 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   currentRoom = gameRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
 
-  if (await page.locator("#newGameButton").isVisible()) {
-    await page.locator("#newGameButton").click();
-  } else {
-    await page.locator("#mobileMenuButton").click();
-    await page.locator("#mobileNewGameButton").click();
-  }
+  await page.locator("#newGameButton").evaluate((button) => button.click());
   await expect(page.locator("#multiplayerModal")).toBeVisible();
   await expect(page.locator("#stopMultiplayerGameButton")).toBeVisible();
   await expect(page.locator("#leaveRoomButton")).toHaveText("Terug naar spel");
-  await page.locator("#leaveRoomButton").click();
+  await page.locator("#closeMultiplayerButton").click();
   await expect(page.locator("#multiplayerModal")).toBeHidden();
 
   await page.locator("#drawButton").click();
@@ -440,14 +572,7 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Gefeliciteerd!");
   await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.png");
   await expect(page.locator("#revealButton")).toHaveText("Nieuwe room maken");
-  if (await page.locator("#newGameButton").isVisible()) {
-    await expect(page.locator("#newGameButton")).toHaveText("Nieuw online spel");
-    await page.locator("#newGameButton").click();
-  } else {
-    await page.locator("#mobileMenuButton").click();
-    await expect(page.locator("#mobileNewGameButton")).toHaveText("Nieuw online spel");
-    await page.locator("#mobileNewGameButton").click();
-  }
+  await page.locator("#revealButton").click();
   await expect(page.locator("#multiplayerLobby")).toBeVisible();
   await expect(page.locator("#activeRoomCode")).toHaveText("BRUL99");
   await expect(page).toHaveURL(/\?room=BRUL99$/);
@@ -466,6 +591,47 @@ test("een trek opent de reveal-overlay", async ({ page }) => {
   await expect(page.locator("#drawReveal")).toBeVisible();
   await expect(page.locator("#revealCard")).not.toBeEmpty();
   await expect(page.locator("#revealButton")).toBeEnabled();
+});
+
+test("hand van een tegenstander blijft compact en toont het totale aantal", async ({ page }) => {
+  await startGame(page);
+
+  const seat = page.locator("#opponents .opponent-seat").first();
+  await expect(seat.locator(".pc-hand .card-back")).toHaveCount(4);
+  await expect(seat.locator(".opponent-card-count")).toHaveText("8");
+  await expect(seat).toHaveAttribute("aria-label", /8 kaarten/);
+
+  const dimensions = await seat.evaluate((element) => {
+    const hand = element.querySelector(".pc-hand").getBoundingClientRect();
+    const seatBox = element.getBoundingClientRect();
+    return { handWidth: hand.width, seatWidth: seatBox.width };
+  });
+  expect(dimensions.handWidth).toBeLessThanOrEqual(dimensions.seatWidth);
+});
+
+test("logboek staat achter het menu met vijf acties en een volledige weergave", async ({ page }) => {
+  await startGame(page);
+  await page.evaluate(() => {
+    Array.from({ length: 7 }, (_, index) => window.log(`Browser logactie ${index + 1}`));
+    window.render();
+  });
+
+  await expect(page.locator(".log-panel")).toHaveCount(0);
+  await expect(page.locator("#gameLog")).toBeHidden();
+  await expect(page.locator("#mobileMenuButton")).toBeVisible();
+  await expect(page.locator("#mobileLogPanel")).toBeHidden();
+
+  await page.locator("#mobileMenuButton").click();
+  await page.locator("#mobileLogButton").click();
+
+  await expect(page.locator("#mobileGameLog li")).toHaveCount(5);
+  await expect(page.locator("#mobileGameLog li").last()).toHaveText("Browser logactie 7");
+  await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon volledig logboek");
+
+  const completeCount = await page.locator("#gameLog li").count();
+  await page.locator("#mobileLogExpandButton").click();
+  await expect(page.locator("#mobileGameLog li")).toHaveCount(completeCount);
+  await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon laatste 5 acties");
 });
 
 test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
@@ -503,6 +669,21 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   }
   await expect(page.locator("#catalogPage")).toBeVisible();
   await expect(page.locator("#catalogGrid .catalog-card")).toHaveCount(17);
+  const firstCard = page.locator("#catalogGrid .catalog-card").first();
+  await expect(firstCard.locator(".card-face__art img")).toBeVisible();
+  const layeredLayout = await firstCard.evaluate((card) => {
+    const art = card.querySelector(".card-face__art");
+    const text = card.querySelector(".card-face__text");
+    return {
+      artPosition: getComputedStyle(art).position,
+      artHeight: art.getBoundingClientRect().height,
+      cardHeight: card.getBoundingClientRect().height,
+      textBackdrop: getComputedStyle(text).backdropFilter
+    };
+  });
+  expect(layeredLayout.artPosition).toBe("absolute");
+  expect(layeredLayout.artHeight).toBeGreaterThan(layeredLayout.cardHeight * 0.85);
+  expect(layeredLayout.textBackdrop).toContain("blur");
   await page.locator("#catalogGrid .catalog-card").first().click();
   await expect(page.locator("#catalogDetail")).toBeVisible();
   await expect(page.locator("#catalogDetailTitle")).not.toBeEmpty();
@@ -584,4 +765,26 @@ test("mobiele dialogen krijgen focus en sluiten met Escape", async ({ page }, te
   await expect(page.locator("#closeTutorialButton")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.locator("#tutorial")).toBeHidden();
+});
+
+test("sluitknoppen gebruiken hetzelfde toegankelijke game-icoon", async ({ page }) => {
+  const buttons = page.locator(".game-close");
+  await expect(buttons).toHaveCount(3);
+
+  for (let index = 0; index < 3; index += 1) {
+    const button = buttons.nth(index);
+    await expect(button).toHaveAttribute("aria-label", /sluiten$/i);
+    await expect(button.locator("img")).toHaveAttribute("src", "assets/cards/icons/close.svg");
+    await expect(button.locator("img")).toHaveAttribute("alt", "");
+    expect((await button.textContent()).trim()).toBe("");
+  }
+
+  const shape = await buttons.first().evaluate((button) => ({
+    width: Number.parseFloat(getComputedStyle(button).width),
+    height: Number.parseFloat(getComputedStyle(button).height),
+    radius: getComputedStyle(button).borderRadius
+  }));
+  expect(shape.width).toBe(shape.height);
+  expect(shape.width).toBeGreaterThanOrEqual(42);
+  expect(shape.radius).toBe("50%");
 });

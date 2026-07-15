@@ -4,6 +4,7 @@ const { createMultiplayerViewModel } = globalThis.ExplodingDinosViewModel;
 const SharedGameView = globalThis.ExplodingDinosGameView;
 const SharedRevealView = globalThis.ExplodingDinosRevealView;
 const SharedChoiceView = globalThis.ExplodingDinosChoiceView;
+const { randomDinoName } = globalThis.ExplodingDinosNames;
 const multiplayerColors = globalThis.ExplodingDinosPlayers?.playerColors ?? ["#55b87a", "#d79632", "#d35d32", "#548fc7", "#9a6ac9"];
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -71,20 +72,19 @@ let inspectedOnlineCard = null;
 let onlineHandOpen = false;
 let onlineRevealActions = null;
 let onlineOracleDraft = null;
+let roomConnectionBusy = false;
+let roomNameLocked = Boolean(session?.code && session?.token);
+let nameWasGenerated = false;
 
-const DINO_NAME_STARTS = ["Brullende", "Knetterende", "Sluwe", "Dappere", "Machtige", "Flitsende", "Mollige", "Vurige", "Slaperige", "Wilde", "Blije", "Stekelige"];
-const DINO_NAME_ENDS = ["Bronto", "Raptor", "Tricera", "Stego", "Ptero", "Rex", "Ankylo", "Dilo", "Spino", "Carno", "Fossielsnuit", "Staartzwieper"];
+const ROOM_REQUEST_TIMEOUT_MS = Number(config.requestTimeoutMs) || 90000;
 
-function randomDinoName() {
-  const start = DINO_NAME_STARTS[Math.floor(Math.random() * DINO_NAME_STARTS.length)];
-  const end = DINO_NAME_ENDS[Math.floor(Math.random() * DINO_NAME_ENDS.length)];
-  return `${start} ${end}`.slice(0, 24);
-}
-
-function setRandomDinoName() {
-  elements.name.value = randomDinoName();
-  elements.name.focus?.();
-  elements.name.select?.();
+function setRandomDinoName(focus = true, excludedNames = []) {
+  elements.name.value = randomDinoName(Math.random, excludedNames);
+  nameWasGenerated = true;
+  if (focus) {
+    elements.name.focus?.();
+    elements.name.select?.();
+  }
 }
 
 function storage() {
@@ -122,21 +122,55 @@ function syncRoomUrl(code) {
   } catch { /* De room blijft ook zonder History API bruikbaar. */ }
 }
 
-function setBusy(busy) {
+function syncNameControls() {
+  const disabled = roomConnectionBusy || roomNameLocked;
+  elements.name.disabled = disabled;
+  elements.randomizeName.disabled = disabled;
+  elements.name.setAttribute("aria-readonly", String(roomNameLocked));
+  elements.name.title = roomNameLocked ? "Je naam staat vast zolang je in deze room zit." : "";
+  elements.randomizeName.title = roomNameLocked ? "Verlaat de room om een andere naam te kiezen." : "Nieuwe dinonaam";
+}
+
+function setNameLocked(locked) {
+  roomNameLocked = locked;
+  syncNameControls();
+}
+
+function setBusy(busy, message = "") {
+  roomConnectionBusy = busy;
   elements.create.disabled = busy;
   elements.join.disabled = busy;
+  syncNameControls();
+  elements.joinView.setAttribute("aria-busy", String(busy));
+  elements.status.classList.toggle("is-loading", busy);
+  if (message) elements.status.textContent = message;
 }
 
 async function request(path, options = {}) {
   if (!config.apiBase) throw new Error("De multiplayer-server is nog niet geconfigureerd.");
-  const response = await fetch(`${config.apiBase.replace(/\/$/, "")}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
-      ...options.headers
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timeoutId = controller
+    ? globalThis.setTimeout?.(() => controller.abort(), ROOM_REQUEST_TIMEOUT_MS)
+    : null;
+  let response;
+  try {
+    response = await fetch(`${config.apiBase.replace(/\/$/, "")}${path}`, {
+      ...options,
+      signal: options.signal ?? controller?.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
+        ...options.headers
+      }
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("De dinoserver deed er te lang over. Probeer het opnieuw; na rust kan de eerste verbinding langer duren.");
     }
-  });
+    throw new Error("De dinoserver is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.");
+  } finally {
+    if (timeoutId !== null) globalThis.clearTimeout?.(timeoutId);
+  }
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || "De roomserver reageert niet goed.");
   return result;
@@ -152,7 +186,7 @@ function openModal() {
   elements.status.textContent = linkedRoom
     ? `Je bent uitgenodigd voor room ${linkedRoom}. Kies je naam en neem deel.`
     : "Maak een nieuwe room en deel daarna de uitnodigingslink.";
-  if (!elements.name.value) elements.name.value = randomDinoName();
+  if (!elements.name.value) setRandomDinoName(false);
   if (linkedRoom && session?.code && linkedRoom !== session.code) saveSession(null);
   if (session?.code && session?.token) {
     showLobby({ code: session.code, players: [], viewerId: null, isHost: false });
@@ -700,6 +734,7 @@ function renderOnlineGame(room) {
     renderCardFace: globalThis.renderCardFace,
     onCard: (card) => showOnlineCardDetail(card, viewModel.hand.find((item) => item.card.id === card.id)?.playable)
   });
+  globalThis.ExplodingDinosMenu?.render?.();
   elements.mainPlayerZone.classList.toggle("is-current", isTurn && !game.winnerId);
   elements.mainPlayerZone.classList.toggle("is-hand-collapsed", !onlineHandOpen);
   elements.mainHandToggle.textContent = onlineHandOpen ? `Sluit hand (${game.hand.length})` : `Open hand (${game.hand.length})`;
@@ -733,6 +768,7 @@ function resetOnlineTable() {
 function showLobby(room) {
   const stoppedOnlineGame = Boolean(activeRoom?.game) && !room.game;
   activeRoom = room;
+  setNameLocked(true);
   if (stoppedOnlineGame) resetOnlineTable();
   showingRoomInfo = false;
   elements.modal.classList.remove("is-hidden");
@@ -754,6 +790,7 @@ function showLobby(room) {
 }
 
 function showJoin() {
+  setNameLocked(false);
   elements.joinView.classList.remove("is-hidden");
   elements.lobby.classList.add("is-hidden");
   const linkedRoom = roomFromUrl();
@@ -767,7 +804,8 @@ function showJoin() {
 }
 
 async function createRoom() {
-  setBusy(true);
+  if (roomConnectionBusy) return;
+  setBusy(true, "De dinoserver wordt wakker. De eerste verbinding kan ongeveer een minuut duren...");
   try {
     const result = await request("/api/rooms", { method: "POST", body: JSON.stringify({ name: elements.name.value }) });
     saveSession({ code: result.room.code, token: result.token });
@@ -778,14 +816,35 @@ async function createRoom() {
   } finally { setBusy(false); }
 }
 
+function isDuplicateNameError(error) {
+  return /naam wordt al gebruikt/i.test(error?.message ?? "");
+}
+
+async function joinWithGeneratedNameRetry(code) {
+  const attemptedNames = new Set();
+  const retryLimit = 8;
+
+  for (let attempt = 0; attempt <= retryLimit; attempt += 1) {
+    attemptedNames.add(elements.name.value);
+    try {
+      return await request(`/api/rooms/${encodeURIComponent(code)}/join`, {
+        method: "POST",
+        body: JSON.stringify({ name: elements.name.value })
+      });
+    } catch (error) {
+      if (!nameWasGenerated || !isDuplicateNameError(error) || attempt === retryLimit) throw error;
+      setRandomDinoName(false, attemptedNames);
+      elements.status.textContent = "Die dinonaam was al bezet. We proberen automatisch een andere...";
+    }
+  }
+}
+
 async function joinRoom() {
-  setBusy(true);
+  if (roomConnectionBusy) return;
+  setBusy(true, "We maken verbinding met de room. Na rust kan de dinoserver ongeveer een minuut nodig hebben...");
   try {
     const code = elements.code.value.trim().toUpperCase();
-    const result = await request(`/api/rooms/${encodeURIComponent(code)}/join`, {
-      method: "POST",
-      body: JSON.stringify({ name: elements.name.value })
-    });
+    const result = await joinWithGeneratedNameRetry(code);
     saveSession({ code: result.room.code, token: result.token });
     syncRoomUrl(result.room.code);
     showLobby(result.room);
@@ -907,6 +966,7 @@ elements.leave.addEventListener("click", leaveRoom);
 elements.copy.addEventListener("click", copyRoomLink);
 elements.stopGame.addEventListener("click", stopOnlineGame);
 elements.randomizeName.addEventListener("click", setRandomDinoName);
+elements.name.addEventListener("input", () => { nameWasGenerated = false; });
 elements.start.addEventListener("click", startOnlineGame);
 elements.mainDraw.addEventListener("click", (event) => {
   if (!activeRoom?.game) return;

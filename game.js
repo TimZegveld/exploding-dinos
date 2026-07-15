@@ -200,6 +200,7 @@ let selectedCatalogType = null;
 let isPlayerHandOpen = false;
 let isMobileMenuOpen = false;
 let isMobileLogOpen = false;
+let isFullLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
 let tutorialStep = 0;
@@ -231,6 +232,7 @@ const els = {
   mobileLogButton: document.querySelector("#mobileLogButton"),
   mobileLogPanel: document.querySelector("#mobileLogPanel"),
   mobileGameLog: document.querySelector("#mobileGameLog"),
+  mobileLogExpandButton: document.querySelector("#mobileLogExpandButton"),
   turnStatus: document.querySelector("#turnStatus"),
   opponents: document.querySelector("#opponents"),
   deckCount: document.querySelector("#deckCount"),
@@ -588,12 +590,20 @@ function renderMobileMenu() {
 
   if (!els.mobileGameLog) return;
 
+  const entries = [...els.gameLog.children];
+  const visibleEntries = isFullLogOpen ? entries : entries.slice(-5);
   els.mobileGameLog.replaceChildren();
-  [...els.gameLog.children].forEach((entry) => {
+  visibleEntries.forEach((entry) => {
     const item = document.createElement("li");
     item.textContent = entry.textContent;
     els.mobileGameLog.append(item);
   });
+  const canExpand = entries.length > 5;
+  els.mobileLogExpandButton?.classList.toggle("is-hidden", !canExpand);
+  if (els.mobileLogExpandButton) {
+    els.mobileLogExpandButton.textContent = isFullLogOpen ? "Toon laatste 5 acties" : "Toon volledig logboek";
+    els.mobileLogExpandButton.setAttribute("aria-expanded", String(isFullLogOpen));
+  }
 }
 
 function renderOpponentRoster() {
@@ -665,11 +675,18 @@ function openMobileMenu() {
 function closeMobileMenu() {
   isMobileMenuOpen = false;
   isMobileLogOpen = false;
+  isFullLogOpen = false;
   render();
 }
 
 function toggleMobileLog() {
   isMobileLogOpen = !isMobileLogOpen;
+  isFullLogOpen = false;
+  render();
+}
+
+function toggleFullLog() {
+  isFullLogOpen = !isFullLogOpen;
   render();
 }
 
@@ -1101,6 +1118,10 @@ function renderCardFace(element, card, options = {}) {
   image.src = card.design.image;
   image.alt = "";
   image.loading = "lazy";
+  const crop = card.design.crop ?? {};
+  image.style.setProperty("--card-art-position", crop.default ?? "50% 50%");
+  image.style.setProperty("--card-art-position-mini", crop.mini ?? crop.default ?? "50% 50%");
+  image.style.setProperty("--card-art-position-large", crop.large ?? crop.default ?? "50% 50%");
   art.append(image);
 
   const text = document.createElement("span");
@@ -2102,9 +2123,7 @@ function resolveTriceraTuk(owner) {
 
 function startTrikePeek(owner) {
   const peek = state.deck.slice(-3).reverse();
-  const dangerIndex = peek.findIndex((item) => item.type === "meteor");
-  const shelterIndex = peek.findIndex((item) => item.type === "shelter");
-  const visibleText = describeTrikePeek(peek, dangerIndex, shelterIndex);
+  const visibleText = describeTrikePeek(peek);
 
   showCardMoment({
     title: "Triceratops Blik",
@@ -2116,18 +2135,11 @@ function startTrikePeek(owner) {
   });
 }
 
-function describeTrikePeek(cards, dangerIndex, shelterIndex) {
+function describeTrikePeek(cards) {
   if (cards.length === 0) return "De trekstapel is leeg.";
 
   const list = cards.map((item, index) => `${index + 1}. ${item.name}`).join(" | ");
-  const warning = dangerIndex === -1
-    ? "Geen meteoriet in beeld."
-    : `Waarschuwing: Meteorietinslag ligt op plek ${dangerIndex + 1} van boven.`;
-  const shelter = shelterIndex === -1
-    ? "Geen Schuilgrot in beeld."
-    : `Schuilgrot ligt op plek ${shelterIndex + 1} van boven.`;
-
-  return `Bovenop liggen: ${list}. ${warning} ${shelter}`;
+  return `Bovenop liggen: ${list}.`;
 }
 
 function alterFuture(owner) {
@@ -3047,6 +3059,7 @@ els.mobileCatalogPageButton?.addEventListener("click", () => showPageFromMobileM
 els.mobileExplainButton?.addEventListener("click", openTutorial);
 els.mobileNewGameButton?.addEventListener("click", startNewGameFromMobileMenu);
 els.mobileLogButton?.addEventListener("click", toggleMobileLog);
+els.mobileLogExpandButton?.addEventListener("click", toggleFullLog);
 els.mobileMenu?.addEventListener("click", (event) => {
   if (event.target === els.mobileMenu) {
     closeMobileMenu();
@@ -3189,6 +3202,8 @@ els.revealSecondaryButton.addEventListener("click", () => {
     confirmBrontoChoice(true);
   }
 });
+
+globalThis.ExplodingDinosMenu = { render: renderMobileMenu };
 
 render();
 openStartModal();

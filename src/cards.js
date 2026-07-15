@@ -62,7 +62,7 @@ const cardCatalog = {
   },
   trike: {
     name: "Triceratops Blik",
-    text: "Bekijk de bovenste 3. Meteorietinslag en Schuilgrot worden gemeld.",
+    text: "Bekijk de bovenste 3 kaarten.",
     kind: "action",
     playable: true,
     turnEffect: "continue",
@@ -110,7 +110,7 @@ const cardCatalog = {
   },
   fossil: {
     name: "Fossielgraaier",
-    text: "Kies een gesloten kaart van de ander en steel die.",
+    text: "Kies een tegenstander en steel 1 gekozen gesloten kaart.",
     kind: "action",
     playable: true,
     turnEffect: "continue",
@@ -203,7 +203,7 @@ const cardCatalog = {
   },
   triceraTuk: {
     name: "Tricera-Tuk",
-    text: "Speel als paar. Tuk 1 open beurt weg zonder te trekken.",
+    text: "Speel als paar. Sla 1 trekbeurt over zonder te trekken.",
     kind: "set",
     playable: false,
     turnEffect: "skipTurn",
@@ -238,7 +238,7 @@ const cardCatalog = {
 };
 
 const partyPackDistribution = {
-  meteor: { total: 9, compact: 0 },
+  meteor: { total: 11, compact: 0 },
   shelter: { total: 10, compact: 3 },
   raptor: { total: 5, compact: 2 },
   targetedRaptor: { total: 5, compact: 2 },
@@ -255,6 +255,29 @@ const partyPackDistribution = {
   brontoBuik: { total: 7, compact: 3 },
   triceraTuk: { total: 7, compact: 3 },
   pteroPret: { total: 7, compact: 3 }
+};
+
+// Artwork focus is data-driven so every illustration can be tuned without
+// adding view-specific selectors. A design may later override one image via
+// `design.crops[imagePath]` while its other variants inherit this type crop.
+const cardArtworkCrops = {
+  meteor: { default: "53% 58%", large: "53% 54%" },
+  shelter: { default: "50% 61%", large: "50% 56%" },
+  raptor: { default: "52% 56%", large: "52% 50%" },
+  targetedRaptor: { default: "45% 63%", large: "46% 55%" },
+  sprint: { default: "57% 64%", large: "56% 58%" },
+  trike: { default: "50% 48%", large: "50% 45%" },
+  oracle: { default: "50% 52%", large: "50% 50%" },
+  volcano: { default: "50% 42%", large: "50% 43%" },
+  dig: { default: "50% 58%", large: "50% 56%" },
+  fossil: { default: "54% 48%", large: "54% 46%" },
+  nope: { default: "47% 46%", large: "48% 45%" },
+  feral: { default: "50% 45%", large: "50% 43%" },
+  miniRaptor: { default: "52% 66%", large: "52% 58%" },
+  stegoSnack: { default: "49% 64%", large: "50% 54%" },
+  brontoBuik: { default: "50% 57%", large: "50% 50%" },
+  triceraTuk: { default: "50% 58%", large: "50% 54%" },
+  pteroPret: { default: "50% 43%", large: "50% 45%" }
 };
 
 const CARD_VARIANT_REPEAT_LIMIT = 1;
@@ -278,11 +301,13 @@ function resolveDesign(type, variantIndex = 0) {
   const image = images.length > 0
     ? images[Math.abs(variantIndex) % images.length]
     : design.image;
+  const crop = design.crops?.[image] ?? design.crop ?? cardArtworkCrops[type];
 
   return {
     ...design,
     image,
-    images
+    images,
+    crop
   };
 }
 

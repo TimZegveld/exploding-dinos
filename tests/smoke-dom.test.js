@@ -77,6 +77,8 @@ test("starting from the modal renders the initial table", () => {
   assert.equal(getSelector("#playerHand").children.length, 8);
   assert.equal(getSelector("#opponents").children.length, 1);
   assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "8 kaarten");
+  assert.equal(getSelector("#opponents").children[0].children[1].children.length, 5);
+  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "8");
   assert.equal(getSelector("#discardTop").textContent, "");
   assert.equal(getSelector("#discardTop").className, "discard__empty");
   assert.equal(getSelector("#discardTop").attributes["aria-label"], "Aflegstapel is leeg");
@@ -166,6 +168,7 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   const expectedCount = Object.keys(sandbox.ExplodingDinosCards.cardCatalog).length;
 
   getSelector("#startGameButton").click();
+  Array.from({ length: 7 }, (_, index) => sandbox.log(`Extra logactie ${index + 1}`));
   getSelector("#mobileMenuButton").click();
 
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), false);
@@ -174,7 +177,14 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   getSelector("#mobileLogButton").click();
 
   assert.equal(getSelector("#mobileLogPanel").classList.contains("is-hidden"), false);
-  assert.ok(getSelector("#mobileGameLog").children.length > 0);
+  assert.equal(getSelector("#mobileGameLog").children.length, 5);
+  assert.equal(getSelector("#mobileGameLog").children.at(-1).textContent, "Extra logactie 7");
+  assert.equal(getSelector("#mobileLogExpandButton").textContent, "Toon volledig logboek");
+
+  getSelector("#mobileLogExpandButton").click();
+
+  assert.equal(getSelector("#mobileGameLog").children.length, getSelector("#gameLog").children.length);
+  assert.equal(getSelector("#mobileLogExpandButton").textContent, "Toon laatste 5 acties");
 
   getSelector("#mobileCatalogPageButton").click();
 
@@ -274,6 +284,60 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
   assert.equal(getSelector("#turnStatus").textContent, "Nova de Vulkaanwachter denkt na");
   assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), true);
   assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
+});
+
+test("card artwork receives responsive crop metadata", () => {
+  const { getSelector, sandbox } = loadGame();
+  const host = getSelector("#revealCard");
+  const card = sandbox.ExplodingDinosCards.makeCard("raptor", false);
+
+  sandbox.renderCardFace(host, card, { large: true });
+
+  const image = host.children[1].children[0];
+  assert.equal(host.classList.contains("card-face--large"), true);
+  assert.equal(image.style["--card-art-position"], "52% 56%");
+  assert.equal(image.style["--card-art-position-mini"], "52% 56%");
+  assert.equal(image.style["--card-art-position-large"], "52% 50%");
+});
+
+test("opponent hands cap visible card backs and keep the total in a badge", () => {
+  const { sandbox } = loadGame();
+  const player = (cardCount) => ({
+    id: `pc-${cardCount}`,
+    name: "Nova",
+    initials: "NO",
+    color: "#d45d32",
+    subtitle: `${cardCount} kaarten`,
+    countLabel: `${cardCount} kaarten`,
+    cardCount,
+    eliminated: false,
+    isCurrent: false
+  });
+
+  const emptyHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(0));
+  const smallHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(3));
+  const largeHand = sandbox.ExplodingDinosGameView.createOpponentSeat(player(12));
+
+  assert.equal(emptyHand.children[1].children.length, 1);
+  assert.equal(emptyHand.children[1].children[0].textContent, "0");
+  assert.equal(smallHand.children[1].children.length, 4);
+  assert.equal(smallHand.children[1].children.at(-1).textContent, "3");
+  assert.equal(largeHand.children[1].children.length, 5);
+  assert.equal(largeHand.children[1].children.at(-1).textContent, "12");
+  assert.equal(largeHand.attributes["aria-label"], "Nova, 12 kaarten");
+  assert.equal(largeHand.children[1].attributes["aria-hidden"], "true");
+});
+
+test("Triceratops Blik lists cards without separate danger or shelter warnings", () => {
+  const { sandbox } = loadGame();
+  const text = sandbox.describeTrikePeek([
+    { name: "Meteorietinslag", type: "meteor" },
+    { name: "Schuilgrot", type: "shelter" },
+    { name: "Dino Sprint", type: "sprint" }
+  ]);
+
+  assert.equal(text, "Bovenop liggen: 1. Meteorietinslag | 2. Schuilgrot | 3. Dino Sprint.");
+  assert.doesNotMatch(text, /waarschuwing|in beeld/i);
 });
 
 test("draw button opens a pending draw reveal", () => {
