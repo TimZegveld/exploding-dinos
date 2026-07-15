@@ -19,7 +19,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
   Toon een spinner, uitleg over de cold start en duidelijke fout- en timeoutstatussen tijdens maken en deelnemen.
 - [x] **5. Naam vergrendelen zodra de speler in een room zit**
   Blokkeer het naamveld en de dobbelknop na maken of deelnemen en ontgrendel ze na het verlaten van de room.
-- [ ] **6. Multiplayerknoppen visueel gelijktrekken**  
+- [x] **6. Multiplayerknoppen visueel gelijktrekken**
   Maak Start multiplayer en Deelnemen consistent met de primaire in-game actieknoppen.
 - [ ] **7. Verouderde multiplayerdisclaimer verwijderen**  
   Verwijder de melding dat de online modus nog in ontwikkeling is uit UI en documentatie.

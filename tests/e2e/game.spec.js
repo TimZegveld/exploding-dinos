@@ -66,6 +66,8 @@ test("multiplayer opent via een losse knop zonder singleplayer te starten", asyn
   await expect(page.locator("#createRoomButton")).toBeHidden();
   await expect(page.locator("#joinRoomButton")).toHaveText("Deelnemen");
   await expect(page.locator("#joinRoomButton")).toBeVisible();
+  await expect(page.locator("#joinRoomButton")).toHaveClass(/primary-action/);
+  await expect(page.locator("#multiplayerStartButton")).toHaveClass(/primary-action/);
   const joinButtonBox = await page.locator("#joinRoomButton").boundingBox();
   const joinActionsBox = await page.locator("#multiplayerJoinView .multiplayer-actions").boundingBox();
   expect(joinButtonBox?.width).toBeCloseTo(joinActionsBox?.width ?? 0, 0);

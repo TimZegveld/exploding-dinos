@@ -1355,7 +1355,8 @@ h2 {
 }
 
 #newGameButton,
-#startGameButton {
+#startGameButton,
+.primary-action {
   width: 100%;
   border: 0;
   border-radius: 8px;
@@ -1364,6 +1365,28 @@ h2 {
   background: var(--accent);
   cursor: pointer;
   font-weight: 900;
+}
+
+.primary-action {
+  transition: filter 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.primary-action:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.primary-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-action.is-hidden {
+  display: none;
 }
 
 .start-modal__actions {
