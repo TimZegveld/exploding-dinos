@@ -1557,6 +1557,68 @@ h2 {
   align-self: flex-start;
 }
 
+.quickstart {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.8rem 0 1rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(142, 224, 170, 0.32);
+  border-radius: 18px;
+  background: rgba(8, 18, 14, 0.72);
+}
+
+.quickstart__setup h3,
+.quickstart__setup p {
+  margin: 0.2rem 0 0;
+}
+
+.quickstart__setup p:last-child {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.quickstart__loop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quickstart__loop li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.55rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.quickstart__loop strong {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #102018;
+}
+
+@media (max-width: 560px) {
+  .quickstart__loop {
+    grid-template-columns: 1fr;
+  }
+
+  .quickstart__setup p:last-child {
+    font-size: 0.8rem;
+  }
+}
+
 .tutorial__progress {
   height: 7px;
   margin-top: 16px;

@@ -665,6 +665,9 @@ test("logboek staat achter het menu met vijf acties en een volledige weergave", 
 test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
   await page.locator("#startExplainButton").click();
   await expect(page.locator("#tutorial")).toBeVisible();
+  await expect(page.locator(".quickstart__setup")).toContainText("1 Schuilgrot + 7 kaarten");
+  await expect(page.locator(".quickstart__loop li")).toHaveCount(3);
+  await expect(page.locator(".quickstart__loop")).toContainText("Trek 1 kaart om je beurt te beëindigen");
   await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");
   const tutorialCard = await page.locator(".tutorial__card").first().boundingBox();
   expect(Math.abs((tutorialCard.width / tutorialCard.height) - (5 / 7))).toBeLessThan(0.02);
