@@ -11,10 +11,6 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === "error") browserErrors.push(message.text());
   });
   page.browserErrors = browserErrors;
-  await page.addInitScript(() => {
-    window.setInterval = () => 0;
-    window.clearInterval = () => {};
-  });
   await page.goto(gameUrl);
 });
 
@@ -28,7 +24,10 @@ async function startGame(page) {
   await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
   await page.locator("#startGameButton").click();
   await expect(page.locator("#startModal")).toBeHidden();
-  await expect(page.locator("#playerHand .card-button")).toHaveCount(8);
+  if (await page.locator("#revealEyebrow").getByText("De dino-race is beslist!", { exact: true }).isVisible().catch(() => false)) {
+    await page.locator("#revealButton").click();
+  }
+  await expect(page.locator("#playerHand .card-button")).toHaveCount(5);
   await expect(page.locator("#opponents .opponent-seat")).toHaveCount(1);
 }
 
@@ -310,6 +309,23 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
       hand: [{ id: "nope-1", type: "nope", name: "Brul Terug", text: "Blokkeer de aanval.", kind: "action" }]
     }
   };
+  const actionReactionRoom = {
+    ...gameRoom,
+    version: 6,
+    game: {
+      ...gameRoom.game,
+      pending: {
+        type: "ACTION_REACTION",
+        actionId: "trike-played",
+        actorName: "Nova",
+        cards: [{ id: "trike-played", type: "trike", name: "Triceratops Blik", text: "Bekijk de stapel.", kind: "action" }],
+        nopeCount: 0,
+        nopeCardIds: ["nope-1"],
+        deadlineAt: Date.now() + 30_000
+      },
+      hand: [{ id: "nope-1", type: "nope", name: "Brul Terug", text: "Blokkeer de actie.", kind: "action" }]
+    }
+  };
   const forcedDrawRoom = {
     ...gameRoom,
     version: 5,
@@ -490,16 +506,16 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
 
   currentRoom = forcedDrawRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
-  await expect(page.locator("#turnStatus")).toHaveText("Let op: trek nog 2 kaarten");
+  await expect(page.locator("#turnStatus")).toHaveText("Aanval: nog 2 beurten");
   await expect(page.locator("#turnStatus")).toHaveClass(/is-multiple-forced-draws/);
-  await expect(page.locator("#playerHint")).toHaveText("2 verplichte trekkingen over");
-  await expect(page.locator("#drawButton")).toHaveAttribute("data-forced-draws", "2 verplichte kaarten");
-  await expect(page.locator("#drawButton")).toHaveAttribute("aria-label", "Trek kaart. Nog 2 verplicht.");
+  await expect(page.locator("#playerHint")).toHaveText("Trek 1 kaart per beurt — nog 2 beurten");
+  await expect(page.locator("#drawButton")).toHaveAttribute("data-forced-draws", "AANVAL: NOG 2 BEURTEN · TREK 1 PER BEURT");
+  await expect(page.locator("#drawButton")).toHaveAttribute("aria-label", "Trek kaart om deze beurt af te sluiten. Nog 2 beurten.");
 
   currentRoom = forcedDrawRevealRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
-  await expect(page.locator("#revealEyebrow")).toHaveText("Verplichte trekking — nog 2");
-  await expect(page.locator("#revealText")).toContainText("Hierna moet je nog 1 kaart trekken");
+  await expect(page.locator("#revealEyebrow")).toHaveText("Aanvalbeurt — nog 2");
+  await expect(page.locator("#revealText")).toContainText("Hierna heb je nog 1 beurt");
   await expect(page.locator("#revealButton")).toHaveText("Neem kaart — daarna nog 1");
 
   currentRoom = gameRoom;
@@ -554,6 +570,17 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   expect(choiceColors.text).toBe("rgb(185, 170, 151)");
   expect(choiceColors.hostBackground).toBe("rgb(26, 36, 31)");
   await page.locator("#revealButton").click();
+  await expect(page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
+
+  currentRoom = actionReactionRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Brul Terug?");
+  await expect(page.locator("#revealText")).toContainText("Nova speelt Triceratops Blik");
+  await expect(page.locator("#revealCard")).toContainText("Brul Terug");
+  await expect(page.locator("#revealButton")).toHaveText("Passen");
+
+  currentRoom = attackRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
   await expect(page.locator("#drawReveal")).toBeVisible();
   await expect(page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
   await expect(page.locator("#revealText")).toContainText("Nova valt je aan");
@@ -598,8 +625,8 @@ test("hand van een tegenstander blijft compact en toont het totale aantal", asyn
 
   const seat = page.locator("#opponents .opponent-seat").first();
   await expect(seat.locator(".pc-hand .card-back")).toHaveCount(4);
-  await expect(seat.locator(".opponent-card-count")).toHaveText("8");
-  await expect(seat).toHaveAttribute("aria-label", /8 kaarten/);
+  await expect(seat.locator(".opponent-card-count")).toHaveText("5");
+  await expect(seat).toHaveAttribute("aria-label", /5 kaarten/);
 
   const dimensions = await seat.evaluate((element) => {
     const hand = element.querySelector(".pc-hand").getBoundingClientRect();
@@ -609,20 +636,21 @@ test("hand van een tegenstander blijft compact en toont het totale aantal", asyn
   expect(dimensions.handWidth).toBeLessThanOrEqual(dimensions.seatWidth);
 });
 
-test("logboek staat achter het menu met vijf acties en een volledige weergave", async ({ page }) => {
+test("mobiel menu toont direct vijf logacties en een volledige weergave", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "desktop-chromium", "alleen relevant voor mobiel");
   await startGame(page);
   await page.evaluate(() => {
     Array.from({ length: 7 }, (_, index) => window.log(`Browser logactie ${index + 1}`));
     window.render();
   });
 
-  await expect(page.locator(".log-panel")).toHaveCount(0);
+  await expect(page.locator(".log-panel")).toBeHidden();
   await expect(page.locator("#gameLog")).toBeHidden();
   await expect(page.locator("#mobileMenuButton")).toBeVisible();
   await expect(page.locator("#mobileLogPanel")).toBeHidden();
 
   await page.locator("#mobileMenuButton").click();
-  await page.locator("#mobileLogButton").click();
+  await expect(page.locator("#mobileLogPanel")).toBeVisible();
 
   await expect(page.locator("#mobileGameLog li")).toHaveCount(5);
   await expect(page.locator("#mobileGameLog li").last()).toHaveText("Browser logactie 7");
@@ -634,27 +662,32 @@ test("logboek staat achter het menu met vijf acties en een volledige weergave", 
   await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon laatste 5 acties");
 });
 
-test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
+test("uitleg doorloopt een geïsoleerde voorbeeldbeurt met private en publieke informatie", async ({ page }) => {
   await page.locator("#startExplainButton").click();
   await expect(page.locator("#tutorial")).toBeVisible();
+  await expect(page.locator(".quickstart__setup")).toContainText("1 Schuilgrot + 4 kaarten");
+  await expect(page.locator(".quickstart__loop li")).toHaveCount(3);
+  await expect(page.locator(".quickstart__loop")).toContainText("Trek 1 kaart om je beurt te beëindigen");
   await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");
   const tutorialCard = await page.locator(".tutorial__card").first().boundingBox();
   expect(Math.abs((tutorialCard.width / tutorialCard.height) - (5 / 7))).toBeLessThan(0.02);
 
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("Actiekaarten");
+  await expect(page.locator("#tutorialText")).toContainText("Privé-informatie");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("beurt is voorbij");
+  await expect(page.locator("#tutorialText")).toContainText("Publieke informatie");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("geen Schuilgrot");
+  await expect(page.locator("#tutorialText")).toContainText("één Brul Terug");
+  await page.locator("#tutorialRestartButton").click();
+  await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("automatisch gebruikt");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialPlacement")).toBeVisible();
-  await page.locator("#tutorialPlacementSelect").selectOption("bottom");
-  await expect(page.locator("#tutorialPlacementHint")).toContainText("gevaar blijft");
   await page.locator("#tutorialNextButton").click();
-
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("Privé zie jij");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("echte spelstate");
+  await page.locator("#tutorialNextButton").click();
   await expect(page.locator("#tutorial")).toBeHidden();
   await expect(page.locator("#startModal")).toBeVisible();
 });
@@ -684,11 +717,60 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   expect(layeredLayout.artPosition).toBe("absolute");
   expect(layeredLayout.artHeight).toBeGreaterThan(layeredLayout.cardHeight * 0.85);
   expect(layeredLayout.textBackdrop).toContain("blur");
+  await expect(firstCard.locator(".card-face__rule-icons, .card-rule-icon")).toHaveCount(0);
   await page.locator("#catalogGrid .catalog-card").first().click();
   await expect(page.locator("#catalogDetail")).toBeVisible();
   await expect(page.locator("#catalogDetailTitle")).not.toBeEmpty();
+  await expect(page.locator("#catalogDetailInfo .card-detail-info__item")).not.toHaveCount(0);
+  await expect(page.locator("#catalogDetailInfo .card-detail-info__item").first()).toContainText(/Beurt|Trekken/);
   await page.locator("#closeCatalogDetail").click();
   await expect(page.locator("#catalogDetail")).toBeHidden();
+  await page.locator("#catalogGrid .catalog-card").filter({ hasText: "Raptor Aanval" }).click();
+  const reactionInfo = page.locator("#catalogDetailInfo .is-reaction");
+  await expect(reactionInfo).toContainText("Brul Terug mogelijk");
+  await reactionInfo.hover();
+  const reactionTooltip = reactionInfo.locator(".card-detail-info__tooltip");
+  await expect(reactionTooltip).toBeVisible();
+  await expect(reactionTooltip).toContainText("Voordat het effect");
+  await expect(reactionTooltip).toContainText("Brul Terug");
+  await page.locator("#closeCatalogDetail").click();
+  await page.locator("#catalogGrid .catalog-card").filter({ hasText: "Brul Terug" }).click();
+  const chainInfo = page.locator("#catalogDetailInfo .is-reaction");
+  await expect(chainInfo).toContainText("Brul Terug mogelijk");
+  await chainInfo.focus();
+  const chainTooltip = chainInfo.locator(".card-detail-info__tooltip");
+  await expect(chainTooltip).toBeVisible();
+  await expect(chainTooltip).toContainText("tweede Brul Terug");
+  await expect(chainTooltip).toContainText("oorspronkelijke effect doorgaat");
+});
+
+test("dino-race maakt startspeler en volgorde bekend en sluit automatisch", async ({ page }) => {
+  await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
+  await page.locator("#startGameButton").click();
+  await expect(page.locator("#revealEyebrow")).toHaveText("De dino-race is beslist!");
+  await expect(page.locator("#revealText")).toContainText("Speelvolgorde:");
+  await expect(page.locator(".start-race-image")).toBeVisible();
+  await expect(page.locator("#revealButton")).toContainText("automatisch over 10 sec.");
+  const raceLayout = await page.locator(".draw-reveal__panel").evaluate((panel) => {
+    const image = panel.querySelector(".start-race-image");
+    return {
+      panelHasScrollbar: panel.scrollHeight > panel.clientHeight || panel.scrollWidth > panel.clientWidth,
+      imageFitsWidth: image.getBoundingClientRect().width <= panel.getBoundingClientRect().width
+    };
+  });
+  expect(raceLayout.panelHasScrollbar).toBe(false);
+  expect(raceLayout.imageFitsWidth).toBe(true);
+  await expect(page.locator("#revealButton")).toContainText(/automatisch over [89] sec\./, { timeout: 2200 });
+  await expect(page.locator("#drawReveal")).toBeHidden({ timeout: 11500 });
+});
+
+test("alternatieve passieve bevestigingen krijgen ook de tienseconden-timer", async ({ page }) => {
+  await startGame(page);
+  for (const label of ["Kijk naar de gloed", "Leg in hand"]) {
+    await page.evaluate((buttonText) => eval(`showCardMoment({ title: "Passieve melding", cards: [], text: "Geen keuze nodig.", buttonText: ${JSON.stringify(buttonText)} });`), label);
+    await expect(page.locator("#revealButton")).toHaveText(`${label} · automatisch over 10 sec.`);
+    await page.locator("#revealButton").click();
+  }
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {
@@ -718,6 +800,14 @@ test("mobiele bediening blijft binnen het scherm", async ({ page }, testInfo) =>
     content: document.documentElement.scrollWidth
   }));
   expect(overflow.content).toBeLessThanOrEqual(overflow.viewport + 1);
+});
+
+test("desktop toont het logboek zonder hamburgermenu", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "alleen relevant voor desktop");
+  await startGame(page);
+  await expect(page.locator("#mobileMenuButton")).toBeHidden();
+  await expect(page.locator(".side-panel .log-panel")).toBeVisible();
+  await expect(page.locator(".side-panel #gameLog")).toBeVisible();
 });
 
 test("mobiele tafel blijft compact met vier tegenstanders", async ({ page }, testInfo) => {

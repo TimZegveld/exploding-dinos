@@ -36,7 +36,7 @@ De lokale roomserver is geen oude mock of aparte signalserver: `npm run start:se
 
 De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten. Tijdens het maken of joinen van een room toont de lobby daarom een laadindicator en uitleg, blokkeert hij dubbele aanvragen en geeft hij na 90 seconden een duidelijke melding om opnieuw te proberen.
 
-De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
+De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. Bij een zichtbare actiekaart mogen alle actieve spelers om de beurt `Brul Terug` spelen of passen; na 30 seconden past de server automatisch. Het actie-effect en eventuele geheime informatie ontstaan pas nadat het reactievenster is gesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
 
 ## Testen
 
@@ -112,6 +112,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 
 ## Regels in deze iteratie
 
+- Iedere speler start met 5 kaarten: exact 1 Schuilgrot en 4 willekeurige kaarten. Meteorietinslagen en extra Schuilgrotten worden pas daarna aan de trekstapel toegevoegd.
 - Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
 - Iedere pc-tegenspeler heeft een eigen speelstijl die kaartkeuze, doelwitkeuze, blokkeren, risico nemen en deckcontrole subtiel beinvloedt.
 - De startselectie adviseert beginners om met 1 tegenstander te beginnen; extra tegenstanders zorgen voor meer chaos.
@@ -123,21 +124,29 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Op telefoon staat de primaire trekactie bovenaan het speelveld en blijft deze tijdens het scrollen bereikbaar.
 - Tegenstanderhanden tonen op desktop en telefoon maximaal vier overlappende kaartruggen met een accentbadge voor het werkelijke totaal; naam en kaartenaantal blijven daarbij zichtbaar. Op telefoon staan tegenstanders in een compacte horizontale rij en is je eigen hand een kaartenrail die open- en dichtgeklapt kan worden.
 - Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
+- Regeliconen staan niet op de kaarten zelf. Bij het groot openen toont het detailvenster rechtsonder alleen chips voor beurtverloop, trekken en reageren; openbaar/geheim staat als gewone detailtekst vermeld.
 - Op desktop en telefoon zit het Logboek achter het sluitbare menu en is het dus standaard verborgen. Bij openen zie je eerst de laatste 5 acties en kun je naar het volledige bewaarde logboek schakelen. Op telefoon zitten ook Kaarten en Nieuw spel in dit menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
 - Menu, uitleg en multiplayer gebruiken hetzelfde toegankelijke ronde sluiticoon in de visuele stijl van de game.
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
-- De trekstapel start met één Meteorietinslag meer dan het aantal spelers (`aantal spelers + 1`).
+- De trekstapel start standaard met exact evenveel Meteorietinslagen als spelers (`aantal spelers`).
 - Na afloop maakt de host voor een volgend online potje altijd een nieuwe room met een nieuwe uitnodigingscode.
-- Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen.
+- Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen. Singleplayer toont dit eerst als een dino-race met de winnaar en de volledige speelvolgorde.
+- Passieve singleplayermeldingen zoals `OK`, `Kijk naar de gloed` en `Leg in hand` tellen zichtbaar af en gaan na 10 seconden automatisch verder. Keuzes, reacties, kaartinspectie en meteorietplaatsing wachten altijd op de speler.
 - Na een online potje ziet iedere speler een duidelijke overwinnings- of verlieskaart; de host kan daar direct een nieuwe room maken.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.
 - Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
-- Als iemand jou aanvalt, zie je je hand als reactie-keuze. `Brul Terug` blokkeert de aanval; een eigen raptoraanval schuift de aanval door en stapelt de beurten. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
-- Een aanval sluit de beurt van de aanvaller af en wordt meteen uitgevochten: het doelwit moet het openstaande aantal kaarten trekken, met ruimte voor acties tussen meerdere trekken. Na de laatste verplichte trek gaat het spel verder met de volgende speler.
+- Iedere actieve speler mag buiten de eigen beurt met `Brul Terug` reageren op een zichtbare actiekaart. Meteorietinslag, Schuilgrot en soortcombinaties zijn niet reacteerbaar. Een oneven keten blokkeert de actie; een even keten laat haar doorgaan.
+- Het detailchipje `Brul Terug mogelijk` betekent bij een zichtbare, losse actie dat het effect nog kan worden geblokkeerd. Het geldt voor Raptor Aanval, Gerichte Raptorjacht, Dino Sprint, Triceratops Blik, Tijdlijn Kneden, Vulkaan Shuffle, Diep Graven en Fossielgraaier. Het staat ook op Brul Terug zelf: tijdens een actieve keten heft een tweede Brul Terug de eerste op, zodat de oorspronkelijke actie doorgaat; iedere volgende kaart draait de uitkomst opnieuw om. Gevaren, automatische bescherming en soortcombinaties zijn niet reacteerbaar.
+- Als iemand jou aanvalt, kun je na het algemene `Brul Terug`-venster een eigen raptoraanval gebruiken om de aanval door te schuiven en de beurten te stapelen. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
+- Een aanval sluit de beurt van de aanvaller af. Het doelwit voert twee volledige beurten uit: in iedere beurt mogen actiekaarten worden gespeeld en een normale trek sluit die beurt af. Een tegenaanval schuift de volledige openstaande last door en telt er twee beurten bij op.
+- Tijdens zo'n aanvalslast tonen de bovenste beurtstatus, de tekst bij je hand en een rode badge op de trekstapel prominent hoeveel volledige beurten nog openstaan. De badge benadrukt dat je per beurt één kaart trekt; je trekt de openstaande last niet in één keer.
+- Op desktop blijft het logboek zichtbaar naast het speelveld en is er geen hamburgermenu. Op kleine schermen bevat het menu de mobiele navigatie en direct het compacte logboek, zonder aparte logboekknop.
+- `Dino Sprint` handelt exact één volledige beurt af zonder te trekken, ook tijdens een aanvalslast.
+- Vijf verschillende soortnamen mogen samen worden gespeeld om openbaar een niet-Meteorietinslag uit de aflegstapel te nemen. Maximaal één `Wilde Dino` mag één ontbrekende soort vervangen; `Schuilgrot` staat bovenaan de keuze.
 - Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop; de gekozen rosterselectie blijft beschikbaar voor het volgende potje.
 - Trekt iemand een `Meteorietinslag`, dan schudt de kaart zichtbaar. Met `Schuilgrot` kiest de speler geheim waar de meteoriet teruggaat in de stapel; jij kiest daarbij een genummerde positie.
 
@@ -151,23 +160,23 @@ Statuslegenda:
 
 | Type | Kaart | Aantal | Regel in deze iteratie | Status |
 |---|---:|---:|---|---|
-| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers + 1` exemplaren gebruikt. | klaar |
+| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers` exemplaren gebruikt. | klaar |
 | `shelter` | Schuilgrot | 10 | Wordt automatisch en voor iedereen zichtbaar gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet op een geheime positie terug in de stapel. | klaar |
-| `raptor` | Raptor Aanval | 5 | De volgende speler moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar |
-| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |
-| `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
+| `raptor` | Raptor Aanval | 5 | De volgende speler voert 2 volledige beurten uit; een tegenaanval schuift de volledige last door en telt er 2 bij op. | klaar |
+| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat 2 volledige beurten uitvoert; bij doorschuiven kies je opnieuw een geldig doelwit. | klaar |
+| `sprint` | Dino Sprint | 10 | Beëindig exact 1 beurt zonder te trekken; tijdens een aanval vervalt 1 openstaande beurt. | klaar |
 | `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten. | klaar |
 | `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar |
 | `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar |
 | `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar |
 | `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar |
-| `nope` | Brul Terug | 9 | Reageer op een directe actie tegen jou of op een Brul Terug-keten en blokkeer die. | klaar |
+| `nope` | Brul Terug | 9 | Reageer buiten je beurt op iedere zichtbare actiekaart. Oneven ketens blokkeren; even ketens laten de actie doorgaan. | klaar |
 | `feral` | Wilde Dino | 6 | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. Heeft meerdere illustratievarianten. | klaar |
 | `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft meerdere illustratievarianten. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |
 | `brontoBuik` | Bronto Buik | 7 | Soortkaart; speel een paar om de bovenste kaart te bekijken; laat hem liggen of schuif hem onderop. Heeft meerdere illustratievarianten. | klaar |
 | `triceraTuk` | Tricera-Tuk | 7 | Soortkaart; speel een paar om 1 trekbeurt over te slaan zonder te trekken. Heeft meerdere illustratievarianten. | klaar |
-| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste 2 kaarten te bekijken; leg 1 bovenop en 1 onderop. Daarna eindigt je beurt. Heeft meerdere illustratievarianten. | klaar |
+| `pteroPret` | Ptero Pret | 7 | Soortkaart; speel een paar om de bovenste en onderste kaart te bekijken; kies welke bovenop blijft en welke onderop gaat. Daarna gaat je beurt verder. Heeft meerdere illustratievarianten. | klaar |
 
 ## Mogelijke volgende iteraties
 

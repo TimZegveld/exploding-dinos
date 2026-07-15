@@ -32,13 +32,16 @@ test("setup counts add the right meteors and extra shelters per deck mode", () =
     mode: "compact",
     shelterCount: 3,
     extraDefuses: 1,
-    meteors: 3
+    meteors: 2
   });
   assert.deepEqual(plain(calculateSetupCounts(5, distribution, deckModeForPlayers)), {
     mode: "standard",
     shelterCount: 7,
     extraDefuses: 2,
-    meteors: 6
+    meteors: 5
+  });
+  [2, 3, 4, 5].forEach((players) => {
+    assert.equal(calculateSetupCounts(players, distribution, deckModeForPlayers).meteors, players);
   });
 });
 
@@ -114,6 +117,22 @@ test("set-pair reward type follows the selected species or the non-feral pair ca
   assert.equal(determineSetPairRewardType([feral, card("feral", "f2")], feral), "feral");
 });
 
+test("Ptero Pret herschikt alleen de bovenste en onderste kaart", () => {
+  const { arrangePteroEdges, getPteroEdgeCards } = loadRulesModule();
+  const deck = [card("trike", "bottom"), card("sprint", "middle"), card("volcano", "top")];
+
+  assert.deepEqual(plain(getPteroEdgeCards(deck).map((item) => item.id)), ["top", "bottom"]);
+  assert.deepEqual(plain(arrangePteroEdges(deck, "bottom").map((item) => item.id)), ["top", "middle", "bottom"]);
+});
+
+test("vijf soorten gebruikt vijf namen of maximaal één Wilde Dino", () => {
+  const { selectFiveSpeciesCombo } = loadRulesModule();
+  const exact = [card("miniRaptor"), card("stegoSnack"), card("brontoBuik"), card("triceraTuk"), card("pteroPret")];
+  assert.equal(selectFiveSpeciesCombo(exact).length, 5);
+  assert.equal(selectFiveSpeciesCombo([...exact.slice(0, 4), card("feral")]).length, 5);
+  assert.equal(selectFiveSpeciesCombo([...exact.slice(0, 3), card("feral")]).length, 0);
+});
+
 test("Brul Terug chains block on odd counts and resolve on even counts", () => {
   const { isNopeChainBlocked } = loadRulesModule();
 
@@ -121,4 +140,14 @@ test("Brul Terug chains block on odd counts and resolve on even counts", () => {
   assert.equal(isNopeChainBlocked(1), true);
   assert.equal(isNopeChainBlocked(2), false);
   assert.equal(isNopeChainBlocked(3), true);
+});
+
+test("Brul Terug-reactietabel sluit gevaren, bescherming en soortcombinaties uit", () => {
+  const { canReactWithNope, NOPE_REACTABLE_TYPES } = loadRulesModule();
+  const expected = ["raptor", "targetedRaptor", "sprint", "trike", "oracle", "volcano", "dig", "fossil"];
+
+  assert.deepEqual(Array.from(NOPE_REACTABLE_TYPES), expected);
+  expected.forEach((type) => assert.equal(canReactWithNope(type), true, type));
+  ["meteor", "shelter", "nope", "feral", "miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]
+    .forEach((type) => assert.equal(canReactWithNope(type), false, type));
 });

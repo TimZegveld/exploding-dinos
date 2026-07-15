@@ -25,7 +25,7 @@
             <button class="page-tab is-active" id="showGamePage" type="button">Spel</button>
             <button class="page-tab" id="showCatalogPage" type="button">Kaarten</button>
           </nav>
-          <div class="status-pill" id="turnStatus">Jouw beurt</div>
+          <div class="status-pill" id="turnStatus" aria-live="polite" aria-atomic="true">Jouw beurt</div>
         </div>
       </section>
 
@@ -60,7 +60,7 @@
         <div class="player-zone">
           <div class="player-label">
             <span>Jij</span>
-            <strong id="playerHint">Speel een kaart of trek</strong>
+            <strong id="playerHint" aria-live="polite" aria-atomic="true">Speel kaarten of trek om je beurt te beëindigen</strong>
             <button class="hand-toggle" id="handToggle" type="button" aria-expanded="true" aria-controls="playerHand">Sluit hand</button>
           </div>
           <div class="hand" id="playerHand"></div>
@@ -74,10 +74,11 @@
           <button class="explain-button" id="explainButton" type="button">Hoe speel je?</button>
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
-
+        <div class="panel-section log-panel">
+          <h2>Logboek</h2>
+          <ol class="log" id="gameLog" aria-live="polite"></ol>
+        </div>
       </aside>
-
-      <ol id="gameLog" hidden aria-hidden="true"></ol>
 
       <section class="mobile-menu is-hidden" id="mobileMenu" aria-modal="true" role="dialog" aria-labelledby="mobileMenuTitle">
         <div class="mobile-menu__panel">
@@ -90,9 +91,8 @@
             <button id="mobileCatalogPageButton" type="button">Kaarten</button>
             <button id="mobileExplainButton" type="button">Hoe speel je?</button>
             <button id="mobileNewGameButton" type="button">Nieuw spel</button>
-            <button id="mobileLogButton" type="button" aria-expanded="false" aria-controls="mobileLogPanel">Logboek</button>
           </div>
-          <section class="mobile-log-panel is-hidden" id="mobileLogPanel" aria-labelledby="mobileLogTitle">
+          <section class="mobile-log-panel" id="mobileLogPanel" aria-labelledby="mobileLogTitle">
             <h3 id="mobileLogTitle">Logboek</h3>
             <ol class="log mobile-log" id="mobileGameLog"></ol>
             <button class="secondary-action is-hidden" id="mobileLogExpandButton" type="button" aria-expanded="false">Toon volledig logboek</button>
@@ -106,6 +106,8 @@
           <div class="catalog-detail__card" id="catalogDetailCard"></div>
           <h2 id="catalogDetailTitle"></h2>
           <p class="catalog-detail__text" id="catalogDetailText"></p>
+          <dl class="catalog-detail__rules" id="catalogDetailRules"></dl>
+          <div class="card-detail-info is-hidden" id="catalogDetailInfo" aria-label="Belangrijke kaartinformatie"></div>
           <button id="closeCatalogDetail" type="button">Sluiten</button>
         </div>
       </section>
@@ -190,6 +192,18 @@
             </div>
             <button class="tutorial__close game-close" id="closeTutorialButton" type="button" aria-label="Uitleg sluiten"><img src="assets/cards/icons/close.svg" alt=""></button>
           </div>
+          <section class="quickstart" aria-labelledby="quickstartTitle">
+            <div class="quickstart__setup">
+              <p class="eyebrow">Voorbereiding</p>
+              <h3 id="quickstartTitle">Iedere speler: 1 Schuilgrot + 4 kaarten</h3>
+              <p>Voeg daarna de extra grotten en Meteorietinslagen toe en schud de trekstapel.</p>
+            </div>
+            <ol class="quickstart__loop" aria-label="De drie stappen van een beurt">
+              <li><strong>1</strong><span>Speel 0 of meer kaarten</span></li>
+              <li><strong>2</strong><span>Trek 1 kaart om je beurt te beëindigen</span></li>
+              <li><strong>3</strong><span>Meteoriet: Schuilgrot of uitschakeling</span></li>
+            </ol>
+          </section>
           <div class="tutorial__progress" aria-hidden="true"><span id="tutorialProgressBar"></span></div>
           <p class="tutorial__step" id="tutorialProgress">Stap 1 van 4</p>
           <div class="tutorial__scene" id="tutorialScene"></div>
@@ -205,6 +219,7 @@
           </div>
           <div class="tutorial__actions">
             <button class="secondary-action" id="tutorialBackButton" type="button">Terug</button>
+            <button class="secondary-action" id="tutorialRestartButton" type="button">Herstart</button>
             <button id="tutorialNextButton" type="button">Verder</button>
           </div>
           <button class="tutorial__skip" id="tutorialSkipButton" type="button">Uitleg overslaan</button>
@@ -216,6 +231,7 @@
           <p class="eyebrow" id="revealEyebrow">Kaart getrokken</p>
           <div class="draw-reveal__card" id="revealCard"></div>
           <p class="draw-reveal__text" id="revealText"></p>
+          <div class="card-detail-info is-hidden" id="revealDetailInfo" aria-label="Belangrijke kaartinformatie"></div>
           <div class="placement is-hidden" id="placementControls">
             <label for="placementSelect">Geheime plek in de trekstapel</label>
             <select id="placementSelect"></select>

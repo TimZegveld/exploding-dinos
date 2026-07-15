@@ -8,4 +8,7 @@ test("browser en server delen hetzelfde actie- en interactieprotocol", () => {
   assert.equal(isChoiceAction(ACTIONS.PLAY_CARD), false);
   assert.equal(INTERACTIONS.DRAW_REVEAL, "DRAW_REVEAL");
   assert.equal(INTERACTIONS.ATTACK_REACTION, "ATTACK_REACTION");
+  assert.equal(INTERACTIONS.ACTION_REACTION, "ACTION_REACTION");
+  assert.equal(ACTIONS.REACTION_PASS, "REACTION_PASS");
+  assert.equal(ACTIONS.REACTION_NOPE, "REACTION_NOPE");
 });

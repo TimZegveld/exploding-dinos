@@ -68,17 +68,20 @@ test("opponent selection hints at hidden npc play styles", () => {
 });
 
 test("starting from the modal renders the initial table", () => {
-  const { getSelector } = loadGame();
+  const { getSelector, sandbox } = loadGame();
 
   getSelector("#startGameButton").click();
 
   assert.equal(getSelector("#startModal").classList.contains("is-hidden"), true);
   assert.equal(getSelector("#turnStatus").textContent, "Jouw beurt");
-  assert.equal(getSelector("#playerHand").children.length, 8);
+  assert.equal(getSelector("#playerHand").children.length, 5);
   assert.equal(getSelector("#opponents").children.length, 1);
-  assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "8 kaarten");
+  assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "5 kaarten");
   assert.equal(getSelector("#opponents").children[0].children[1].children.length, 5);
-  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "8");
+  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "5");
+  const startingHand = sandbox.getHand("player");
+  assert.equal(startingHand.filter((card) => card.type === "shelter").length, 1);
+  assert.equal(startingHand.some((card) => card.type === "meteor"), false);
   assert.equal(getSelector("#discardTop").textContent, "");
   assert.equal(getSelector("#discardTop").className, "discard__empty");
   assert.equal(getSelector("#discardTop").attributes["aria-label"], "Aflegstapel is leeg");
@@ -119,9 +122,13 @@ test("singleplayer kan met een willekeurige tegenstander beginnen", () => {
 
   assert.notEqual(getSelector("#turnStatus").textContent, "Jouw beurt");
   assert.ok(getSelector("#gameLog").children.some((item) => /begint/.test(item.textContent)));
+  assert.equal(getSelector("#revealEyebrow").textContent, "De dino-race is beslist!");
+  assert.match(getSelector("#revealText").textContent, /Speelvolgorde:/);
   assert.equal(scheduledTurns.length, 1);
-  assert.equal(scheduledTurns[0].callback, sandbox.pcTurn);
-  assert.equal(scheduledTurns[0].delay, 650);
+  assert.equal(scheduledTurns[0].delay, 10000);
+  scheduledTurns[0].callback();
+  assert.equal(scheduledTurns[1].callback, sandbox.pcTurn);
+  assert.equal(scheduledTurns[1].delay, 650);
 });
 
 test("mobile hand toggle collapses and opens the player hand", () => {
@@ -130,13 +137,13 @@ test("mobile hand toggle collapses and opens the player hand", () => {
   getSelector("#startGameButton").click();
 
   assert.equal(getSelector(".player-zone").classList.contains("is-hand-collapsed"), true);
-  assert.match(getSelector("#handToggle").textContent, /Open hand \(8\)/);
+  assert.match(getSelector("#handToggle").textContent, /Open hand \(5\)/);
   assert.equal(getSelector("#handToggle").attributes["aria-expanded"], "false");
 
   getSelector("#handToggle").click();
 
   assert.equal(getSelector(".player-zone").classList.contains("is-hand-collapsed"), false);
-  assert.match(getSelector("#handToggle").textContent, /Sluit hand \(8\)/);
+  assert.match(getSelector("#handToggle").textContent, /Sluit hand \(5\)/);
   assert.equal(getSelector("#handToggle").attributes["aria-expanded"], "true");
 });
 
@@ -202,8 +209,6 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#mobileMenuButton").attributes["aria-expanded"], "true");
 
-  getSelector("#mobileLogButton").click();
-
   assert.equal(getSelector("#mobileLogPanel").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#mobileGameLog").children.length, 5);
   assert.equal(getSelector("#mobileGameLog").children.at(-1).textContent, "Extra logactie 7");
@@ -219,6 +224,24 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), true);
   assert.equal(getSelector("#catalogPage").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#catalogGrid").children.length, expectedCount);
+  getSelector("#catalogGrid").children[0].click();
+  assert.equal(getSelector("#catalogDetailRules").children.length, 12);
+});
+
+test("regeliconen staan alleen als tekstchips in een groot kaartdetail", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+  assert.equal(getSelector("#playerHand").children[0].children.some((child) => child.className === "card-face__rule-icons"), false);
+  getSelector("#playerHand").children[0].click();
+  assert.equal(getSelector("#revealDetailInfo").classList.contains("is-hidden"), false);
+  assert.equal(getSelector("#revealDetailInfo").children[0].children[1].textContent.length > 0, true);
+  getSelector("#showCatalogPage").click();
+  assert.equal(getSelector("#catalogGrid").children[0].children.some((child) => child.className === "card-face__rule-icons"), false);
+  getSelector("#catalogGrid").children[0].click();
+  assert.equal(getSelector("#catalogDetailInfo").classList.contains("is-hidden"), false);
+  const detailChip = getSelector("#catalogDetailInfo").children[0];
+  assert.equal(detailChip.getAttribute("tabindex"), "0");
+  assert.equal(detailChip.children.at(-1).className, "card-detail-info__tooltip");
 });
 
 test("attack reaction choices put playable cards above disabled cards", () => {
@@ -287,7 +310,36 @@ test("raptor attack ends the played card owner's turn", () => {
   assert.equal(getSelector("#drawButton").disabled, true);
 });
 
-test("normal raptor attacks the next player without offering unrelated Brul Terug", () => {
+test("singleplayer Dino Sprint verbruikt exact één aanvalbeurt", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+
+  for (const load of [2, 4, 6]) {
+    sandbox.resolveRaptorAttack("pc1", "player", load);
+    sandbox.resolveSprint("player");
+    sandbox.render();
+    assert.equal(getSelector("#playerHint").textContent, load === 2 ? "Speel kaarten of trek om je beurt te beëindigen" : `Trek 1 kaart per beurt — nog ${load - 1} beurten`);
+    assert.equal(getSelector("#turnStatus").textContent, load === 2 ? "Jouw beurt" : `Aanval: nog ${load - 1} beurten`);
+  }
+});
+
+test("Mini-Raptor steelt na doelwitkeuze willekeurig zonder positie te tonen", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+  const targetHand = sandbox.getHand("pc1");
+  targetHand.splice(0, targetHand.length,
+    sandbox.ExplodingDinosCards.makeCard("sprint", true),
+    sandbox.ExplodingDinosCards.makeCard("trike", true)
+  );
+
+  sandbox.startMiniRaptorSteal("player", "pc1");
+  sandbox.confirmStealTarget();
+
+  assert.equal(targetHand.length, 1);
+  assert.equal(getSelector("#revealText").textContent.includes("Kies een gesloten kaart"), false);
+});
+
+test("iedere actieve speler kan buiten de eigen beurt op een raptoraanval reageren", () => {
   const { getSelector, sandbox } = loadGame();
   const { makeCard } = sandbox.ExplodingDinosCards;
 
@@ -309,9 +361,12 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
 
   getSelector("#revealButton").click();
 
+  assert.equal(getSelector("#revealEyebrow").textContent, "Brul Terug?");
+  assert.match(getSelector("#revealText").textContent, /Raptor Aanval/);
+  getSelector("#revealButton").click();
+
   assert.equal(getSelector("#turnStatus").textContent, "Nova de Vulkaanwachter denkt na");
   assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), true);
-  assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
 });
 
 test("card artwork receives responsive crop metadata", () => {
@@ -379,7 +434,7 @@ test("draw button opens a pending draw reveal", () => {
   assert.match(getSelector("#revealText").textContent, /kaart|Meteorietinslag|Schuilgrot/i);
 });
 
-test("interactive tutorial explains explosion, shelter and replacement without changing the game", () => {
+test("interactive tutorial runs the isolated reaction scenario without changing the game", () => {
   const { getSelector, sandbox } = loadGame();
   getSelector("#startGameButton").click();
   const before = JSON.stringify(sandbox.state);
@@ -389,16 +444,16 @@ test("interactive tutorial explains explosion, shelter and replacement without c
   assert.equal(getSelector("#tutorialProgress").textContent, "Stap 1 van 6");
 
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /Actiekaarten/i);
+  assert.match(getSelector("#tutorialText").textContent, /Privé-informatie/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /Trekken beëindigt je beurt|beurt is voorbij/i);
+  assert.match(getSelector("#tutorialText").textContent, /Publieke informatie/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /geen Schuilgrot/i);
+  assert.match(getSelector("#tutorialText").textContent, /Brul Terug/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /automatisch gebruikt/i);
+  assert.match(getSelector("#tutorialText").textContent, /Vulkaan Shuffle|Privé/i);
   getSelector("#tutorialNextButton").click();
   assert.equal(getSelector("#tutorialProgress").textContent, "Stap 6 van 6");
-  assert.equal(getSelector("#tutorialPlacement").classList.contains("is-hidden"), false);
+  assert.match(getSelector("#tutorialText").textContent, /echte spelstate/i);
   getSelector("#tutorialNextButton").click();
 
   assert.equal(getSelector("#tutorial").classList.contains("is-hidden"), true);

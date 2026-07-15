@@ -30,7 +30,7 @@ test("skill smoke harness follows index script order and starts a game", () => {
   assert.equal(run.status, 0, run.stderr);
   const result = JSON.parse(run.stdout);
   assert.deepEqual(result.loadedScripts, localScriptsFromIndex());
-  assert.equal(result.handCards, 8);
+  assert.equal(result.handCards, 5);
   assert.equal(result.opponents, 1);
   assert.equal(result.status, "Jouw beurt");
 });

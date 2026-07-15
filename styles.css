@@ -141,7 +141,7 @@ body.has-open-dialog {
 }
 
 .mobile-menu-button {
-  display: grid;
+  display: none;
   width: 46px;
   height: 46px;
   place-items: center;
@@ -496,16 +496,18 @@ h2 {
 .deck.is-forced-draw::after {
   content: attr(data-forced-draws);
   position: absolute;
-  inset: auto 8px 8px;
-  border-radius: 999px;
-  padding: 6px 8px;
+  inset: auto -12px -16px;
+  border: 3px solid var(--panel);
+  border-radius: 10px;
+  padding: 9px 10px;
   color: var(--on-danger);
   background: var(--danger);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 950;
   line-height: 1.1;
   text-align: center;
   text-transform: uppercase;
+  box-shadow: var(--shadow-soft);
 }
 
 @keyframes forced-draw-attention {
@@ -942,6 +944,104 @@ h2 {
   text-shadow: 0 1px 0 color-mix(in srgb, var(--card), transparent 15%);
 }
 
+.card-detail-info {
+  position: sticky;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px 0 10px auto;
+  border: 1px solid color-mix(in srgb, var(--line), transparent 12%);
+  border-radius: 10px;
+  padding: 7px;
+  background: color-mix(in srgb, var(--panel), transparent 4%);
+  box-shadow: 0 5px 16px rgba(16, 20, 17, 0.18);
+  text-align: left;
+}
+
+.card-detail-info.is-hidden { display: none; }
+
+.card-detail-info__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 4px 8px 4px 5px;
+  color: #fff;
+  background: #365e4b;
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.card-detail-info__item.is-turn-continue { background: #24724d; }
+.card-detail-info__item.is-turn-end { background: #a93e36; }
+.card-detail-info__item.is-draw { background: #a86612; }
+.card-detail-info__item.is-reaction { background: #7550a6; }
+
+.card-detail-info__item img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.card-detail-info__tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 9;
+  width: min(260px, 78vw);
+  border: 1px solid color-mix(in srgb, var(--line), transparent 10%);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.card-detail-info__item:hover,
+.card-detail-info__item:focus-visible,
+.card-detail-info__item.is-open {
+  outline: 3px solid color-mix(in srgb, currentColor, transparent 35%);
+  outline-offset: 2px;
+}
+
+.card-detail-info__item:hover .card-detail-info__tooltip,
+.card-detail-info__item:focus-visible .card-detail-info__tooltip,
+.card-detail-info__item.is-open .card-detail-info__tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (forced-colors: active) {
+  .card-detail-info,
+  .card-detail-info__item { border: 1px solid ButtonText; color: ButtonText; background: Canvas; forced-color-adjust: auto; }
+  .card-detail-info__item img { filter: none; }
+  .card-detail-info__tooltip { border: 1px solid ButtonText; color: ButtonText; background: Canvas; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-detail-info__tooltip { transition: none; }
+}
+
 .card-button strong {
   display: block;
   font-size: 0.95rem;
@@ -1172,6 +1272,18 @@ h2 {
   color: var(--muted);
   line-height: 1.45;
 }
+
+.catalog-detail__rules {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.35rem 0.8rem;
+  width: min(100%, 34rem);
+  margin: 0 auto 1rem;
+  text-align: left;
+}
+
+.catalog-detail__rules dt { color: var(--accent); font-weight: 900; }
+.catalog-detail__rules dd { margin: 0; color: var(--muted); }
 
 .catalog-detail__card:not(.card-face) {
   display: grid;
@@ -1555,6 +1667,68 @@ h2 {
 
 .tutorial__close {
   align-self: flex-start;
+}
+
+.quickstart {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.8rem 0 1rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(142, 224, 170, 0.32);
+  border-radius: 18px;
+  background: rgba(8, 18, 14, 0.72);
+}
+
+.quickstart__setup h3,
+.quickstart__setup p {
+  margin: 0.2rem 0 0;
+}
+
+.quickstart__setup p:last-child {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.quickstart__loop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quickstart__loop li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.55rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.quickstart__loop strong {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #102018;
+}
+
+@media (max-width: 560px) {
+  .quickstart__loop {
+    grid-template-columns: 1fr;
+  }
+
+  .quickstart__setup p:last-child {
+    font-size: 0.8rem;
+  }
 }
 
 .tutorial__progress {
@@ -1990,6 +2164,30 @@ h2 {
 
 .draw-reveal__card.is-action {
   background: var(--card-action);
+}
+
+.draw-reveal__card.is-start-race {
+  width: min(100%, 440px, calc(32dvh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.draw-reveal__panel:has(.draw-reveal__card.is-start-race) {
+  overflow: hidden;
+}
+
+.start-race-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#revealButton.is-auto-confirming {
+  border-color: var(--gold);
+  box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--gold), transparent 18%), var(--shadow-soft);
 }
 
 .draw-reveal__card.is-set {
@@ -2488,6 +2686,13 @@ h2 {
 
 /* Responsive table and controls */
 @media (max-width: 760px) {
+  .card-detail-info {
+    position: static;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 8px 0 12px;
+  }
+
   :root {
     --hand-card-width: 112px;
     --table-card-width: 132px;

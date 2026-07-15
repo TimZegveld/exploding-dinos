@@ -95,6 +95,24 @@ test("every catalog card declares its turn effect", () => {
   });
 });
 
+test("all 17 cards expose complete shared rule metadata", () => {
+  const { cardCatalog } = loadCardsModule();
+  assert.equal(Object.keys(cardCatalog).length, 17);
+  Object.entries(cardCatalog).forEach(([type, card]) => {
+    assert.deepEqual(Object.keys(card.rules).sort(), ["icons", "reactable", "target", "timing", "turn", "visibility"], type);
+    assert.equal(card.rules.icons.includes("secret"), false, type);
+    assert.equal(card.rules.icons.includes("public"), false, type);
+    assert.ok(card.rules.visibility, type);
+  });
+});
+
+test("Brul Terug is marked as reactable during an active chain", () => {
+  const { cardCatalog } = loadCardsModule();
+  assert.equal(cardCatalog.nope.rules.reactable, true);
+  assert.equal(cardCatalog.nope.rules.icons.includes("reaction"), true);
+  assert.match(cardCatalog.nope.rules.target, /Brul Terug/);
+});
+
 test("card turn effects match the audited turn rules", () => {
   const { cardCatalog } = loadCardsModule();
   const expected = {
@@ -102,7 +120,7 @@ test("card turn effects match the audited turn rules", () => {
     sprint: "skipTurn", trike: "continue", oracle: "continue", volcano: "continue",
     dig: "continue", fossil: "continue", nope: "none", feral: "continue",
     miniRaptor: "continue", stegoSnack: "continue", brontoBuik: "continue",
-    triceraTuk: "skipTurn", pteroPret: "endTurn"
+    triceraTuk: "skipTurn", pteroPret: "continue"
   };
 
   assert.deepEqual(

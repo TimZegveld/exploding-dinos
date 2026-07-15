@@ -1,4 +1,6 @@
 (() => {
+const STARTING_RANDOM_CARD_COUNT = 4;
+
 function calculateSetupCounts(playerCount, distribution, deckModeForPlayers) {
   const mode = deckModeForPlayers(playerCount);
   const shelterCount = mode === "compact"
@@ -11,7 +13,7 @@ function calculateSetupCounts(playerCount, distribution, deckModeForPlayers) {
     mode,
     shelterCount,
     extraDefuses: Math.max(0, shelterCount - playerCount),
-    meteors: Math.max(1, playerCount + 1)
+    meteors: Math.max(1, playerCount)
   };
 }
 
@@ -70,8 +72,40 @@ function determineSetPairRewardType(pair, selectedCard) {
   return pair.find((item) => item.type !== "feral")?.type ?? "feral";
 }
 
+const SPECIES_TYPES = Object.freeze(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
+
+function selectFiveSpeciesCombo(hand) {
+  const selected = SPECIES_TYPES.map((type) => hand.find((card) => card.type === type));
+  const missingIndexes = selected.map((card, index) => card ? -1 : index).filter((index) => index >= 0);
+  if (missingIndexes.length === 0) return selected;
+  if (missingIndexes.length === 1) {
+    const feral = hand.find((card) => card.type === "feral");
+    if (feral) {
+      selected[missingIndexes[0]] = feral;
+      return selected;
+    }
+  }
+  return [];
+}
+
 function isNopeChainBlocked(nopeCount) {
   return (nopeCount ?? 0) % 2 === 1;
+}
+
+const NOPE_REACTABLE_TYPES = Object.freeze([
+  "raptor",
+  "targetedRaptor",
+  "sprint",
+  "trike",
+  "oracle",
+  "volcano",
+  "dig",
+  "fossil"
+]);
+
+function canReactWithNope(cardOrType) {
+  const type = typeof cardOrType === "string" ? cardOrType : cardOrType?.type;
+  return NOPE_REACTABLE_TYPES.includes(type);
 }
 
 function getCardTurnEffect(card) {
@@ -80,16 +114,37 @@ function getCardTurnEffect(card) {
   return "none";
 }
 
+function getPteroEdgeCards(deck) {
+  if (deck.length < 2) return deck.slice();
+  return [deck.at(-1), deck[0]];
+}
+
+function arrangePteroEdges(deck, selectedTopId) {
+  const cards = getPteroEdgeCards(deck);
+  const topCard = cards.find((card) => card.id === selectedTopId) ?? cards[0];
+  const bottomCard = cards.find((card) => card.id !== topCard?.id);
+  const movedIds = new Set(cards.map((card) => card.id));
+  const middle = deck.filter((card) => !movedIds.has(card.id));
+  return [...(bottomCard ? [bottomCard] : []), ...middle, ...(topCard ? [topCard] : [])];
+}
+
 const ExplodingDinosRules = {
+  STARTING_RANDOM_CARD_COUNT,
+  SPECIES_TYPES,
+  NOPE_REACTABLE_TYPES,
   applyRaptorAttack,
+  arrangePteroEdges,
+  canReactWithNope,
   calculateSetupCounts,
   chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
+  getPteroEdgeCards,
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,
-  resolveMeteorDraw
+  resolveMeteorDraw,
+  selectFiveSpeciesCombo
 };
 globalThis.ExplodingDinosRules = ExplodingDinosRules;
 if (typeof module !== "undefined" && module.exports) module.exports = ExplodingDinosRules;

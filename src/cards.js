@@ -26,7 +26,7 @@ const cardCatalog = {
   },
   raptor: {
     name: "Raptor Aanval",
-    text: "De volgende speler moet nu 2 kaarten trekken.",
+    text: "De volgende speler moet 2 volledige beurten uitvoeren.",
     kind: "action",
     playable: true,
     turnEffect: "endTurn",
@@ -38,7 +38,7 @@ const cardCatalog = {
   },
   targetedRaptor: {
     name: "Gerichte Raptorjacht",
-    text: "Kies wie nu 2 kaarten moet trekken.",
+    text: "Kies wie 2 volledige beurten moet uitvoeren.",
     kind: "action",
     playable: true,
     turnEffect: "endTurn",
@@ -50,7 +50,7 @@ const cardCatalog = {
   },
   sprint: {
     name: "Dino Sprint",
-    text: "Sla je beurt over. Bij extra beurten sprint je er 1 extra kwijt.",
+    text: "Beëindig 1 beurt zonder te trekken. Tijdens een aanval vervalt 1 openstaande beurt.",
     kind: "action",
     playable: true,
     turnEffect: "skipTurn",
@@ -220,10 +220,10 @@ const cardCatalog = {
   },
   pteroPret: {
     name: "Ptero Pret",
-    text: "Speel als paar. Leg van de bovenste 2 één bovenop en één onderop. Einde beurt.",
+    text: "Speel als paar. Bekijk bovenste en onderste; kies welke bovenop blijft.",
     kind: "set",
     playable: false,
-    turnEffect: "endTurn",
+    turnEffect: "continue",
     design: {
       tone: "ptero-pret",
       icon: "speed",
@@ -256,6 +256,32 @@ const partyPackDistribution = {
   triceraTuk: { total: 7, compact: 3 },
   pteroPret: { total: 7, compact: 3 }
 };
+
+const ruleMetadata = {
+  meteor: { timing: "Bij trekken", target: "Jezelf", turn: "Eindigt de beurt", reactable: false, visibility: "Openbaar" },
+  shelter: { timing: "Automatisch bij Meteoriet", target: "Jezelf", turn: "Door naar plaatsing", reactable: false, visibility: "Openbaar; positie geheim" },
+  raptor: { timing: "Tijdens je beurt", target: "Volgende speler", turn: "Eindigt je beurt", reactable: true, visibility: "Openbaar" },
+  targetedRaptor: { timing: "Tijdens je beurt", target: "Gekozen speler", turn: "Eindigt je beurt", reactable: true, visibility: "Openbaar" },
+  sprint: { timing: "Tijdens je beurt", target: "Jezelf", turn: "Eindigt één beurt", reactable: true, visibility: "Openbaar" },
+  trike: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Beurt gaat door", reactable: true, visibility: "Resultaat geheim" },
+  oracle: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Beurt gaat door", reactable: true, visibility: "Resultaat geheim" },
+  volcano: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Beurt gaat door", reactable: true, visibility: "Bovenkaart geheim" },
+  dig: { timing: "Tijdens je beurt", target: "Trekstapel", turn: "Eindigt na trek", reactable: true, visibility: "Resultaat geheim" },
+  fossil: { timing: "Tijdens je beurt", target: "Speler met kaarten", turn: "Beurt gaat door", reactable: true, visibility: "Overdracht geheim" },
+  nope: { timing: "Tijdens reactievenster", target: "Zichtbare actie of Brul Terug", turn: "Verandert beurt niet", reactable: true, visibility: "Openbaar" },
+  feral: { timing: "Als deel van een paar", target: "Soortbeloning", turn: "Volgens soort", reactable: false, visibility: "Openbaar" },
+  miniRaptor: { timing: "Speel als paar", target: "Speler met kaarten", turn: "Beurt gaat door", reactable: false, visibility: "Overdracht geheim" },
+  stegoSnack: { timing: "Speel als paar", target: "Aflegstapel", turn: "Beurt gaat door", reactable: false, visibility: "Keuze openbaar" },
+  brontoBuik: { timing: "Speel als paar", target: "Trekstapel", turn: "Beurt gaat door", reactable: false, visibility: "Bovenkaart geheim" },
+  triceraTuk: { timing: "Speel als paar", target: "Jezelf", turn: "Eindigt één beurt", reactable: false, visibility: "Openbaar" },
+  pteroPret: { timing: "Speel als paar", target: "Trekstapel", turn: "Beurt gaat door", reactable: false, visibility: "Keuze geheim" }
+};
+
+Object.entries(ruleMetadata).forEach(([type, rules]) => {
+  const turnIcon = /Eindigt|eindigt/.test(rules.turn) ? "turn-end" : "turn-continue";
+  const icons = [turnIcon, ...(type === "meteor" || type === "dig" ? ["draw"] : []), ...(rules.reactable ? ["reaction"] : [])];
+  cardCatalog[type].rules = Object.freeze({ ...rules, icons: Object.freeze(icons) });
+});
 
 // Artwork focus is data-driven so every illustration can be tuned without
 // adding view-specific selectors. A design may later override one image via
@@ -382,6 +408,7 @@ function buildCardPool(playerCount) {
 const ExplodingDinosCards = {
   cardCatalog,
   partyPackDistribution,
+  ruleMetadata,
   buildCardPool,
   deckModeForPlayers,
   makeCard,

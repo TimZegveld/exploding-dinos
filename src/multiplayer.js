@@ -401,9 +401,9 @@ function renderChoice(pending, game) {
   if (pending.type === "DRAW_REVEAL") {
     const remainingAfterThis = Math.max(0, Number(game.forcedDrawsRemaining) - 1);
     renderStandardOnlineReveal({
-      title: game.forcedDrawsRemaining > 0 ? `Verplichte trekking — nog ${game.forcedDrawsRemaining}` : "Je trekt",
+      title: game.forcedDrawsRemaining > 0 ? `Aanvalbeurt — nog ${game.forcedDrawsRemaining}` : "Je trekt",
       text: remainingAfterThis > 0
-        ? `Bekijk deze kaart. Hierna moet je nog ${remainingAfterThis} ${remainingAfterThis === 1 ? "kaart" : "kaarten"} trekken.`
+        ? `Deze trek sluit één volledige beurt af. Hierna heb je nog ${remainingAfterThis} ${remainingAfterThis === 1 ? "beurt" : "beurten"}. Je mag tussendoor actiekaarten spelen.`
         : "Lees de kaart rustig. Voeg hem daarna aan je hand toe.",
       cards: pending.cards,
       primary: { label: remainingAfterThis > 0 ? `Neem kaart — daarna nog ${remainingAfterThis}` : "Neem kaart in hand", action: { type: "CONFIRM_DRAW" } }
@@ -469,7 +469,7 @@ function renderChoice(pending, game) {
     const title = pending.type === "TARGET_CHOICE" ? "Kies een doelwit" : pending.type === "FOSSIL_TARGET" ? "Fossielgraaier" : "Mini-Raptor";
     const targets = pending.targets.map((target, index) => ({ ...target, initials: target.name.slice(0, 2).toUpperCase(), color: multiplayerColors[index % multiplayerColors.length], label: target.name }));
     const nodes = SharedChoiceView.targetChoices(targets, { createPortrait: SharedGameView.createPlayerPortrait, onSelect: (target) => performGameAction({ type: actionType, targetId: target.id }) });
-    renderStandardOnlineReveal({ title, text: pending.type === "TARGET_CHOICE" ? `Deze aanval veroorzaakt ${pending.attackLoad} verplichte trekkingen.` : "Kies van wie je een gesloten kaart wilt stelen.", nodes, cardClass: "is-steal-target" });
+    renderStandardOnlineReveal({ title, text: pending.type === "TARGET_CHOICE" ? `Deze aanval veroorzaakt ${pending.attackLoad} volledige beurten.` : "Kies van wie je een gesloten kaart wilt stelen.", nodes, cardClass: "is-steal-target" });
     return;
   }
   if (pending.type === "FOSSIL_CARD") {
@@ -484,7 +484,38 @@ function renderChoice(pending, game) {
       renderCardFace: globalThis.renderCardFace,
       onSelect: (card) => performGameAction(isDiscard ? { type: "CHOOSE_DISCARD", cardId: card.id } : { type: "PTERO_CHOICE", topCardId: card.id })
     });
-    renderStandardOnlineReveal({ title: isDiscard ? "Stego Snack" : "Ptero Pret", text: isDiscard ? "Kies een oudere kaart uit de aflegstapel om terug te nemen." : "Kies welke kaart bovenop komt. De andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
+    renderStandardOnlineReveal({ title: isDiscard ? pending.source ?? "Stego Snack" : "Ptero Pret", text: isDiscard ? (pending.source === "Vijf soorten" ? "Kies open één niet-meteor kaart. Schuilgrotten staan bovenaan." : "Kies een oudere kaart uit de aflegstapel om terug te nemen.") : "Dit zijn de bovenste en onderste kaart. Kies welke bovenop blijft; de andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
+    return;
+  }
+  if (pending.type === "PUBLIC_PICK_REVEAL") {
+    renderStandardOnlineReveal({
+      title: "Vijf soorten",
+      text: `${pending.playerName} neemt open ${pending.cards[0]?.name ?? "een kaart"} terug.`,
+      cards: pending.cards,
+      primary: pending.isActor ? { label: "Verder", action: { type: "CONFIRM_PUBLIC_PICK" } } : { label: `Wachten op ${pending.playerName}`, action: null, disabled: true }
+    });
+    return;
+  }
+  if (pending.type === "ACTION_REACTION") {
+    const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
+    const nodes = pending.nopeCardIds.map((id) => SharedChoiceView.reactionCard(byId[id], {
+      playable: true,
+      renderCardFace: globalThis.renderCardFace,
+      onSelect: (card) => performGameAction({ type: "REACTION_NOPE", cardId: card.id })
+    }));
+    if (!nodes.length) {
+      const empty = document.createElement("p");
+      empty.className = "reaction-empty-message";
+      empty.textContent = "Je hebt geen Brul Terug. Je kunt direct passen.";
+      nodes.push(empty);
+    }
+    renderStandardOnlineReveal({
+      title: "Brul Terug?",
+      text: `${pending.actorName} speelt ${pending.cards[0]?.name ?? "een actiekaart"}. ${pending.nopeCount} Brul Terug-kaart(en) in de keten.`,
+      nodes,
+      cardClass: "is-attack-reaction",
+      primary: { label: "Passen", action: { type: "REACTION_PASS" } }
+    });
     return;
   }
   if (pending.type === "ATTACK_REACTION" || pending.type === "NOPE_RESPONSE") {
@@ -553,7 +584,7 @@ function renderChoice(pending, game) {
 
   if (pending.type === "TARGET_CHOICE") {
     elements.choiceTitle.textContent = "Kies een doelwit";
-    elements.choiceText.textContent = `Deze aanval veroorzaakt ${pending.attackLoad} verplichte trekkingen.`;
+    elements.choiceText.textContent = `Deze aanval veroorzaakt ${pending.attackLoad} volledige beurten.`;
     elements.choiceControls.append(...pending.targets.map((target) => actionButton(
       target.name,
       { type: "CHOOSE_TARGET", targetId: target.id }
@@ -587,17 +618,25 @@ function renderChoice(pending, game) {
     return;
   }
 
-  if (pending.type === "ATTACK_REACTION") {
-    elements.choiceTitle.textContent = `${pending.attackerName} valt je aan`;
-    elements.choiceText.textContent = `Je moet ${pending.attackLoad} kaarten trekken. Blokkeer, schuif door of accepteer.`;
+  if (pending.type === "ACTION_REACTION") {
+    elements.choiceTitle.textContent = "Brul Terug?";
+    elements.choiceText.textContent = `${pending.actorName} speelt ${pending.cards[0]?.name ?? "een actiekaart"}. De reactie sluit automatisch na 30 seconden.`;
     const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
     pending.nopeCardIds.forEach((cardId) => {
-      elements.choiceControls.append(actionButton(`Speel ${byId[cardId]?.name ?? "Brul Terug"}`, { type: "ATTACK_NOPE", cardId }, "secondary-action"));
+      elements.choiceControls.append(actionButton(`Speel ${byId[cardId]?.name ?? "Brul Terug"}`, { type: "REACTION_NOPE", cardId }, "secondary-action"));
     });
+    elements.choiceControls.append(actionButton("Passen", { type: "REACTION_PASS" }));
+    return;
+  }
+
+  if (pending.type === "ATTACK_REACTION") {
+    elements.choiceTitle.textContent = `${pending.attackerName} valt je aan`;
+    elements.choiceText.textContent = `Je moet ${pending.attackLoad} volledige beurten uitvoeren. Schuif de last door of accepteer.`;
+    const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
     pending.attackCardIds.forEach((cardId) => {
       elements.choiceControls.append(actionButton(`Schuif door met ${byId[cardId]?.name ?? "Raptoraanval"}`, { type: "ATTACK_REFLECT", cardId }, "secondary-action"));
     });
-    elements.choiceControls.append(actionButton(`Accepteer ${pending.attackLoad} trekkingen`, { type: "ATTACK_PASS" }));
+    elements.choiceControls.append(actionButton(`Accepteer ${pending.attackLoad} beurten`, { type: "ATTACK_PASS" }));
     return;
   }
 
@@ -684,7 +723,7 @@ function renderChoice(pending, game) {
 
   if (pending.type === "PTERO_CHOICE") {
     elements.choiceTitle.textContent = "Ptero Pret";
-    elements.choiceText.textContent = "Kies welke kaart bovenop komt. De andere gaat onderop.";
+    elements.choiceText.textContent = "Dit zijn de bovenste en onderste kaart. Kies welke bovenop blijft; de andere gaat onderop.";
     elements.choiceCards.replaceChildren(...pending.cards.map((card) => {
       const face = cardFace(card);
       face.classList.add("is-choice");

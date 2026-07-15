@@ -1,9 +1,10 @@
 const { buildCardPool, deckModeForPlayers, makeCard, partyPackDistribution, shuffle } = require("../src/cards");
-const { calculateSetupCounts, chooseStartingPlayerId, resolveMeteorDraw } = require("../src/rules");
+const { STARTING_RANDOM_CARD_COUNT, arrangePteroEdges, calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, getPteroEdgeCards, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
 const { isChoiceAction } = require("../src/protocol");
 
 const PAIR_REWARD_TYPES = new Set(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
-const ONLINE_PLAYABLE_TYPES = new Set(["sprint", "trike", "volcano", "dig", "oracle", "fossil", ...PAIR_REWARD_TYPES, "raptor", "targetedRaptor"]);
+const ONLINE_PLAYABLE_TYPES = new Set(["sprint", "trike", "volcano", "dig", "oracle", "fossil", "feral", ...PAIR_REWARD_TYPES, "raptor", "targetedRaptor"]);
+const REACTION_TIMEOUT_MS = 30_000;
 
 function fail(message, statusCode = 409) {
   throw Object.assign(new Error(message), { statusCode });
@@ -15,7 +16,7 @@ function startGame(players, randomValue = Math.random()) {
   const hands = Object.fromEntries(players.map((player) => [player.id, [makeCard("shelter", true)]]));
   const pool = buildCardPool(playerCount);
 
-  for (let index = 0; index < 7; index += 1) {
+  for (let index = 0; index < STARTING_RANDOM_CARD_COUNT; index += 1) {
     players.forEach((player) => {
       const card = pool.pop();
       if (card) hands[player.id].push(card);
@@ -80,7 +81,7 @@ function finishDraw(game) {
   }
   if (game.forcedDrawsRemaining > 1) {
     game.forcedDrawsRemaining -= 1;
-    game.log.push(`${game.forcedDrawsRemaining} verplichte trekking(en) over.`);
+    game.log.push(`${game.forcedDrawsRemaining} volledige aanvalbeurt(en) over.`);
     return;
   }
   game.forcedDrawsRemaining = 0;
@@ -123,32 +124,17 @@ function drawCard(game, playerId) {
   resolveDrawnCard(game, playerId, card);
 }
 
-function playCard(game, playerId, cardId) {
-  requireTurn(game, playerId);
-  const hand = game.hands[playerId];
-  const index = hand.findIndex((card) => card.id === cardId);
-  if (index === -1) fail("Deze kaart zit niet in jouw hand.", 400);
-  const card = hand[index];
-  if (!ONLINE_PLAYABLE_TYPES.has(card.type)) {
-    fail(`${card.name} is nog niet beschikbaar in de online testversie.`);
-  }
-  if ((card.type === "fossil" || card.type === "miniRaptor") && validStealTargets(game, playerId).length === 0) {
-    fail("Er is geen tegenstander met een kaart om te stelen.");
-  }
-  const oldDiscardChoices = game.discard.filter((item) => item.type !== "meteor");
-  let playedCards = [card];
-  if (PAIR_REWARD_TYPES.has(card.type)) {
-    if (card.type === "pteroPret" && game.deck.length < 2) fail("Er zijn te weinig kaarten over voor Ptero Pret.");
-    const companion = hand.find((item, itemIndex) => itemIndex !== index && (item.type === card.type || item.type === "feral"));
-    if (!companion) fail(`${card.name} heeft een tweede ${card.name} of Wilde Dino nodig.`);
-    playedCards = [card, companion];
-  }
-  const playedIds = new Set(playedCards.map((item) => item.id));
-  game.hands[playerId] = hand.filter((item) => !playedIds.has(item.id));
-  game.discard.push(...playedCards);
-  const player = game.players.find((item) => item.id === playerId);
-  game.log.push(`${player.name} speelde ${card.name}.`);
-  if (card.type === "sprint") {
+function resolvePlayedCardEffect(game, playerId, card, context = {}) {
+  const oldDiscardChoices = context.oldDiscardChoices ?? [];
+  if (context.fiveSpecies) {
+    const playedIds = new Set(context.playedIds);
+    const cards = game.discard
+      .filter((item) => item.type !== "meteor" && !playedIds.has(item.id))
+      .slice()
+      .sort((a, b) => Number(b.type === "shelter") - Number(a.type === "shelter"));
+    if (cards.length) game.pending = { type: "DISCARD_PICK", playerId, cards, source: "Vijf soorten" };
+    else game.log.push("Er lag geen niet-meteor kaart voor de vijf-soortenbeloning.");
+  } else if (card.type === "sprint") {
     if (game.forcedDrawsRemaining > 1) game.forcedDrawsRemaining -= 1;
     else {
       game.forcedDrawsRemaining = 0;
@@ -166,7 +152,7 @@ function playCard(game, playerId, cardId) {
   } else if (card.type === "fossil") {
     game.pending = { type: "FOSSIL_TARGET", playerId };
   } else if (card.type === "pteroPret") {
-    game.pending = { type: "PTERO_CHOICE", playerId, cards: game.deck.slice(-2).reverse() };
+    game.pending = { type: "PTERO_CHOICE", playerId, cards: getPteroEdgeCards(game.deck) };
   } else if (card.type === "miniRaptor") {
     game.pending = { type: "MINI_TARGET", playerId };
   } else if (card.type === "stegoSnack") {
@@ -189,7 +175,94 @@ function playCard(game, playerId, cardId) {
     game.forcedDrawsRemaining = 0;
     game.pending = { type: "TARGET_CHOICE", playerId, attackerId: playerId, attackLoad };
   }
-  game.pending = { type: "PLAY_REVEAL", playerId, card, nextPending: game.pending };
+}
+
+function reactionCandidates(game, afterPlayerId, excludedIds = []) {
+  const excluded = new Set(excludedIds);
+  const order = game.players.map((player) => player.id);
+  const start = order.indexOf(afterPlayerId);
+  return Array.from({ length: order.length - 1 }, (_, offset) => order[(start + offset + 1) % order.length])
+    .filter((id) => !game.eliminated[id] && !excluded.has(id));
+}
+
+function finishActionReaction(game, pending) {
+  game.pending = null;
+  if (isNopeChainBlocked(pending.nopeCount)) {
+    game.log.push(`${pending.card.name} is geblokkeerd na ${pending.nopeCount} Brul Terug-kaart(en).`);
+    return;
+  }
+  if (pending.nopeCount > 0) game.log.push(`${pending.card.name} gaat door na ${pending.nopeCount} Brul Terug-kaart(en).`);
+  resolvePlayedCardEffect(game, pending.actorId, pending.card, pending.context);
+}
+
+function moveReactionToNextPlayer(game, pending, now) {
+  const excluded = pending.nopeCount === 0
+    ? [pending.actorId, ...pending.passedPlayerIds]
+    : [pending.lastNopePlayerId, ...pending.passedPlayerIds];
+  const next = reactionCandidates(game, pending.playerId, excluded)[0];
+  if (!next) {
+    finishActionReaction(game, pending);
+    return;
+  }
+  game.pending = { ...pending, playerId: next, deadlineAt: now + REACTION_TIMEOUT_MS };
+}
+
+function beginActionReaction(game, actorId, card, context, now) {
+  const first = reactionCandidates(game, actorId, [actorId])[0];
+  if (!first) {
+    resolvePlayedCardEffect(game, actorId, card, context);
+    return;
+  }
+  game.pending = {
+    type: "ACTION_REACTION",
+    actionId: card.id,
+    actorId,
+    playerId: first,
+    card,
+    context,
+    nopeCount: 0,
+    lastNopePlayerId: null,
+    passedPlayerIds: [],
+    deadlineAt: now + REACTION_TIMEOUT_MS
+  };
+}
+
+function playCard(game, playerId, cardId, now = Date.now()) {
+  requireTurn(game, playerId);
+  const hand = game.hands[playerId];
+  const index = hand.findIndex((card) => card.id === cardId);
+  if (index === -1) fail("Deze kaart zit niet in jouw hand.", 400);
+  const card = hand[index];
+  if (!ONLINE_PLAYABLE_TYPES.has(card.type)) {
+    fail(`${card.name} is nog niet beschikbaar in de online testversie.`);
+  }
+  if ((card.type === "fossil" || card.type === "miniRaptor") && validStealTargets(game, playerId).length === 0) {
+    fail("Er is geen tegenstander met een kaart om te stelen.");
+  }
+  const oldDiscardChoices = game.discard.filter((item) => item.type !== "meteor");
+  let playedCards = [card];
+  const fiveSpecies = selectFiveSpeciesCombo(hand);
+  const playsFiveSpecies = fiveSpecies.length === 5 && (PAIR_REWARD_TYPES.has(card.type) || card.type === "feral");
+  if (playsFiveSpecies) {
+    const preferredIndex = fiveSpecies.findIndex((item) => item.type === card.type);
+    if (preferredIndex >= 0) fiveSpecies[preferredIndex] = card;
+  }
+  if (card.type === "feral" && !playsFiveSpecies) fail("Wilde Dino kan alleen als joker in een geldige combinatie worden gespeeld.");
+  if (playsFiveSpecies) {
+    playedCards = fiveSpecies;
+  } else if (PAIR_REWARD_TYPES.has(card.type)) {
+    if (card.type === "pteroPret" && game.deck.length < 2) fail("Er zijn te weinig kaarten over voor Ptero Pret.");
+    const companion = hand.find((item, itemIndex) => itemIndex !== index && (item.type === card.type || item.type === "feral"));
+    if (!companion) fail(`${card.name} heeft een tweede ${card.name} of Wilde Dino nodig.`);
+    playedCards = [card, companion];
+  }
+  const playedIds = new Set(playedCards.map((item) => item.id));
+  game.hands[playerId] = hand.filter((item) => !playedIds.has(item.id));
+  game.discard.push(...playedCards);
+  const player = game.players.find((item) => item.id === playerId);
+  game.log.push(`${player.name} speelde ${card.name}.`);
+  const context = { oldDiscardChoices, fiveSpecies: playsFiveSpecies, playedIds: playedCards.map((item) => item.id) };
+  game.pending = { type: "PLAY_REVEAL", playerId, card, cards: playedCards, context, reactionNow: now };
 }
 
 function beginAttack(game, attackerId, targetId, attackLoad) {
@@ -197,7 +270,7 @@ function beginAttack(game, attackerId, targetId, attackLoad) {
   const attacker = game.players.find((player) => player.id === attackerId);
   const target = game.players.find((player) => player.id === targetId);
   game.pending = { type: "ATTACK_REACTION", playerId: targetId, attackerId, targetId, attackLoad };
-  game.log.push(`${attacker.name} valt ${target.name} aan voor ${attackLoad} trekkingen.`);
+  game.log.push(`${attacker.name} valt ${target.name} aan voor ${attackLoad} volledige beurten.`);
 }
 
 function acceptAttack(game, pending) {
@@ -205,7 +278,7 @@ function acceptAttack(game, pending) {
   game.currentPlayerId = pending.targetId;
   game.forcedDrawsRemaining = pending.attackLoad;
   const target = game.players.find((player) => player.id === pending.targetId);
-  game.log.push(`${target.name} moet ${pending.attackLoad} kaarten trekken.`);
+  game.log.push(`${target.name} moet ${pending.attackLoad} volledige beurten uitvoeren.`);
 }
 
 function removeReactionCard(game, playerId, cardId, allowedTypes) {
@@ -235,10 +308,33 @@ function requirePending(game, playerId, type) {
   return game.pending;
 }
 
-function resolveChoice(game, playerId, action) {
+function resolveChoice(game, playerId, action, now = Date.now()) {
   if (action.type === "CONFIRM_PLAY") {
     const pending = requirePending(game, playerId, "PLAY_REVEAL");
-    game.pending = pending.nextPending;
+    if (canReactWithNope(pending.card)) beginActionReaction(game, playerId, pending.card, pending.context, now);
+    else {
+      game.pending = null;
+      resolvePlayedCardEffect(game, playerId, pending.card, pending.context);
+    }
+    return;
+  }
+  if (action.type === "REACTION_PASS") {
+    const pending = requirePending(game, playerId, "ACTION_REACTION");
+    pending.passedPlayerIds = [...pending.passedPlayerIds, playerId];
+    moveReactionToNextPlayer(game, pending, now);
+    return;
+  }
+  if (action.type === "REACTION_NOPE") {
+    const pending = requirePending(game, playerId, "ACTION_REACTION");
+    removeReactionCard(game, playerId, action.cardId, ["nope"]);
+    const nextPending = {
+      ...pending,
+      nopeCount: pending.nopeCount + 1,
+      lastNopePlayerId: playerId,
+      passedPlayerIds: []
+    };
+    game.log.push(`${game.players.find((player) => player.id === playerId).name} speelde Brul Terug.`);
+    moveReactionToNextPlayer(game, nextPending, now);
     return;
   }
   if (action.type === "CONFIRM_DRAW") {
@@ -302,15 +398,9 @@ function resolveChoice(game, playerId, action) {
   if (action.type === "PTERO_CHOICE") {
     const pending = requirePending(game, playerId, "PTERO_CHOICE");
     if (!pending.cards.some((card) => card.id === action.topCardId)) fail("Kies één van de twee kaarten.", 400);
-    const topCard = pending.cards.find((card) => card.id === action.topCardId);
-    const bottomCard = pending.cards.find((card) => card.id !== action.topCardId);
-    game.deck.splice(Math.max(0, game.deck.length - pending.cards.length), pending.cards.length);
-    if (bottomCard) game.deck.unshift(bottomCard);
-    if (topCard) game.deck.push(topCard);
+    game.deck = arrangePteroEdges(game.deck, action.topCardId);
     game.pending = null;
-    game.log.push("Ptero Pret legde één kaart bovenop en één kaart onderop.");
-    game.forcedDrawsRemaining = 0;
-    advanceTurn(game);
+    game.log.push("Ptero Pret legde één van de randkaarten bovenop en de andere onderop; de beurt gaat door.");
     return;
   }
   if (action.type === "CHOOSE_TARGET") {
@@ -324,18 +414,7 @@ function resolveChoice(game, playerId, action) {
     return;
   }
   if (action.type === "ATTACK_NOPE") {
-    const pending = requirePending(game, playerId, "ATTACK_REACTION");
-    removeReactionCard(game, playerId, action.cardId, ["nope"]);
-    const attack = { attackerId: pending.attackerId, targetId: pending.targetId, attackLoad: pending.attackLoad };
-    game.pending = {
-      type: "NOPE_RESPONSE",
-      playerId: pending.attackerId,
-      attack,
-      nopeCount: 1,
-      lastNopePlayerId: playerId
-    };
-    game.log.push(`${game.players.find((player) => player.id === playerId).name} speelde Brul Terug.`);
-    return;
+    fail("Brul Terug wordt al vóór het aanvalseffect afgehandeld.", 400);
   }
   if (action.type === "ATTACK_REFLECT") {
     const pending = requirePending(game, playerId, "ATTACK_REACTION");
@@ -408,8 +487,18 @@ function resolveChoice(game, playerId, action) {
     if (index === -1) fail("Deze kaart ligt niet meer in de aflegstapel.", 400);
     const [card] = game.discard.splice(index, 1);
     game.hands[playerId].push(card);
+    if (pending.source === "Vijf soorten") {
+      game.pending = { type: "PUBLIC_PICK_REVEAL", playerId, card, source: pending.source };
+      game.log.push(`${game.players.find((player) => player.id === playerId).name} nam open ${card.name} terug met vijf soorten.`);
+    } else {
+      game.pending = null;
+      game.log.push(`${game.players.find((player) => player.id === playerId).name} nam een kaart terug met Stego Snack.`);
+    }
+    return;
+  }
+  if (action.type === "CONFIRM_PUBLIC_PICK") {
+    requirePending(game, playerId, "PUBLIC_PICK_REVEAL");
     game.pending = null;
-    game.log.push(`${game.players.find((player) => player.id === playerId).name} nam een kaart terug met Stego Snack.`);
     return;
   }
   if (action.type === "BRONTO_CHOICE") {
@@ -423,10 +512,10 @@ function resolveChoice(game, playerId, action) {
   fail("Onbekende geheime keuze.", 400);
 }
 
-function applyAction(game, playerId, action) {
-  if (isChoiceAction(action?.type)) resolveChoice(game, playerId, action);
+function applyAction(game, playerId, action, now = Date.now()) {
+  if (isChoiceAction(action?.type)) resolveChoice(game, playerId, action, now);
   else if (action?.type === "DRAW_CARD") drawCard(game, playerId);
-  else if (action?.type === "PLAY_CARD") playCard(game, playerId, action.cardId);
+  else if (action?.type === "PLAY_CARD") playCard(game, playerId, action.cardId, now);
   else fail("Onbekende spelactie.", 400);
   return game;
 }
@@ -440,7 +529,34 @@ function publicPending(game, viewerId) {
       playerId: game.pending.playerId,
       playerName: player?.name ?? "Een speler",
       isActor: game.pending.playerId === viewerId,
-      cards: [game.pending.card]
+      cards: game.pending.cards ?? [game.pending.card]
+    };
+  }
+  if (game.pending.type === "PUBLIC_PICK_REVEAL") {
+    return { type: "PUBLIC_PICK_REVEAL", playerId: game.pending.playerId, playerName: player?.name, isActor: game.pending.playerId === viewerId, source: game.pending.source, cards: [game.pending.card] };
+  }
+  if (game.pending.type === "ACTION_REACTION") {
+    if (game.pending.playerId !== viewerId) {
+      const reactor = game.players.find((item) => item.id === game.pending.playerId);
+      return {
+        type: "WAITING",
+        pendingType: "ACTION_REACTION",
+        playerId: game.pending.playerId,
+        playerName: reactor?.name ?? "Een speler",
+        card: game.pending.card,
+        nopeCount: game.pending.nopeCount,
+        deadlineAt: game.pending.deadlineAt
+      };
+    }
+    const hand = game.hands[viewerId] ?? [];
+    return {
+      type: "ACTION_REACTION",
+      actionId: game.pending.actionId,
+      actorName: game.players.find((item) => item.id === game.pending.actorId)?.name,
+      cards: [game.pending.card],
+      nopeCount: game.pending.nopeCount,
+      nopeCardIds: hand.filter((card) => card.type === "nope").map((card) => card.id),
+      deadlineAt: game.pending.deadlineAt
     };
   }
   if (game.pending.type === "METEOR_REVEAL") {
@@ -497,7 +613,7 @@ function publicPending(game, viewerId) {
       type: "ATTACK_REACTION",
       attackLoad: game.pending.attackLoad,
       attackerName: game.players.find((item) => item.id === game.pending.attackerId)?.name,
-      nopeCardIds: hand.filter((card) => card.type === "nope").map((card) => card.id),
+      nopeCardIds: [],
       attackCardIds: hand.filter((card) => card.type === "raptor" || card.type === "targetedRaptor").map((card) => card.id)
     };
   }
@@ -512,9 +628,22 @@ function publicPending(game, viewerId) {
   return {
     type: game.pending.type,
     title: game.pending.title,
+    source: game.pending.source,
     cards: game.pending.cards ?? (game.pending.card ? [game.pending.card] : []),
     deckSize: game.deck.length
   };
+}
+
+function advanceExpiredReaction(game, now = Date.now()) {
+  let changed = false;
+  while (game.pending?.type === "ACTION_REACTION" && game.pending.deadlineAt <= now) {
+    const pending = game.pending;
+    pending.passedPlayerIds = [...pending.passedPlayerIds, pending.playerId];
+    game.log.push(`${game.players.find((player) => player.id === pending.playerId)?.name ?? "Een speler"} paste automatisch.`);
+    moveReactionToNextPlayer(game, pending, now);
+    changed = true;
+  }
+  return changed;
 }
 
 function playableCardIds(game, viewerId) {
@@ -522,6 +651,7 @@ function playableCardIds(game, viewerId) {
   const hand = game.hands[viewerId] ?? [];
   return hand.filter((card, index) => {
     if (["sprint", "trike", "volcano", "dig", "oracle", "fossil", "raptor", "targetedRaptor"].includes(card.type)) return true;
+    if ((PAIR_REWARD_TYPES.has(card.type) || card.type === "feral") && selectFiveSpeciesCombo(hand).length === 5) return true;
     if (PAIR_REWARD_TYPES.has(card.type)) return hand.some((other, otherIndex) => otherIndex !== index && (other.type === card.type || other.type === "feral"));
     return false;
   }).map((card) => card.id);
@@ -548,4 +678,4 @@ function publicGame(game, viewerId) {
   };
 }
 
-module.exports = { ONLINE_PLAYABLE_TYPES, applyAction, publicGame, startGame };
+module.exports = { ONLINE_PLAYABLE_TYPES, REACTION_TIMEOUT_MS, advanceExpiredReaction, applyAction, publicGame, startGame };
