@@ -662,7 +662,7 @@ test("logboek staat achter het menu met vijf acties en een volledige weergave", 
   await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon laatste 5 acties");
 });
 
-test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
+test("uitleg doorloopt een geïsoleerde voorbeeldbeurt met private en publieke informatie", async ({ page }) => {
   await page.locator("#startExplainButton").click();
   await expect(page.locator("#tutorial")).toBeVisible();
   await expect(page.locator(".quickstart__setup")).toContainText("1 Schuilgrot + 7 kaarten");
@@ -673,19 +673,21 @@ test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page 
   expect(Math.abs((tutorialCard.width / tutorialCard.height) - (5 / 7))).toBeLessThan(0.02);
 
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("Actiekaarten");
+  await expect(page.locator("#tutorialText")).toContainText("Privé-informatie");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("beurt is voorbij");
+  await expect(page.locator("#tutorialText")).toContainText("Publieke informatie");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("geen Schuilgrot");
+  await expect(page.locator("#tutorialText")).toContainText("één Brul Terug");
+  await page.locator("#tutorialRestartButton").click();
+  await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialText")).toContainText("automatisch gebruikt");
   await page.locator("#tutorialNextButton").click();
-  await expect(page.locator("#tutorialPlacement")).toBeVisible();
-  await page.locator("#tutorialPlacementSelect").selectOption("bottom");
-  await expect(page.locator("#tutorialPlacementHint")).toContainText("gevaar blijft");
   await page.locator("#tutorialNextButton").click();
-
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("Privé zie jij");
+  await page.locator("#tutorialNextButton").click();
+  await expect(page.locator("#tutorialText")).toContainText("echte spelstate");
+  await page.locator("#tutorialNextButton").click();
   await expect(page.locator("#tutorial")).toBeHidden();
   await expect(page.locator("#startModal")).toBeVisible();
 });

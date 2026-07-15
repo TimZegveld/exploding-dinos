@@ -270,6 +270,7 @@ const els = {
   tutorialPlacementSelect: document.querySelector("#tutorialPlacementSelect"),
   tutorialPlacementHint: document.querySelector("#tutorialPlacementHint"),
   tutorialBackButton: document.querySelector("#tutorialBackButton"),
+  tutorialRestartButton: document.querySelector("#tutorialRestartButton"),
   tutorialNextButton: document.querySelector("#tutorialNextButton"),
   tutorialSkipButton: document.querySelector("#tutorialSkipButton"),
   closeTutorialButton: document.querySelector("#closeTutorialButton")
@@ -279,44 +280,44 @@ const tutorialSteps = [
   {
     title: "Blijf als laatste dino over",
     text: "Om de beurt speel je kaarten en trek je één kaart. Wie als laatste niet is ontploft, wint.",
-    button: "Bekijk de andere kaarten",
+    button: "Kijk vooruit",
     cards: ["meteor", "shelter"],
     tone: "goal"
   },
   {
-    title: "Kaarten helpen je overleven en dwarsbomen",
-    text: "Actiekaarten laten je aanvallen, vooruitkijken of de stapel veranderen. Twee gelijke soortkaarten speel je samen voor een extra effect.",
-    button: "Zo eindigt je beurt",
-    cards: ["raptor", "trike", "miniRaptor"],
+    title: "Triceratops Blik ziet gevaar",
+    text: "Privé-informatie: alleen jij ziet dat een Meteorietinslag bovenop ligt.",
+    button: "Probeer een aanval",
+    cards: ["trike", "meteor"],
     tone: "cards"
   },
   {
-    title: "Trekken beëindigt je beurt",
-    text: "Speel eerst zoveel kaarten als je wilt. Klik daarna op de trekstapel: je trekt één kaart en je beurt is voorbij.",
-    button: "Laat een tegenstander trekken",
-    cards: ["volcano"],
+    title: "Raptor Aanval wordt gespeeld",
+    text: "Publieke informatie: iedereen ziet de aanval voordat het effect begint en mag reageren.",
+    button: "Brul de aanval terug",
+    cards: ["raptor"],
     tone: "turn"
   },
   {
-    title: "Zonder Schuilgrot ontplof je",
-    text: "De tegenstander trekt een Meteorietinslag en heeft geen Schuilgrot. Die dino is uitgeschakeld.",
-    button: "Trek hem nu zelf",
-    cards: ["meteor"],
-    tone: "explosion"
-  },
-  {
-    title: "Schuilgrot ontmantelt de inslag",
-    text: "Jouw Schuilgrot wordt automatisch gebruikt en afgelegd. Je overleeft, maar de Meteorietinslag moet terug in de stapel.",
-    button: "Plaats de meteoriet terug",
-    cards: ["meteor", "shelter"],
+    title: "Brul Terug blokkeert de aanval",
+    text: "Publieke informatie: één Brul Terug maakt de aanval ongeldig. Bij een tweede Brul Terug zou de aanval alsnog doorgaan.",
+    button: "Verander de stapel",
+    cards: ["raptor", "nope"],
     tone: "defuse"
   },
   {
-    title: "Maak de volgende trek gevaarlijk",
-    text: "Je kiest een geheime plek. Je wijst dus niet rechtstreeks iemand aan: die speler moet de Meteorietinslag later trekken.",
+    title: "Vulkaan Shuffle wijzigt de situatie",
+    text: "Publiek is dat de stapel wordt geschud. Privé zie jij daarna dat de nieuwe bovenste kaart veilig is.",
+    button: "Trek veilig",
+    cards: ["volcano", "sprint"],
+    tone: "cards"
+  },
+  {
+    title: "Een veilige trek sluit de beurt af",
+    text: "Je trekt de veilige kaart. Daarmee is deze voorbeeldbeurt klaar; de echte spelstate, room en sessie zijn niet gewijzigd.",
     button: "Begrepen — terug naar het spel",
-    cards: ["meteor"],
-    tone: "placement"
+    cards: ["sprint"],
+    tone: "goal"
   }
 ];
 
@@ -2097,6 +2098,11 @@ function resolveSprint(owner) {
   setAction(`${label(owner)} beëindigt de beurt zonder te trekken.`);
 }
 
+function restartTutorial() {
+  tutorialStep = 0;
+  renderTutorial();
+}
+
 function resolveTriceraTuk(owner) {
   const turnsBeforeTuk = state.pendingTurns[owner] ?? 1;
   consumeTurn(owner);
@@ -3067,6 +3073,7 @@ els.startGameButton.addEventListener("click", confirmStartSelection);
 els.closeTutorialButton?.addEventListener("click", closeTutorial);
 els.tutorialSkipButton?.addEventListener("click", closeTutorial);
 els.tutorialBackButton?.addEventListener("click", retreatTutorial);
+els.tutorialRestartButton?.addEventListener("click", restartTutorial);
 els.tutorialNextButton?.addEventListener("click", advanceTutorial);
 els.tutorialPlacementSelect?.addEventListener("change", updateTutorialPlacementHint);
 els.tutorial?.addEventListener("click", (event) => {

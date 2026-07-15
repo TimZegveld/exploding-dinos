@@ -411,7 +411,7 @@ test("draw button opens a pending draw reveal", () => {
   assert.match(getSelector("#revealText").textContent, /kaart|Meteorietinslag|Schuilgrot/i);
 });
 
-test("interactive tutorial explains explosion, shelter and replacement without changing the game", () => {
+test("interactive tutorial runs the isolated reaction scenario without changing the game", () => {
   const { getSelector, sandbox } = loadGame();
   getSelector("#startGameButton").click();
   const before = JSON.stringify(sandbox.state);
@@ -421,16 +421,16 @@ test("interactive tutorial explains explosion, shelter and replacement without c
   assert.equal(getSelector("#tutorialProgress").textContent, "Stap 1 van 6");
 
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /Actiekaarten/i);
+  assert.match(getSelector("#tutorialText").textContent, /Privé-informatie/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /Trekken beëindigt je beurt|beurt is voorbij/i);
+  assert.match(getSelector("#tutorialText").textContent, /Publieke informatie/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /geen Schuilgrot/i);
+  assert.match(getSelector("#tutorialText").textContent, /Brul Terug/i);
   getSelector("#tutorialNextButton").click();
-  assert.match(getSelector("#tutorialText").textContent, /automatisch gebruikt/i);
+  assert.match(getSelector("#tutorialText").textContent, /Vulkaan Shuffle|Privé/i);
   getSelector("#tutorialNextButton").click();
   assert.equal(getSelector("#tutorialProgress").textContent, "Stap 6 van 6");
-  assert.equal(getSelector("#tutorialPlacement").classList.contains("is-hidden"), false);
+  assert.match(getSelector("#tutorialText").textContent, /echte spelstate/i);
   getSelector("#tutorialNextButton").click();
 
   assert.equal(getSelector("#tutorial").classList.contains("is-hidden"), true);
