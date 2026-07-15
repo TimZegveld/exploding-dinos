@@ -43,6 +43,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
 - Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
+- De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 
 ## Volgende prioriteit
 

@@ -42,7 +42,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 ## Technische kwaliteit
 
-- [ ] **13. Verouderde skill-smokeharness repareren**
+- [x] **13. Verouderde skill-smokeharness repareren**
   Laat de harness dezelfde scripts in dezelfde volgorde laden als `index.html`, zodat de snelle ontwikkelcontrole weer betrouwbaar werkt.
 
 ## Werkwijze

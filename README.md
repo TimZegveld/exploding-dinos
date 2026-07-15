@@ -88,6 +88,7 @@ Kaartillustraties ondersteunen per kaarttype optionele varianten via `design.ima
 ## Project-skill
 
 Deze repo bevat een projectlokale Codex-skill onder `.codex/skills/exploding-dinos-card-designer/` voor het uitwerken van nieuwe kaartfuncties en kaartdesigns.
+De bijbehorende smokeharness leest de lokale scripts rechtstreeks uit `index.html`, voert ze in dezelfde volgorde uit en start via de echte knop een testpotje. Daardoor blijft de snelle skillcontrole synchroon met nieuwe runtime- en UI-modules.
 
 ## NPC-profielen
 
