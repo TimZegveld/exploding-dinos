@@ -23,7 +23,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
   Maak Start multiplayer en Deelnemen consistent met de primaire in-game actieknoppen.
 - [x] **7. Verouderde multiplayerdisclaimer verwijderen**
   Verwijder de melding dat de online modus nog in ontwikkeling is uit UI en documentatie.
-- [ ] **8. Willekeurige naamgenerator beoordelen en uitbreiden**  
+- [x] **8. Willekeurige naamgenerator beoordelen en uitbreiden**
   Documenteer de twee huidige lijsten van twaalf naamdelen en beoordeel uitbreiding en het voorkomen van dubbele roomnamen.
 
 ## Speeltafel en informatie

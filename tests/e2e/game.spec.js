@@ -161,6 +161,44 @@ test("spelersnaam blijft vergrendeld in een room en komt vrij na verlaten", asyn
   await expect(page.locator("#randomizeDinoNameButton")).toBeEnabled();
 });
 
+test("automatische dinonaam kiest bij een conflict zelf een nieuwe naam", async ({ page }) => {
+  await page.evaluate(() => {
+    window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test";
+    window.testJoinNames = [];
+    window.fetch = async (_url, options) => {
+      const name = JSON.parse(options.body).name;
+      window.testJoinNames.push(name);
+      if (window.testJoinNames.length === 1) {
+        return new Response(JSON.stringify({ error: "Deze naam wordt al gebruikt in de room." }), {
+          status: 409,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify({
+        token: "guest-token",
+        room: {
+          code: "NAAM02",
+          viewerId: "player-guest",
+          isHost: false,
+          players: [{ id: "player-guest", name }],
+          game: null
+        }
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    };
+    history.replaceState({}, "", "?room=NAAM02");
+  });
+
+  await page.locator("#openMultiplayerButton").click();
+  const initialName = await page.locator("#multiplayerName").inputValue();
+  await page.locator("#joinRoomButton").click();
+
+  await expect(page.locator("#activeRoomCode")).toHaveText("NAAM02");
+  const receivedNames = await page.evaluate(() => window.testJoinNames);
+  expect(receivedNames).toHaveLength(2);
+  expect(receivedNames[0]).toBe(initialName);
+  expect(receivedNames[1]).not.toBe(initialName);
+});
+
 test("host start een online potje en ziet alleen de eigen hand", async ({ page }) => {
   const roomBase = {
     code: "KNET42",

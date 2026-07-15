@@ -20,7 +20,9 @@ Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
 
 ## Multiplayer-lobby
 
-Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige dinonaam en kan die vóór het maken of joinen met de dobbelknop veranderen. In een room staat de naam vast tot de speler de room verlaat. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige dinonaam uit 24 begindelen en 24 einddelen en kan die vóór het maken of joinen met de dobbelknop veranderen. Als een automatisch gekozen naam al in de room voorkomt, probeert de lobby zelf een andere combinatie; een handmatig gekozen dubbele naam geeft een foutmelding. In een room staat de naam vast tot de speler de room verlaat. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+
+De naamdelen staan centraal in `src/names.js`. De 24 begindelen lopen van `Brullende` en `Knetterende` tot `Ondeugende` en `Verstrooide`; de 24 einddelen combineren dinosaurussen zoals `Raptor`, `Brachio` en `Iguanodon` met bijnamen zoals `Fossielsnuit`, `Lavapoot` en `Kiezelbuik`. Dit levert 576 unieke combinaties op binnen de limiet van 24 tekens.
 
 Start de roomserver lokaal in een tweede terminal:
 
@@ -67,6 +69,7 @@ Voor gratis GitHub Pages met GitHub Free moet de repository publiek zijn. Zie `C
 
 - `src/cards.js`: kaartcatalogus, Party Pack-distributie en deckhelpers.
 - `src/players.js`: pc-persona's, portretprompts, spelerkleuren en speler-aanmaak.
+- `src/names.js`: testbare multiplayernaamdelen, combinaties en uitsluiting van eerder geprobeerde namen.
 - `src/runtime.js`: injecteerbare willekeur en planning voor deterministische tests.
 - `src/state.js`: initiële spelstate, interactieregister en state-invarianten.
 - `src/rules.js`: pure, DOM-onafhankelijke spelregels.

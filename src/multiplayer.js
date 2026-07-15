@@ -4,6 +4,7 @@ const { createMultiplayerViewModel } = globalThis.ExplodingDinosViewModel;
 const SharedGameView = globalThis.ExplodingDinosGameView;
 const SharedRevealView = globalThis.ExplodingDinosRevealView;
 const SharedChoiceView = globalThis.ExplodingDinosChoiceView;
+const { randomDinoName } = globalThis.ExplodingDinosNames;
 const multiplayerColors = globalThis.ExplodingDinosPlayers?.playerColors ?? ["#55b87a", "#d79632", "#d35d32", "#548fc7", "#9a6ac9"];
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -73,22 +74,17 @@ let onlineRevealActions = null;
 let onlineOracleDraft = null;
 let roomConnectionBusy = false;
 let roomNameLocked = Boolean(session?.code && session?.token);
+let nameWasGenerated = false;
 
 const ROOM_REQUEST_TIMEOUT_MS = Number(config.requestTimeoutMs) || 90000;
 
-const DINO_NAME_STARTS = ["Brullende", "Knetterende", "Sluwe", "Dappere", "Machtige", "Flitsende", "Mollige", "Vurige", "Slaperige", "Wilde", "Blije", "Stekelige"];
-const DINO_NAME_ENDS = ["Bronto", "Raptor", "Tricera", "Stego", "Ptero", "Rex", "Ankylo", "Dilo", "Spino", "Carno", "Fossielsnuit", "Staartzwieper"];
-
-function randomDinoName() {
-  const start = DINO_NAME_STARTS[Math.floor(Math.random() * DINO_NAME_STARTS.length)];
-  const end = DINO_NAME_ENDS[Math.floor(Math.random() * DINO_NAME_ENDS.length)];
-  return `${start} ${end}`.slice(0, 24);
-}
-
-function setRandomDinoName() {
-  elements.name.value = randomDinoName();
-  elements.name.focus?.();
-  elements.name.select?.();
+function setRandomDinoName(focus = true, excludedNames = []) {
+  elements.name.value = randomDinoName(Math.random, excludedNames);
+  nameWasGenerated = true;
+  if (focus) {
+    elements.name.focus?.();
+    elements.name.select?.();
+  }
 }
 
 function storage() {
@@ -190,7 +186,7 @@ function openModal() {
   elements.status.textContent = linkedRoom
     ? `Je bent uitgenodigd voor room ${linkedRoom}. Kies je naam en neem deel.`
     : "Maak een nieuwe room en deel daarna de uitnodigingslink.";
-  if (!elements.name.value) elements.name.value = randomDinoName();
+  if (!elements.name.value) setRandomDinoName(false);
   if (linkedRoom && session?.code && linkedRoom !== session.code) saveSession(null);
   if (session?.code && session?.token) {
     showLobby({ code: session.code, players: [], viewerId: null, isHost: false });
@@ -819,15 +815,35 @@ async function createRoom() {
   } finally { setBusy(false); }
 }
 
+function isDuplicateNameError(error) {
+  return /naam wordt al gebruikt/i.test(error?.message ?? "");
+}
+
+async function joinWithGeneratedNameRetry(code) {
+  const attemptedNames = new Set();
+  const retryLimit = 8;
+
+  for (let attempt = 0; attempt <= retryLimit; attempt += 1) {
+    attemptedNames.add(elements.name.value);
+    try {
+      return await request(`/api/rooms/${encodeURIComponent(code)}/join`, {
+        method: "POST",
+        body: JSON.stringify({ name: elements.name.value })
+      });
+    } catch (error) {
+      if (!nameWasGenerated || !isDuplicateNameError(error) || attempt === retryLimit) throw error;
+      setRandomDinoName(false, attemptedNames);
+      elements.status.textContent = "Die dinonaam was al bezet. We proberen automatisch een andere...";
+    }
+  }
+}
+
 async function joinRoom() {
   if (roomConnectionBusy) return;
   setBusy(true, "We maken verbinding met de room. Na rust kan de dinoserver ongeveer een minuut nodig hebben...");
   try {
     const code = elements.code.value.trim().toUpperCase();
-    const result = await request(`/api/rooms/${encodeURIComponent(code)}/join`, {
-      method: "POST",
-      body: JSON.stringify({ name: elements.name.value })
-    });
+    const result = await joinWithGeneratedNameRetry(code);
     saveSession({ code: result.room.code, token: result.token });
     syncRoomUrl(result.room.code);
     showLobby(result.room);
@@ -949,6 +965,7 @@ elements.leave.addEventListener("click", leaveRoom);
 elements.copy.addEventListener("click", copyRoomLink);
 elements.stopGame.addEventListener("click", stopOnlineGame);
 elements.randomizeName.addEventListener("click", setRandomDinoName);
+elements.name.addEventListener("input", () => { nameWasGenerated = false; });
 elements.start.addEventListener("click", startOnlineGame);
 elements.mainDraw.addEventListener("click", (event) => {
   if (!activeRoom?.game) return;
