@@ -74,6 +74,22 @@ function isNopeChainBlocked(nopeCount) {
   return (nopeCount ?? 0) % 2 === 1;
 }
 
+const NOPE_REACTABLE_TYPES = Object.freeze([
+  "raptor",
+  "targetedRaptor",
+  "sprint",
+  "trike",
+  "oracle",
+  "volcano",
+  "dig",
+  "fossil"
+]);
+
+function canReactWithNope(cardOrType) {
+  const type = typeof cardOrType === "string" ? cardOrType : cardOrType?.type;
+  return NOPE_REACTABLE_TYPES.includes(type);
+}
+
 function getCardTurnEffect(card) {
   if (card?.turnEffect) return card.turnEffect;
   if (card?.playable) return "continue";
@@ -81,7 +97,9 @@ function getCardTurnEffect(card) {
 }
 
 const ExplodingDinosRules = {
+  NOPE_REACTABLE_TYPES,
   applyRaptorAttack,
+  canReactWithNope,
   calculateSetupCounts,
   chooseStartingPlayerId,
   determineSetPairRewardType,

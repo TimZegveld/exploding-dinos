@@ -1,5 +1,5 @@
 const { randomBytes } = require("node:crypto");
-const { applyAction, publicGame, startGame } = require("./game-engine");
+const { advanceExpiredReaction, applyAction, publicGame, startGame } = require("./game-engine");
 
 const ROOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -103,6 +103,7 @@ function createRoomService({ now = () => Date.now(), roomLifetimeMs = 12 * 60 * 
     if (!room.players.some((player) => player.token === token)) {
       throw Object.assign(new Error("Je spelerssessie is niet geldig."), { statusCode: 401 });
     }
+    if (room.game && advanceExpiredReaction(room.game, now())) room.version += 1;
     return publicRoom(room, token);
   }
 
@@ -161,10 +162,11 @@ function createRoomService({ now = () => Date.now(), roomLifetimeMs = 12 * 60 * 
     const viewer = room.players.find((player) => player.token === token);
     if (!viewer) throw Object.assign(new Error("Je spelerssessie is niet geldig."), { statusCode: 401 });
     if (room.status !== "playing" || !room.game) throw Object.assign(new Error("Dit potje is nog niet gestart."), { statusCode: 409 });
+    if (advanceExpiredReaction(room.game, now())) room.version += 1;
     if (Number(expectedVersion) !== room.version) {
       throw Object.assign(new Error("Het spel is intussen veranderd; probeer opnieuw."), { statusCode: 409 });
     }
-    applyAction(room.game, viewer.id, action);
+    applyAction(room.game, viewer.id, action, now());
     room.version += 1;
     if (room.game.winnerId) room.status = "finished";
     room.expiresAt = now() + roomLifetimeMs;

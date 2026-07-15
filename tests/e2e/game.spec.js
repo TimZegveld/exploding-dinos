@@ -310,6 +310,23 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
       hand: [{ id: "nope-1", type: "nope", name: "Brul Terug", text: "Blokkeer de aanval.", kind: "action" }]
     }
   };
+  const actionReactionRoom = {
+    ...gameRoom,
+    version: 6,
+    game: {
+      ...gameRoom.game,
+      pending: {
+        type: "ACTION_REACTION",
+        actionId: "trike-played",
+        actorName: "Nova",
+        cards: [{ id: "trike-played", type: "trike", name: "Triceratops Blik", text: "Bekijk de stapel.", kind: "action" }],
+        nopeCount: 0,
+        nopeCardIds: ["nope-1"],
+        deadlineAt: Date.now() + 30_000
+      },
+      hand: [{ id: "nope-1", type: "nope", name: "Brul Terug", text: "Blokkeer de actie.", kind: "action" }]
+    }
+  };
   const forcedDrawRoom = {
     ...gameRoom,
     version: 5,
@@ -554,6 +571,17 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   expect(choiceColors.text).toBe("rgb(185, 170, 151)");
   expect(choiceColors.hostBackground).toBe("rgb(26, 36, 31)");
   await page.locator("#revealButton").click();
+  await expect(page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
+
+  currentRoom = actionReactionRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Brul Terug?");
+  await expect(page.locator("#revealText")).toContainText("Nova speelt Triceratops Blik");
+  await expect(page.locator("#revealCard")).toContainText("Brul Terug");
+  await expect(page.locator("#revealButton")).toHaveText("Passen");
+
+  currentRoom = attackRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
   await expect(page.locator("#drawReveal")).toBeVisible();
   await expect(page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
   await expect(page.locator("#revealText")).toContainText("Nova valt je aan");

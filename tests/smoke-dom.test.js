@@ -287,7 +287,7 @@ test("raptor attack ends the played card owner's turn", () => {
   assert.equal(getSelector("#drawButton").disabled, true);
 });
 
-test("normal raptor attacks the next player without offering unrelated Brul Terug", () => {
+test("iedere actieve speler kan buiten de eigen beurt op een raptoraanval reageren", () => {
   const { getSelector, sandbox } = loadGame();
   const { makeCard } = sandbox.ExplodingDinosCards;
 
@@ -309,9 +309,12 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
 
   getSelector("#revealButton").click();
 
+  assert.equal(getSelector("#revealEyebrow").textContent, "Brul Terug?");
+  assert.match(getSelector("#revealText").textContent, /Raptor Aanval/);
+  getSelector("#revealButton").click();
+
   assert.equal(getSelector("#turnStatus").textContent, "Nova de Vulkaanwachter denkt na");
   assert.equal(getSelector("#drawReveal").classList.contains("is-hidden"), true);
-  assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
 });
 
 test("card artwork receives responsive crop metadata", () => {

@@ -15,6 +15,9 @@ function playCard(game, playerId, cardId) {
   applyAction(game, playerId, { type: "PLAY_CARD", cardId });
   assert.equal(game.pending.type, "PLAY_REVEAL");
   applyAction(game, playerId, { type: "CONFIRM_PLAY" });
+  while (game.pending?.type === "ACTION_REACTION") {
+    applyAction(game, game.pending.playerId, { type: "REACTION_PASS" });
+  }
 }
 
 test("online spel deelt acht kaarten en houdt handen geheim", () => {
@@ -123,6 +126,10 @@ test("Triceratops Blik toont de bovenste kaarten alleen aan de speler", () => {
   assert.equal(publicGame(game, "player-b").pending.cards[0].id, "trike");
   assert.equal(publicGame(game, "player-b").pending.isActor, false);
   applyAction(game, "player-a", { type: "CONFIRM_PLAY" });
+
+  assert.equal(game.pending.type, "ACTION_REACTION");
+  assert.equal("cards" in publicGame(game, "player-a").pending, false);
+  applyAction(game, "player-b", { type: "REACTION_PASS" });
 
   assert.deepEqual(publicGame(game, "player-a").pending.cards.map((card) => card.id), ["three", "two", "one"]);
   assert.equal(publicGame(game, "player-b").pending.cards, undefined);
@@ -237,13 +244,14 @@ test("aangevallen speler schuift de volledige aanval door met extra belasting", 
   assert.equal(game.pending.attackLoad, 4);
 });
 
-test("oneven Brul Terug-keten blokkeert en even keten laat de aanval doorgaan", () => {
+test("oneven Brul Terug-keten blokkeert en even keten laat de actie doorgaan", () => {
   const blocked = startGame(players);
   blocked.hands["player-a"] = [{ id: "attack", type: "raptor", name: "Raptor Aanval" }];
   blocked.hands["player-b"] = [{ id: "nope-b", type: "nope", name: "Brul Terug" }];
-  playCard(blocked, "player-a", "attack");
-  applyAction(blocked, "player-b", { type: "ATTACK_NOPE", cardId: "nope-b" });
-  applyAction(blocked, "player-a", { type: "NOPE_PASS" });
+  applyAction(blocked, "player-a", { type: "PLAY_CARD", cardId: "attack" });
+  applyAction(blocked, "player-a", { type: "CONFIRM_PLAY" });
+  applyAction(blocked, "player-b", { type: "REACTION_NOPE", cardId: "nope-b" });
+  applyAction(blocked, "player-a", { type: "REACTION_PASS" });
   assert.equal(blocked.pending, null);
   assert.equal(blocked.forcedDrawsRemaining, 0);
 
@@ -253,12 +261,38 @@ test("oneven Brul Terug-keten blokkeert en even keten laat de aanval doorgaan", 
     { id: "nope-a", type: "nope", name: "Brul Terug" }
   ];
   accepted.hands["player-b"] = [{ id: "nope-b", type: "nope", name: "Brul Terug" }];
-  playCard(accepted, "player-a", "attack");
-  applyAction(accepted, "player-b", { type: "ATTACK_NOPE", cardId: "nope-b" });
-  applyAction(accepted, "player-a", { type: "NOPE_PLAY", cardId: "nope-a" });
-  applyAction(accepted, "player-b", { type: "NOPE_PASS" });
+  applyAction(accepted, "player-a", { type: "PLAY_CARD", cardId: "attack" });
+  applyAction(accepted, "player-a", { type: "CONFIRM_PLAY" });
+  applyAction(accepted, "player-b", { type: "REACTION_NOPE", cardId: "nope-b" });
+  applyAction(accepted, "player-a", { type: "REACTION_NOPE", cardId: "nope-a" });
+  applyAction(accepted, "player-b", { type: "REACTION_PASS" });
+  applyAction(accepted, "player-b", { type: "ATTACK_PASS" });
   assert.equal(accepted.forcedDrawsRemaining, 2);
   assert.equal(accepted.currentPlayerId, "player-b");
+});
+
+test("multiplayer handelt ketens van nul tot vier Brul Terug-kaarten exact eenmaal af", () => {
+  for (let nopeCount = 0; nopeCount <= 4; nopeCount += 1) {
+    const game = startGame(players);
+    game.deck = [{ id: `top-${nopeCount}`, type: "sprint", name: "Bovenste" }];
+    game.hands["player-a"] = [
+      { id: `trike-${nopeCount}`, type: "trike", name: "Triceratops Blik" },
+      ...Array.from({ length: 2 }, (_, index) => ({ id: `nope-a-${nopeCount}-${index}`, type: "nope", name: "Brul Terug" }))
+    ];
+    game.hands["player-b"] = Array.from({ length: 2 }, (_, index) => ({ id: `nope-b-${nopeCount}-${index}`, type: "nope", name: "Brul Terug" }));
+
+    applyAction(game, "player-a", { type: "PLAY_CARD", cardId: `trike-${nopeCount}` });
+    applyAction(game, "player-a", { type: "CONFIRM_PLAY" });
+    for (let index = 0; index < nopeCount; index += 1) {
+      const reactor = game.pending.playerId;
+      const nope = game.hands[reactor].find((card) => card.type === "nope");
+      applyAction(game, reactor, { type: "REACTION_NOPE", cardId: nope.id });
+    }
+    applyAction(game, game.pending.playerId, { type: "REACTION_PASS" });
+
+    assert.equal(game.pending?.type ?? null, nopeCount % 2 === 0 ? "PEEK" : null, `keten ${nopeCount}`);
+    assert.equal(game.discard.filter((card) => card.type === "trike").length, 1, `actie ${nopeCount}`);
+  }
 });
 
 test("ontploffen tijdens verplichte trekkingen beëindigt de aanval veilig", () => {

@@ -26,6 +26,7 @@ const {
 const {
   applyRaptorAttack,
   calculateSetupCounts,
+  canReactWithNope: isNopeReactableCard,
   chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
@@ -1509,12 +1510,7 @@ function playCard(owner, cardId, options = {}) {
   const preview = getActionPreview(owner, card);
   const playerCanReactToAttack = owner !== "player" && isAttackCard(card) && preview.target === "player";
   const resolvePlayedCard = () => {
-    if (playerCanReactToAttack) {
-      startAttackReaction(owner, card, preview.target);
-      return false;
-    }
-
-    offerNopeReaction(owner, card, { target: preview.target });
+    offerNopeReaction(owner, card, { target: preview.target, attackReaction: playerCanReactToAttack });
     return true;
   };
 
@@ -1679,6 +1675,11 @@ function resolveCard(owner, card, context = {}) {
   const target = context.target ?? chooseDefaultTarget(owner);
   const turnEffect = getCardTurnEffect(card);
 
+  if (context.attackReaction && isAttackCard(card) && target === "player") {
+    startAttackReaction(owner, card, target);
+    return;
+  }
+
   if (turnEffect === "skipTurn") {
     resolveSprint(owner);
     return;
@@ -1735,7 +1736,7 @@ function resolveCard(owner, card, context = {}) {
 }
 
 function offerNopeReaction(actor, card, context = {}) {
-  if (!canReactWithNope(card)) {
+  if (!isNopeReactableCard(card)) {
     resolveCard(actor, card, context);
     return;
   }
@@ -1828,12 +1829,8 @@ function resolveAttackReactionWithoutCard() {
   if (!pending) return;
 
   state.pendingAttackReaction = null;
-  offerNopeReaction(pending.actor, pending.card, { ...pending.context, skipPlayer: true });
+  resolveCard(pending.actor, pending.card, { ...pending.context, attackReaction: false });
   render();
-}
-
-function canReactWithNope(card) {
-  return card.playable && card.type !== "nope";
 }
 
 function isAttackCard(card) {
@@ -1906,7 +1903,10 @@ function resolveNopeReaction(useNope) {
   state.pendingNopeReaction = null;
 
   if (!useNope) {
-    finishNopeChain(pending);
+    continueNopeChain({
+      ...pending,
+      passedReactors: [...(pending.passedReactors ?? []), pending.reactor]
+    });
     return;
   }
 
@@ -1935,7 +1935,8 @@ function startNopeChainWithPlayedCard(chain) {
     lastReactor: chain.reactor,
     lastNopeCard: chain.nopeCard,
     nopeCount: (chain.nopeCount ?? 0) + 1,
-    skipPlayer: false
+    skipPlayer: false,
+    passedReactors: []
   };
   const firstNope = nextChain.nopeCount === 1;
   log(firstNope
@@ -1983,7 +1984,7 @@ function continueNopeChain(chain) {
     }
 
     log(`${label(reactor)} houdt Brul Terug vast.`);
-    finishNopeChain(chain);
+    continueNopeChain({ ...chain, passedReactors: [...(chain.passedReactors ?? []), reactor] });
     return;
   }
 
@@ -2013,7 +2014,8 @@ function finishNopeChain(chain) {
 }
 
 function chooseNopeChainReactor(chain) {
-  const candidates = getNopeChainCandidates(chain).filter((id) => getHand(id).some((card) => card.type === "nope"));
+  const passed = new Set(chain.passedReactors ?? []);
+  const candidates = getNopeChainCandidates(chain).filter((id) => !passed.has(id) && getHand(id).some((card) => card.type === "nope"));
   if (candidates.length === 0) return null;
   if (candidates.includes("player")) return "player";
   return candidates[0];
@@ -2028,12 +2030,7 @@ function getNopeChainCandidates(chain) {
     return [];
   }
 
-  const target = chain.context?.target;
-  if (!target || target === chain.actor || state.eliminated[target]) {
-    return [];
-  }
-
-  return [target];
+  return activeOpponentsOf(chain.actor);
 }
 
 function chooseRaptorTarget(owner, attackLoad = RAPTOR_TURN_LOAD, returnTo = owner) {

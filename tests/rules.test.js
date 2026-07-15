@@ -122,3 +122,13 @@ test("Brul Terug chains block on odd counts and resolve on even counts", () => {
   assert.equal(isNopeChainBlocked(2), false);
   assert.equal(isNopeChainBlocked(3), true);
 });
+
+test("Brul Terug-reactietabel sluit gevaren, bescherming en soortcombinaties uit", () => {
+  const { canReactWithNope, NOPE_REACTABLE_TYPES } = loadRulesModule();
+  const expected = ["raptor", "targetedRaptor", "sprint", "trike", "oracle", "volcano", "dig", "fossil"];
+
+  assert.deepEqual(Array.from(NOPE_REACTABLE_TYPES), expected);
+  expected.forEach((type) => assert.equal(canReactWithNope(type), true, type));
+  ["meteor", "shelter", "nope", "feral", "miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]
+    .forEach((type) => assert.equal(canReactWithNope(type), false, type));
+});

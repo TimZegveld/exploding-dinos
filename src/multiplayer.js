@@ -487,6 +487,28 @@ function renderChoice(pending, game) {
     renderStandardOnlineReveal({ title: isDiscard ? "Stego Snack" : "Ptero Pret", text: isDiscard ? "Kies een oudere kaart uit de aflegstapel om terug te nemen." : "Kies welke kaart bovenop komt. De andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
     return;
   }
+  if (pending.type === "ACTION_REACTION") {
+    const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
+    const nodes = pending.nopeCardIds.map((id) => SharedChoiceView.reactionCard(byId[id], {
+      playable: true,
+      renderCardFace: globalThis.renderCardFace,
+      onSelect: (card) => performGameAction({ type: "REACTION_NOPE", cardId: card.id })
+    }));
+    if (!nodes.length) {
+      const empty = document.createElement("p");
+      empty.className = "reaction-empty-message";
+      empty.textContent = "Je hebt geen Brul Terug. Je kunt direct passen.";
+      nodes.push(empty);
+    }
+    renderStandardOnlineReveal({
+      title: "Brul Terug?",
+      text: `${pending.actorName} speelt ${pending.cards[0]?.name ?? "een actiekaart"}. ${pending.nopeCount} Brul Terug-kaart(en) in de keten.`,
+      nodes,
+      cardClass: "is-attack-reaction",
+      primary: { label: "Passen", action: { type: "REACTION_PASS" } }
+    });
+    return;
+  }
   if (pending.type === "ATTACK_REACTION" || pending.type === "NOPE_RESPONSE") {
     const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
     const reactions = pending.type === "ATTACK_REACTION"
@@ -587,13 +609,21 @@ function renderChoice(pending, game) {
     return;
   }
 
+  if (pending.type === "ACTION_REACTION") {
+    elements.choiceTitle.textContent = "Brul Terug?";
+    elements.choiceText.textContent = `${pending.actorName} speelt ${pending.cards[0]?.name ?? "een actiekaart"}. De reactie sluit automatisch na 30 seconden.`;
+    const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
+    pending.nopeCardIds.forEach((cardId) => {
+      elements.choiceControls.append(actionButton(`Speel ${byId[cardId]?.name ?? "Brul Terug"}`, { type: "REACTION_NOPE", cardId }, "secondary-action"));
+    });
+    elements.choiceControls.append(actionButton("Passen", { type: "REACTION_PASS" }));
+    return;
+  }
+
   if (pending.type === "ATTACK_REACTION") {
     elements.choiceTitle.textContent = `${pending.attackerName} valt je aan`;
     elements.choiceText.textContent = `Je moet ${pending.attackLoad} kaarten trekken. Blokkeer, schuif door of accepteer.`;
     const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
-    pending.nopeCardIds.forEach((cardId) => {
-      elements.choiceControls.append(actionButton(`Speel ${byId[cardId]?.name ?? "Brul Terug"}`, { type: "ATTACK_NOPE", cardId }, "secondary-action"));
-    });
     pending.attackCardIds.forEach((cardId) => {
       elements.choiceControls.append(actionButton(`Schuif door met ${byId[cardId]?.name ?? "Raptoraanval"}`, { type: "ATTACK_REFLECT", cardId }, "secondary-action"));
     });

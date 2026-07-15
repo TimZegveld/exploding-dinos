@@ -70,6 +70,7 @@ test("spelacties vereisen de actuele roomversie", () => {
   const host = service.createRoom("Tim");
   const guest = service.joinRoom(host.room.code, "Nova");
   const started = service.startRoom(host.room.code, host.token);
+  service.getRoom(host.room.code).game.deck = [{ id: "safe-version-draw", type: "trike", name: "Triceratops Blik" }];
   const actorToken = started.game.currentPlayerId === started.viewerId ? host.token : guest.token;
   const nextPlayerId = started.game.players.find((player) => player.id !== started.game.currentPlayerId).id;
 
@@ -112,4 +113,32 @@ test("alleen de host kan een lopend spel voor iedereen stoppen", () => {
   assert.equal(lobby.game, null);
   assert.equal(guestLobby.status, "lobby");
   assert.equal(guestLobby.players.length, 2);
+});
+
+test("polling laat een verlopen reactievenster servergestuurd passen en reconnect veilig hervatten", () => {
+  let timestamp = 1_000;
+  const service = createRoomService({ now: () => timestamp });
+  const created = service.createRoom("A");
+  const joined = service.joinRoom(created.room.code, "B");
+  service.startRoom(created.room.code, created.token);
+  const internal = service.getRoom(created.room.code);
+  const actorId = internal.game.currentPlayerId;
+  const actor = internal.players.find((player) => player.id === actorId);
+  const reactor = internal.players.find((player) => player.id !== actorId);
+  internal.game.hands[actorId] = [{ id: "trike-timeout", type: "trike", name: "Triceratops Blik" }];
+  internal.game.deck = [{ id: "secret-top", type: "sprint", name: "Geheim" }];
+
+  let view = service.viewRoom(created.room.code, actor.token);
+  service.performAction(created.room.code, actor.token, { type: "PLAY_CARD", cardId: "trike-timeout" }, view.version);
+  view = service.viewRoom(created.room.code, actor.token);
+  service.performAction(created.room.code, actor.token, { type: "CONFIRM_PLAY" }, view.version);
+  const beforeTimeout = service.viewRoom(created.room.code, reactor.token);
+  assert.equal(beforeTimeout.game.pending.type, "ACTION_REACTION");
+  assert.equal(beforeTimeout.game.pending.cards[0].type, "trike");
+
+  timestamp += 30_001;
+  const reconnected = service.viewRoom(created.room.code, actor.token);
+  assert.equal(reconnected.game.pending.type, "PEEK");
+  assert.equal(reconnected.version, beforeTimeout.version + 1);
+  assert.equal(internal.game.discard.filter((card) => card.id === "trike-timeout").length, 1);
 });
