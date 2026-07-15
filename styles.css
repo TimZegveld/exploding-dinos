@@ -141,7 +141,7 @@ body.has-open-dialog {
 }
 
 .mobile-menu-button {
-  display: none;
+  display: grid;
   width: 46px;
   height: 46px;
   place-items: center;
@@ -1239,6 +1239,11 @@ h2 {
 
 .mobile-log {
   max-height: min(46dvh, 420px);
+}
+
+.mobile-log-panel .secondary-action {
+  width: auto;
+  justify-self: start;
 }
 
 .setup-control {

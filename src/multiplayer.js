@@ -734,6 +734,7 @@ function renderOnlineGame(room) {
     renderCardFace: globalThis.renderCardFace,
     onCard: (card) => showOnlineCardDetail(card, viewModel.hand.find((item) => item.card.id === card.id)?.playable)
   });
+  globalThis.ExplodingDinosMenu?.render?.();
   elements.mainPlayerZone.classList.toggle("is-current", isTurn && !game.winnerId);
   elements.mainPlayerZone.classList.toggle("is-hand-collapsed", !onlineHandOpen);
   elements.mainHandToggle.textContent = onlineHandOpen ? `Sluit hand (${game.hand.length})` : `Open hand (${game.hand.length})`;

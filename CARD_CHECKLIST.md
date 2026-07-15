@@ -16,6 +16,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - De primaire multiplayeracties `Deelnemen` en `Start multiplayer` gebruiken dezelfde knopstijl en interactiestates als de primaire spelacties.
 - De verouderde disclaimer over multiplayer in ontwikkeling is uit de interface en documentatie verwijderd.
 - De dinonaamgenerator bevat 24 begin- en 24 einddelen, bewaakt 576 unieke combinaties van maximaal 24 tekens en probeert automatisch opnieuw bij een conflict met een gegenereerde naam.
+- Het logboek staat op desktop en mobiel standaard verborgen achter het menu, toont eerst de laatste 5 acties en kan naar het volledige bewaarde log schakelen.
 - Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
 
 ## Huidige stand

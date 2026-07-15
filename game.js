@@ -200,6 +200,7 @@ let selectedCatalogType = null;
 let isPlayerHandOpen = false;
 let isMobileMenuOpen = false;
 let isMobileLogOpen = false;
+let isFullLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
 let tutorialStep = 0;
@@ -231,6 +232,7 @@ const els = {
   mobileLogButton: document.querySelector("#mobileLogButton"),
   mobileLogPanel: document.querySelector("#mobileLogPanel"),
   mobileGameLog: document.querySelector("#mobileGameLog"),
+  mobileLogExpandButton: document.querySelector("#mobileLogExpandButton"),
   turnStatus: document.querySelector("#turnStatus"),
   opponents: document.querySelector("#opponents"),
   deckCount: document.querySelector("#deckCount"),
@@ -588,12 +590,20 @@ function renderMobileMenu() {
 
   if (!els.mobileGameLog) return;
 
+  const entries = [...els.gameLog.children];
+  const visibleEntries = isFullLogOpen ? entries : entries.slice(-5);
   els.mobileGameLog.replaceChildren();
-  [...els.gameLog.children].forEach((entry) => {
+  visibleEntries.forEach((entry) => {
     const item = document.createElement("li");
     item.textContent = entry.textContent;
     els.mobileGameLog.append(item);
   });
+  const canExpand = entries.length > 5;
+  els.mobileLogExpandButton?.classList.toggle("is-hidden", !canExpand);
+  if (els.mobileLogExpandButton) {
+    els.mobileLogExpandButton.textContent = isFullLogOpen ? "Toon laatste 5 acties" : "Toon volledig logboek";
+    els.mobileLogExpandButton.setAttribute("aria-expanded", String(isFullLogOpen));
+  }
 }
 
 function renderOpponentRoster() {
@@ -665,11 +675,18 @@ function openMobileMenu() {
 function closeMobileMenu() {
   isMobileMenuOpen = false;
   isMobileLogOpen = false;
+  isFullLogOpen = false;
   render();
 }
 
 function toggleMobileLog() {
   isMobileLogOpen = !isMobileLogOpen;
+  isFullLogOpen = false;
+  render();
+}
+
+function toggleFullLog() {
+  isFullLogOpen = !isFullLogOpen;
   render();
 }
 
@@ -3038,6 +3055,7 @@ els.mobileCatalogPageButton?.addEventListener("click", () => showPageFromMobileM
 els.mobileExplainButton?.addEventListener("click", openTutorial);
 els.mobileNewGameButton?.addEventListener("click", startNewGameFromMobileMenu);
 els.mobileLogButton?.addEventListener("click", toggleMobileLog);
+els.mobileLogExpandButton?.addEventListener("click", toggleFullLog);
 els.mobileMenu?.addEventListener("click", (event) => {
   if (event.target === els.mobileMenu) {
     closeMobileMenu();
@@ -3180,6 +3198,8 @@ els.revealSecondaryButton.addEventListener("click", () => {
     confirmBrontoChoice(true);
   }
 });
+
+globalThis.ExplodingDinosMenu = { render: renderMobileMenu };
 
 render();
 openStartModal();

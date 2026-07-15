@@ -166,6 +166,7 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   const expectedCount = Object.keys(sandbox.ExplodingDinosCards.cardCatalog).length;
 
   getSelector("#startGameButton").click();
+  Array.from({ length: 7 }, (_, index) => sandbox.log(`Extra logactie ${index + 1}`));
   getSelector("#mobileMenuButton").click();
 
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), false);
@@ -174,7 +175,14 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   getSelector("#mobileLogButton").click();
 
   assert.equal(getSelector("#mobileLogPanel").classList.contains("is-hidden"), false);
-  assert.ok(getSelector("#mobileGameLog").children.length > 0);
+  assert.equal(getSelector("#mobileGameLog").children.length, 5);
+  assert.equal(getSelector("#mobileGameLog").children.at(-1).textContent, "Extra logactie 7");
+  assert.equal(getSelector("#mobileLogExpandButton").textContent, "Toon volledig logboek");
+
+  getSelector("#mobileLogExpandButton").click();
+
+  assert.equal(getSelector("#mobileGameLog").children.length, getSelector("#gameLog").children.length);
+  assert.equal(getSelector("#mobileLogExpandButton").textContent, "Toon laatste 5 acties");
 
   getSelector("#mobileCatalogPageButton").click();
 

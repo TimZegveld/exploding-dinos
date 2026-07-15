@@ -596,6 +596,31 @@ test("een trek opent de reveal-overlay", async ({ page }) => {
   await expect(page.locator("#revealButton")).toBeEnabled();
 });
 
+test("logboek staat achter het menu met vijf acties en een volledige weergave", async ({ page }) => {
+  await startGame(page);
+  await page.evaluate(() => {
+    Array.from({ length: 7 }, (_, index) => window.log(`Browser logactie ${index + 1}`));
+    window.render();
+  });
+
+  await expect(page.locator(".log-panel")).toHaveCount(0);
+  await expect(page.locator("#gameLog")).toBeHidden();
+  await expect(page.locator("#mobileMenuButton")).toBeVisible();
+  await expect(page.locator("#mobileLogPanel")).toBeHidden();
+
+  await page.locator("#mobileMenuButton").click();
+  await page.locator("#mobileLogButton").click();
+
+  await expect(page.locator("#mobileGameLog li")).toHaveCount(5);
+  await expect(page.locator("#mobileGameLog li").last()).toHaveText("Browser logactie 7");
+  await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon volledig logboek");
+
+  const completeCount = await page.locator("#gameLog li").count();
+  await page.locator("#mobileLogExpandButton").click();
+  await expect(page.locator("#mobileGameLog li")).toHaveCount(completeCount);
+  await expect(page.locator("#mobileLogExpandButton")).toHaveText("Toon laatste 5 acties");
+});
+
 test("uitleg doorloopt ontploffen, ontmantelen en terugplaatsen", async ({ page }) => {
   await page.locator("#startExplainButton").click();
   await expect(page.locator("#tutorial")).toBeVisible();
