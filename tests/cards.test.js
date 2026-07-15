@@ -28,6 +28,15 @@ test("deck mode follows player-count ranges", () => {
   assert.equal(deckModeForPlayers(8), "full");
 });
 
+test("Party Pack contains eleven meteors and 122 cards in total", () => {
+  const { partyPackDistribution } = loadCardsModule();
+  const totalCards = Object.values(partyPackDistribution)
+    .reduce((sum, counts) => sum + counts.total, 0);
+
+  assert.equal(partyPackDistribution.meteor.total, 11);
+  assert.equal(totalCards, 122);
+});
+
 test("buildCardPool uses compact counts for two or three players", () => {
   const { buildCardPool, partyPackDistribution } = loadCardsModule();
   const pool = buildCardPool(2);

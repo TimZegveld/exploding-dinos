@@ -1,6 +1,6 @@
 # Exploding Dinos
 
-Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 120 kaarten totaal, met een compacte kaartselectie voor 2-3 spelers.
+Een eerste speelbare browser-MVP voor een Nederlandse dino-kaartgame geinspireerd door snelle push-your-luck kaartspellen. De kaartbasis volgt nu de Party Pack-structuur: 122 kaarten totaal, met een compacte kaartselectie voor 2-3 spelers.
 
 Speel online: https://timzegveld.github.io/exploding-dinos/
 
@@ -142,7 +142,7 @@ Statuslegenda:
 
 | Type | Kaart | Aantal | Regel in deze iteratie | Status |
 |---|---:|---:|---|---|
-| `meteor` | Meteorietinslag | 9 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. | klaar |
+| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers + 1` exemplaren gebruikt. | klaar |
 | `shelter` | Schuilgrot | 10 | Wordt automatisch en voor iedereen zichtbaar gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet op een geheime positie terug in de stapel. | klaar |
 | `raptor` | Raptor Aanval | 5 | De volgende speler moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar |
 | `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |

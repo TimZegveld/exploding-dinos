@@ -8,7 +8,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 - [x] **1. Tekst van Triceratops Blik corrigeren**
   Verwijder de onjuiste claim dat Meteorietinslag en Schuilgrot apart worden gemeld. De kaart laat de bovenste drie kaarten zien.
-- [ ] **2. Party Pack uitbreiden naar 11 Meteorietinslagen**  
+- [x] **2. Party Pack uitbreiden naar 11 Meteorietinslagen**
   Maak het totale deck 11 meteorieten groot. Gebruik per potje `aantal spelers + 1` meteorieten en houd catalogus, README, singleplayer, multiplayer en tests gelijk.
 - [ ] **3. Alle kaartregels vergelijken en aanscherpen**  
   Vergelijk kaarttekst, README, singleplayer, multiplayer en tests. Verduidelijk vooral Brul Terug, beide Raptoraanvallen, Dino Sprint, Fossielgraaier, Stego Snack en Tricera-Tuk en doe voorstellen voor uitbreidingen.

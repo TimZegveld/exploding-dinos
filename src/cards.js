@@ -238,7 +238,7 @@ const cardCatalog = {
 };
 
 const partyPackDistribution = {
-  meteor: { total: 9, compact: 0 },
+  meteor: { total: 11, compact: 0 },
   shelter: { total: 10, compact: 3 },
   raptor: { total: 5, compact: 2 },
   targetedRaptor: { total: 5, compact: 2 },

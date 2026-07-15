@@ -26,6 +26,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Alle 9 NPC's hebben een eigen speelstijlprofiel dat kaartkeuze, doelwitkeuze, blokkeren, risico en deckcontrole beinvloedt.
 - Trekken, afleggen en meteorietmomenten hebben subtiele animatie-polish met reduced-motion fallback.
 - In multiplayer zien alle spelers zowel de getrokken `Meteorietinslag` als de ingezette `Schuilgrot`; alleen de terugplaatsingspositie blijft geheim.
+- Het Party Pack bevat 11 Meteorietinslagen; elk potje gebruikt daarvan `aantal spelers + 1` exemplaren.
 - Elk nieuw spel stopt standaard `aantal spelers + 1` Meteorietinslagen in de trekstapel.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
 - Singleplayer en multiplayer staan live via GitHub Pages.
