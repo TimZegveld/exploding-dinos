@@ -1220,7 +1220,7 @@ function renderCatalogDetail() {
   els.catalogDetailText.textContent = card.text;
   const mode = deckModeForPlayers(getOpponentCount() + 1);
   const distribution = partyPackDistribution[selectedCatalogType];
-  const deckCount = mode === "compact" ? distribution.compact : distribution.total - distribution.compact;
+  const deckCount = selectedCatalogType === "meteor" ? getOpponentCount() + 1 : mode === "compact" ? distribution.compact : distribution.total - distribution.compact;
   const ruleRows = [
     ["Timing", card.rules.timing], ["Doelwit", card.rules.target], ["Beurt", card.rules.turn],
     ["Brul Terug", card.rules.reactable ? "Reactie mogelijk" : "Niet reacteerbaar"],
