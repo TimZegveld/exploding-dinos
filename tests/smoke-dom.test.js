@@ -86,6 +86,27 @@ test("starting from the modal renders the initial table", () => {
   assert.ok(Number(getSelector("#deckCount").textContent) > 0);
 });
 
+test("aflegstapel toont de volledige bovenste kaart met stapelomvang", () => {
+  const { getSelector, sandbox } = loadGame();
+  const discard = getSelector(".discard");
+  const discardTop = getSelector("#discardTop");
+  const card = sandbox.ExplodingDinosCards.makeCard("shelter", false);
+
+  sandbox.ExplodingDinosGameView.renderDiscard(discard, discardTop, card, sandbox.renderCardFace, 4);
+
+  assert.equal(discard.classList.contains("has-stack"), true);
+  assert.equal(discard.dataset.countLabel, "4 kaarten");
+  assert.match(discardTop.attributes["aria-label"], /Totaal 4 kaarten/);
+  assert.equal(discardTop.classList.contains("card-face"), true);
+});
+
+test("tijdelijke multiplayer-lobbytekst is verwijderd", () => {
+  const html = fs.readFileSync(path.resolve(__dirname, "..", "index.html"), "utf8");
+
+  assert.doesNotMatch(html, /De gedeelde lobby werkt/);
+  assert.doesNotMatch(html, /volgende multiplayerlaag/);
+});
+
 test("singleplayer kan met een willekeurige tegenstander beginnen", () => {
   const { getSelector, sandbox } = loadGame();
   const scheduledTurns = [];

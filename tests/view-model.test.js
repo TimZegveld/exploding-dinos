@@ -18,6 +18,7 @@ function room(viewerId, forcedDrawsRemaining) {
       playableCardIds: [],
       deckCount: 20,
       discardTop: null,
+      discardCount: 3,
       hand: [],
       pending: null,
       log: []
@@ -31,6 +32,7 @@ test("multiplayer benadrukt meerdere verplichte trekkingen voor de actieve spele
   assert.equal(model.forcedDrawCount, 2);
   assert.equal(model.turnText, "Let op: trek nog 2 kaarten");
   assert.equal(model.playerHint, "2 verplichte trekkingen over");
+  assert.equal(model.discardCount, 3);
 });
 
 test("multiplayer toont de verplichte trekteller niet als een andere speler trekt", () => {
