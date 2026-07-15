@@ -278,7 +278,10 @@ const ruleMetadata = {
 };
 
 Object.entries(ruleMetadata).forEach(([type, rules]) => {
-  cardCatalog[type].rules = Object.freeze(rules);
+  const turnIcon = /Eindigt|eindigt/.test(rules.turn) ? "turn-end" : "turn-continue";
+  const informationIcon = /geheim/i.test(rules.visibility) ? "secret" : "public";
+  const icons = [turnIcon, ...(type === "meteor" || type === "dig" ? ["draw"] : []), ...(rules.reactable ? ["reaction"] : []), informationIcon];
+  cardCatalog[type].rules = Object.freeze({ ...rules, icons: Object.freeze(icons) });
 });
 
 // Artwork focus is data-driven so every illustration can be tuned without

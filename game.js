@@ -1132,7 +1132,21 @@ function renderCardFace(element, card, options = {}) {
   text.className = "card-face__text";
   text.textContent = card.text;
 
-  element.append(header, art, text);
+  const ruleLabels = { "turn-continue": "Beurt gaat door", "turn-end": "Beurt eindigt", draw: "Trekken vereist", reaction: "Reactie mogelijk", secret: "Geheime informatie", public: "Openbare informatie" };
+  const ruleIcons = document.createElement("div");
+  ruleIcons.className = "card-face__rule-icons";
+  (card.rules?.icons ?? []).forEach((icon) => {
+    const item = document.createElement("span");
+    item.className = `card-rule-icon is-${icon}`;
+    item.title = ruleLabels[icon];
+    item.setAttribute("aria-label", ruleLabels[icon]);
+    const image = document.createElement("img");
+    image.src = `assets/cards/icons/rule-${icon}.svg`;
+    image.alt = "";
+    item.append(image);
+    ruleIcons.append(item);
+  });
+  element.append(header, art, text, ruleIcons);
 }
 
 function renderCatalogGrid() {

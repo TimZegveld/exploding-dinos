@@ -942,6 +942,33 @@ h2 {
   text-shadow: 0 1px 0 color-mix(in srgb, var(--card), transparent 15%);
 }
 
+.card-face__rule-icons {
+  position: absolute;
+  top: 42px;
+  right: 7px;
+  z-index: 3;
+  display: flex;
+  gap: 3px;
+}
+
+.card-rule-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: #fff7dc;
+  background: rgba(16, 20, 17, 0.82);
+}
+
+.card-rule-icon img { width: 13px; height: 13px; }
+.card-face.is-mini .card-face__rule-icons { top: 34px; transform: scale(0.78); transform-origin: right top; }
+
+@media (forced-colors: active) {
+  .card-rule-icon { border: 2px solid ButtonText; color: ButtonText; background: Canvas; }
+}
+
 .card-button strong {
   display: block;
   font-size: 0.95rem;
