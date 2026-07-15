@@ -143,6 +143,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Als iemand jou aanvalt, kun je na het algemene `Brul Terug`-venster een eigen raptoraanval gebruiken om de aanval door te schuiven en de beurten te stapelen. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
 - Een aanval sluit de beurt van de aanvaller af. Het doelwit voert twee volledige beurten uit: in iedere beurt mogen actiekaarten worden gespeeld en een normale trek sluit die beurt af. Een tegenaanval schuift de volledige openstaande last door en telt er twee beurten bij op.
 - Tijdens zo'n aanvalslast tonen de bovenste beurtstatus, de tekst bij je hand en een rode badge op de trekstapel prominent hoeveel volledige beurten nog openstaan. De badge benadrukt dat je per beurt één kaart trekt; je trekt de openstaande last niet in één keer.
+- Op desktop blijft het logboek zichtbaar naast het speelveld en is er geen hamburgermenu. Op kleine schermen bevat het menu de mobiele navigatie en direct het compacte logboek, zonder aparte logboekknop.
 - `Dino Sprint` handelt exact één volledige beurt af zonder te trekken, ook tijdens een aanvalslast.
 - Vijf verschillende soortnamen mogen samen worden gespeeld om openbaar een niet-Meteorietinslag uit de aflegstapel te nemen. Maximaal één `Wilde Dino` mag één ontbrekende soort vervangen; `Schuilgrot` staat bovenaan de keuze.
 - Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop; de gekozen rosterselectie blijft beschikbaar voor het volgende potje.

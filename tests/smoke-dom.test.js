@@ -205,8 +205,6 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   assert.equal(getSelector("#mobileMenu").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#mobileMenuButton").attributes["aria-expanded"], "true");
 
-  getSelector("#mobileLogButton").click();
-
   assert.equal(getSelector("#mobileLogPanel").classList.contains("is-hidden"), false);
   assert.equal(getSelector("#mobileGameLog").children.length, 5);
   assert.equal(getSelector("#mobileGameLog").children.at(-1).textContent, "Extra logactie 7");

@@ -46,6 +46,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Regeliconen staan alleen in grote kaartdetails, buiten het kaartvlak, als gekleurde icoon-plus-tekstchips voor beurtverloop, trekken en reageren. Openbaar/geheim blijft gewone detailtekst; mobiel staat de balk onder de regeltekst.
 - Iedere detailchip toont via hover, toetsenbordfocus of tik een uitgebreidere uitleg; het reactielabel heet concreet `Brul Terug mogelijk`. Op Brul Terug zelf legt dit label uit dat een volgende Brul Terug de keten omdraait en bij een even aantal het oorspronkelijke effect herstelt.
 - Een aanvalslast staat in singleplayer en multiplayer prominent in de bovenste status, bij de spelershand en als rode badge op de trekstapel, met de uitleg dat één trek één volledige beurt afsluit.
+- Het hamburgermenu verschijnt alleen tot 760 px. Desktop toont het logboek permanent in het zijpaneel; mobiel toont het compacte logboek direct in het menu zonder loze tussenknop.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 - De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 

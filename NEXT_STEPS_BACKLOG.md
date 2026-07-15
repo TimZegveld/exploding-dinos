@@ -19,6 +19,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 - Vulkaan Shuffle blijft voorlopig de huidige kracht houden: schudden plus alleen voor de speler de nieuwe bovenste kaart tonen. Dit is bewust sterker dan de officiële Schud-kaart.
 - Soortparen behouden hun unieke Dinos-beloningen. Ze worden niet vervangen door de generieke officiële paarregel.
 - Het standaardspel gebruikt exact `aantal spelers` Meteorietinslagen. Er zijn geen risicostanden of lobby-instellingen.
+- Desktop toont geen hamburgermenu en houdt het logboek zichtbaar naast het spel. Op kleine schermen bevat het menu de navigatie en direct een compact logboek, zonder aparte logboekknop.
 
 ## Fase A - regelpariteit en duidelijkheid
 

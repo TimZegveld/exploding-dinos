@@ -204,7 +204,6 @@ let currentPage = "game";
 let selectedCatalogType = null;
 let isPlayerHandOpen = false;
 let isMobileMenuOpen = false;
-let isMobileLogOpen = false;
 let isFullLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
@@ -236,7 +235,6 @@ const els = {
   mobileCatalogPageButton: document.querySelector("#mobileCatalogPageButton"),
   mobileExplainButton: document.querySelector("#mobileExplainButton"),
   mobileNewGameButton: document.querySelector("#mobileNewGameButton"),
-  mobileLogButton: document.querySelector("#mobileLogButton"),
   mobileLogPanel: document.querySelector("#mobileLogPanel"),
   mobileGameLog: document.querySelector("#mobileGameLog"),
   mobileLogExpandButton: document.querySelector("#mobileLogExpandButton"),
@@ -594,9 +592,7 @@ function renderMobileMenu() {
   if (!els.mobileMenu) return;
 
   els.mobileMenu.classList.toggle("is-hidden", !isMobileMenuOpen);
-  els.mobileLogPanel?.classList.toggle("is-hidden", !isMobileLogOpen);
   els.mobileMenuButton?.setAttribute("aria-expanded", String(isMobileMenuOpen));
-  els.mobileLogButton?.setAttribute("aria-expanded", String(isMobileLogOpen));
 
   if (!els.mobileGameLog) return;
 
@@ -684,13 +680,6 @@ function openMobileMenu() {
 
 function closeMobileMenu() {
   isMobileMenuOpen = false;
-  isMobileLogOpen = false;
-  isFullLogOpen = false;
-  render();
-}
-
-function toggleMobileLog() {
-  isMobileLogOpen = !isMobileLogOpen;
   isFullLogOpen = false;
   render();
 }
@@ -702,7 +691,6 @@ function toggleFullLog() {
 
 function showPageFromMobileMenu(page) {
   isMobileMenuOpen = false;
-  isMobileLogOpen = false;
   showPage(page);
 }
 
@@ -3177,7 +3165,6 @@ els.mobileGamePageButton?.addEventListener("click", () => showPageFromMobileMenu
 els.mobileCatalogPageButton?.addEventListener("click", () => showPageFromMobileMenu("catalog"));
 els.mobileExplainButton?.addEventListener("click", openTutorial);
 els.mobileNewGameButton?.addEventListener("click", startNewGameFromMobileMenu);
-els.mobileLogButton?.addEventListener("click", toggleMobileLog);
 els.mobileLogExpandButton?.addEventListener("click", toggleFullLog);
 els.mobileMenu?.addEventListener("click", (event) => {
   if (event.target === els.mobileMenu) {

@@ -74,10 +74,11 @@
           <button class="explain-button" id="explainButton" type="button">Hoe speel je?</button>
           <button id="newGameButton" type="button">Nieuw spel</button>
         </div>
-
+        <div class="panel-section log-panel">
+          <h2>Logboek</h2>
+          <ol class="log" id="gameLog" aria-live="polite"></ol>
+        </div>
       </aside>
-
-      <ol id="gameLog" hidden aria-hidden="true"></ol>
 
       <section class="mobile-menu is-hidden" id="mobileMenu" aria-modal="true" role="dialog" aria-labelledby="mobileMenuTitle">
         <div class="mobile-menu__panel">
@@ -90,9 +91,8 @@
             <button id="mobileCatalogPageButton" type="button">Kaarten</button>
             <button id="mobileExplainButton" type="button">Hoe speel je?</button>
             <button id="mobileNewGameButton" type="button">Nieuw spel</button>
-            <button id="mobileLogButton" type="button" aria-expanded="false" aria-controls="mobileLogPanel">Logboek</button>
           </div>
-          <section class="mobile-log-panel is-hidden" id="mobileLogPanel" aria-labelledby="mobileLogTitle">
+          <section class="mobile-log-panel" id="mobileLogPanel" aria-labelledby="mobileLogTitle">
             <h3 id="mobileLogTitle">Logboek</h3>
             <ol class="log mobile-log" id="mobileGameLog"></ol>
             <button class="secondary-action is-hidden" id="mobileLogExpandButton" type="button" aria-expanded="false">Toon volledig logboek</button>

@@ -637,20 +637,21 @@ test("hand van een tegenstander blijft compact en toont het totale aantal", asyn
   expect(dimensions.handWidth).toBeLessThanOrEqual(dimensions.seatWidth);
 });
 
-test("logboek staat achter het menu met vijf acties en een volledige weergave", async ({ page }) => {
+test("mobiel menu toont direct vijf logacties en een volledige weergave", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "desktop-chromium", "alleen relevant voor mobiel");
   await startGame(page);
   await page.evaluate(() => {
     Array.from({ length: 7 }, (_, index) => window.log(`Browser logactie ${index + 1}`));
     window.render();
   });
 
-  await expect(page.locator(".log-panel")).toHaveCount(0);
+  await expect(page.locator(".log-panel")).toBeHidden();
   await expect(page.locator("#gameLog")).toBeHidden();
   await expect(page.locator("#mobileMenuButton")).toBeVisible();
   await expect(page.locator("#mobileLogPanel")).toBeHidden();
 
   await page.locator("#mobileMenuButton").click();
-  await page.locator("#mobileLogButton").click();
+  await expect(page.locator("#mobileLogPanel")).toBeVisible();
 
   await expect(page.locator("#mobileGameLog li")).toHaveCount(5);
   await expect(page.locator("#mobileGameLog li").last()).toHaveText("Browser logactie 7");
@@ -771,6 +772,14 @@ test("mobiele bediening blijft binnen het scherm", async ({ page }, testInfo) =>
     content: document.documentElement.scrollWidth
   }));
   expect(overflow.content).toBeLessThanOrEqual(overflow.viewport + 1);
+});
+
+test("desktop toont het logboek zonder hamburgermenu", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "alleen relevant voor desktop");
+  await startGame(page);
+  await expect(page.locator("#mobileMenuButton")).toBeHidden();
+  await expect(page.locator(".side-panel .log-panel")).toBeVisible();
+  await expect(page.locator(".side-panel #gameLog")).toBeVisible();
 });
 
 test("mobiele tafel blijft compact met vier tegenstanders", async ({ page }, testInfo) => {
