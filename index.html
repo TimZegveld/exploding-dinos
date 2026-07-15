@@ -25,7 +25,7 @@
             <button class="page-tab is-active" id="showGamePage" type="button">Spel</button>
             <button class="page-tab" id="showCatalogPage" type="button">Kaarten</button>
           </nav>
-          <div class="status-pill" id="turnStatus">Jouw beurt</div>
+          <div class="status-pill" id="turnStatus" aria-live="polite" aria-atomic="true">Jouw beurt</div>
         </div>
       </section>
 
@@ -60,7 +60,7 @@
         <div class="player-zone">
           <div class="player-label">
             <span>Jij</span>
-            <strong id="playerHint">Speel een kaart of trek</strong>
+            <strong id="playerHint" aria-live="polite" aria-atomic="true">Speel kaarten of trek om je beurt te beëindigen</strong>
             <button class="hand-toggle" id="handToggle" type="button" aria-expanded="true" aria-controls="playerHand">Sluit hand</button>
           </div>
           <div class="hand" id="playerHand"></div>

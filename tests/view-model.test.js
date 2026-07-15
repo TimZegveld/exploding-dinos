@@ -41,3 +41,17 @@ test("multiplayer toont de verplichte trekteller niet als een andere speler trek
   assert.equal(model.forcedDrawCount, 0);
   assert.equal(model.turnText, "Alpha is aan de beurt");
 });
+
+test("multiplayerstatus onderscheidt reageren en wachten", () => {
+  const reacting = room("player-a", 0);
+  reacting.game.pending = { type: "ACTION_REACTION", nopeCardIds: ["nope"] };
+  let model = createMultiplayerViewModel(reacting, ["#111", "#222"]);
+  assert.equal(model.turnText, "Jij reageert");
+  assert.equal(model.playerHint, "Speel Brul Terug of pas");
+
+  const waiting = room("player-a", 0);
+  waiting.game.pending = { type: "WAITING", pendingType: "ACTION_REACTION", playerName: "Nova" };
+  model = createMultiplayerViewModel(waiting, ["#111", "#222"]);
+  assert.equal(model.turnText, "Nova reageert");
+  assert.equal(model.playerHint, "Wacht op Nova");
+});
