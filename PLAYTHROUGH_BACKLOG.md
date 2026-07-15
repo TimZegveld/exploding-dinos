@@ -49,5 +49,8 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 - Ieder genummerd onderwerp krijgt een eigen commit.
 - De pull-requestbeschrijving gebruikt deze nummers en wordt na ieder onderwerp bijgewerkt.
-- Een onderwerp wordt pas afgevinkt nadat relevante tests zijn geslaagd.
+- Werk per onderwerp eerst de implementatie af en werk daarna relevante bestaande tests bij.
+- Breid de testdekking uit met minimaal één regressietest voor het gewijzigde gedrag en voer de passende Node- en browsertests uit.
+- Werk als laatste stap README, todo/backlog en overige geraakte documentatie bij.
+- Een onderwerp wordt pas afgevinkt nadat de tests zijn geslaagd en de documentatie gelijkloopt met de implementatie.
 - De pull request wordt alleen door de repository-eigenaar naar `main` gemerged.
