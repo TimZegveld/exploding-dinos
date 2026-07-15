@@ -2089,22 +2089,12 @@ function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD, retur
 
 function resolveSprint(owner) {
   const turnsBeforeSprint = state.pendingTurns[owner] ?? 1;
-
-  if (turnsBeforeSprint > 1) {
-    state.pendingTurns[owner] = Math.max(0, turnsBeforeSprint - 2);
-    if (state.pendingTurns[owner] <= 0) {
-      state.pendingTurns[owner] = 1;
-      finishOwnerTurns(owner);
-      setAction(`${label(owner)} sprint door de raptorstress heen en hoeft niet te trekken.`);
-      return;
-    }
-
-    setAction(`${label(owner)} sprint weg zonder te trekken. Nog ${state.pendingTurns[owner]} beurt te gaan.`);
+  consumeTurn(owner);
+  if (turnsBeforeSprint > 1 && state.current === owner) {
+    setAction(`${label(owner)} beëindigt 1 aanvalbeurt zonder te trekken. Nog ${state.pendingTurns[owner]} beurt te gaan.`);
     return;
   }
-
-  consumeTurn(owner);
-  setAction(`${label(owner)} sprint weg en trekt niet.`);
+  setAction(`${label(owner)} beëindigt de beurt zonder te trekken.`);
 }
 
 function resolveTriceraTuk(owner) {

@@ -287,6 +287,19 @@ test("raptor attack ends the played card owner's turn", () => {
   assert.equal(getSelector("#drawButton").disabled, true);
 });
 
+test("singleplayer Dino Sprint verbruikt exact één aanvalbeurt", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+
+  for (const load of [2, 4, 6]) {
+    sandbox.resolveRaptorAttack("pc1", "player", load);
+    sandbox.resolveSprint("player");
+    sandbox.render();
+    assert.equal(getSelector("#playerHint").textContent, `${load - 1} beurt(en) open`);
+    assert.equal(getSelector("#turnStatus").textContent, "Jouw beurt");
+  }
+});
+
 test("iedere actieve speler kan buiten de eigen beurt op een raptoraanval reageren", () => {
   const { getSelector, sandbox } = loadGame();
   const { makeCard } = sandbox.ExplodingDinosCards;

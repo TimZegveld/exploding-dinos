@@ -50,7 +50,7 @@ const cardCatalog = {
   },
   sprint: {
     name: "Dino Sprint",
-    text: "Sla je beurt over. Bij extra beurten sprint je er 1 extra kwijt.",
+    text: "Beëindig 1 beurt zonder te trekken. Tijdens een aanval vervalt 1 openstaande beurt.",
     kind: "action",
     playable: true,
     turnEffect: "skipTurn",

@@ -242,6 +242,25 @@ test("aanvalslasten 2, 4 en 6 laten acties toe en verbruiken één last per afge
   }
 });
 
+test("Dino Sprint handelt bij lasten 2, 4 en 6 exact één volledige beurt af", () => {
+  for (const load of [2, 4, 6]) {
+    const game = startGame(players);
+    game.currentPlayerId = "player-b";
+    game.forcedDrawsRemaining = load;
+    game.hands["player-b"] = [
+      { id: `sprint-${load}-1`, type: "sprint", name: "Dino Sprint" },
+      { id: `sprint-${load}-2`, type: "sprint", name: "Dino Sprint" }
+    ];
+
+    playCard(game, "player-b", `sprint-${load}-1`);
+    assert.equal(game.forcedDrawsRemaining, load - 1);
+    assert.equal(game.currentPlayerId, "player-b");
+    playCard(game, "player-b", `sprint-${load}-2`);
+    assert.equal(game.forcedDrawsRemaining, load - 2);
+    assert.equal(game.currentPlayerId, load === 2 ? "player-a" : "player-b");
+  }
+});
+
 test("Gerichte Raptorjacht vraagt de aanvaller om een geldig doelwit", () => {
   const game = startGame(players);
   game.hands["player-a"] = [{ id: "targeted", type: "targetedRaptor", name: "Gerichte Raptorjacht" }];
