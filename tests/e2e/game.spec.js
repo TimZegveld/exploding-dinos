@@ -717,20 +717,12 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   expect(layeredLayout.artPosition).toBe("absolute");
   expect(layeredLayout.artHeight).toBeGreaterThan(layeredLayout.cardHeight * 0.85);
   expect(layeredLayout.textBackdrop).toContain("blur");
-  const firstRuleIcon = firstCard.locator(".card-rule-icon").first();
-  const iconLayout = await firstCard.evaluate((card) => {
-    const typeIcon = card.querySelector(".card-face__icon").getBoundingClientRect();
-    const rules = card.querySelector(".card-face__rule-icons").getBoundingClientRect();
-    return { separate: rules.right < typeIcon.left || rules.bottom < typeIcon.top };
-  });
-  expect(iconLayout.separate).toBe(true);
-  await firstRuleIcon.click();
-  await expect(firstRuleIcon).toHaveAttribute("aria-expanded", "true");
-  await expect(firstRuleIcon.locator(".card-rule-icon__tooltip")).toBeVisible();
-  await expect(page.locator("#catalogDetail")).toBeHidden();
+  await expect(firstCard.locator(".card-face__rule-icons, .card-rule-icon")).toHaveCount(0);
   await page.locator("#catalogGrid .catalog-card").first().click();
   await expect(page.locator("#catalogDetail")).toBeVisible();
   await expect(page.locator("#catalogDetailTitle")).not.toBeEmpty();
+  await expect(page.locator("#catalogDetailInfo .card-detail-info__item")).not.toHaveCount(0);
+  await expect(page.locator("#catalogDetailInfo .card-detail-info__item").first()).toContainText(/Beurt|Trekken/);
   await page.locator("#closeCatalogDetail").click();
   await expect(page.locator("#catalogDetail")).toBeHidden();
 });

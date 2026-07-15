@@ -123,7 +123,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Op telefoon staat de primaire trekactie bovenaan het speelveld en blijft deze tijdens het scrollen bereikbaar.
 - Tegenstanderhanden tonen op desktop en telefoon maximaal vier overlappende kaartruggen met een accentbadge voor het werkelijke totaal; naam en kaartenaantal blijven daarbij zichtbaar. Op telefoon staan tegenstanders in een compacte horizontale rij en is je eigen hand een kaartenrail die open- en dichtgeklapt kan worden.
 - Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
-- De gekleurde regeliconen op kaarten staan los van het kaarttypelogo; hover, toetsenbordfocus of een tik toont de betekenis zonder de kaart te spelen.
+- Regeliconen staan niet op de kaarten zelf. Bij het groot openen van een kaart toont het detailvenster rechtsonder een vaste infobalk met gekleurde iconen en hun betekenis.
 - Op desktop en telefoon zit het Logboek achter het sluitbare menu en is het dus standaard verborgen. Bij openen zie je eerst de laatste 5 acties en kun je naar het volledige bewaarde logboek schakelen. Op telefoon zitten ook Kaarten en Nieuw spel in dit menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
 - Menu, uitleg en multiplayer gebruiken hetzelfde toegankelijke ronde sluiticoon in de visuele stijl van de game.
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.

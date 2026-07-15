@@ -222,6 +222,7 @@ const els = {
   catalogDetailTitle: document.querySelector("#catalogDetailTitle"),
   catalogDetailText: document.querySelector("#catalogDetailText"),
   catalogDetailRules: document.querySelector("#catalogDetailRules"),
+  catalogDetailInfo: document.querySelector("#catalogDetailInfo"),
   showGamePage: document.querySelector("#showGamePage"),
   showCatalogPage: document.querySelector("#showCatalogPage"),
   closeCatalogDetail: document.querySelector("#closeCatalogDetail"),
@@ -258,6 +259,7 @@ const els = {
   revealEyebrow: document.querySelector("#revealEyebrow"),
   revealCard: document.querySelector("#revealCard"),
   revealText: document.querySelector("#revealText"),
+  revealDetailInfo: document.querySelector("#revealDetailInfo"),
   revealButton: document.querySelector("#revealButton"),
   revealSecondaryButton: document.querySelector("#revealSecondaryButton"),
   placementControls: document.querySelector("#placementControls"),
@@ -764,6 +766,8 @@ function renderReveal() {
   els.revealSecondaryButton.classList.add("is-hidden");
   els.revealButton.disabled = false;
   els.revealSecondaryButton.disabled = false;
+  els.revealDetailInfo.classList.add("is-hidden");
+  els.revealDetailInfo.replaceChildren();
 
   if (pendingCardDetail) {
     const playable = canPlayInspectedCard(pendingCardDetail.owner, pendingCardDetail.card);
@@ -776,6 +780,7 @@ function renderReveal() {
     els.revealSecondaryButton.textContent = "Spelen";
     els.revealSecondaryButton.disabled = !playable;
     els.revealSecondaryButton.classList.remove("is-hidden");
+    renderCardDetailInfo(els.revealDetailInfo, pendingCardDetail.card);
     return;
   }
 
@@ -1133,47 +1138,25 @@ function renderCardFace(element, card, options = {}) {
   text.className = "card-face__text";
   text.textContent = card.text;
 
-  const ruleLabels = { "turn-continue": "Beurt gaat door", "turn-end": "Beurt eindigt", draw: "Trekken vereist", reaction: "Reactie mogelijk", secret: "Geheime informatie", public: "Openbare informatie" };
-  const ruleIcons = document.createElement("div");
-  ruleIcons.className = "card-face__rule-icons";
-  (card.rules?.icons ?? []).forEach((icon) => {
+  element.append(header, art, text);
+}
+
+const ruleLabels = { "turn-continue": "Beurt gaat door", "turn-end": "Beurt eindigt", draw: "Trekken vereist", reaction: "Reacteerbaar", secret: "Geheime informatie", public: "Openbare informatie" };
+
+function renderCardDetailInfo(target, card) {
+  const items = (card.rules?.icons ?? []).map((icon) => {
     const item = document.createElement("span");
-    item.className = `card-rule-icon is-${icon}`;
-    item.dataset.tooltip = ruleLabels[icon];
-    item.setAttribute("aria-label", ruleLabels[icon]);
-    item.setAttribute("aria-expanded", "false");
-    item.setAttribute("role", "button");
-    item.setAttribute("tabindex", "0");
+    item.className = `card-detail-info__item is-${icon}`;
     const image = document.createElement("img");
     image.src = `assets/cards/icons/rule-${icon}.svg`;
     image.alt = "";
-    const tooltip = document.createElement("span");
-    tooltip.className = "card-rule-icon__tooltip";
-    tooltip.textContent = ruleLabels[icon];
-    tooltip.setAttribute("aria-hidden", "true");
-    const toggleTooltip = (event) => {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      const willOpen = !item.classList.contains("is-open");
-      Array.from(ruleIcons.children).forEach((sibling) => {
-        sibling.classList.remove("is-open");
-        sibling.setAttribute("aria-expanded", "false");
-      });
-      item.classList.toggle("is-open", willOpen);
-      item.setAttribute("aria-expanded", String(willOpen));
-    };
-    item.addEventListener("click", toggleTooltip);
-    item.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") toggleTooltip(event);
-      if (event.key === "Escape") {
-        item.classList.remove("is-open");
-        item.setAttribute("aria-expanded", "false");
-      }
-    });
-    item.append(image, tooltip);
-    ruleIcons.append(item);
+    const label = document.createElement("span");
+    label.textContent = ruleLabels[icon];
+    item.append(image, label);
+    return item;
   });
-  element.append(header, art, text, ruleIcons);
+  target.replaceChildren(...items);
+  target.classList.toggle("is-hidden", items.length === 0);
 }
 
 function renderCatalogGrid() {
@@ -1260,6 +1243,7 @@ function renderCatalogDetail() {
   }));
   els.catalogDetailCard.className = "catalog-detail__card";
   renderCardFace(els.catalogDetailCard, card, { large: true });
+  renderCardDetailInfo(els.catalogDetailInfo, card);
   syncDialogAccessibility();
 }
 

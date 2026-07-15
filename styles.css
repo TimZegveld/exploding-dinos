@@ -942,100 +942,60 @@ h2 {
   text-shadow: 0 1px 0 color-mix(in srgb, var(--card), transparent 15%);
 }
 
-.card-face__rule-icons {
-  position: absolute;
-  top: 42px;
-  left: 7px;
-  z-index: 4;
+.card-detail-info {
+  position: sticky;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
   display: flex;
-  gap: 4px;
-  max-width: calc(100% - 14px);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px 0 10px auto;
+  border: 1px solid color-mix(in srgb, var(--line), transparent 12%);
+  border-radius: 10px;
+  padding: 7px;
+  background: color-mix(in srgb, var(--panel), transparent 4%);
+  box-shadow: 0 5px 16px rgba(16, 20, 17, 0.18);
+  text-align: left;
 }
 
-.card-rule-icon {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 23px;
-  height: 23px;
-  border: 2px solid rgba(255, 255, 255, 0.88);
-  border-radius: 50%;
+.card-detail-info.is-hidden { display: none; }
+
+.card-detail-info__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 4px 8px 4px 5px;
   color: #fff;
   background: #365e4b;
-  box-shadow: 0 2px 6px rgba(16, 20, 17, 0.42), inset 0 0 0 1px rgba(18, 24, 20, 0.28);
-  cursor: help;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-  -webkit-tap-highlight-color: transparent;
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
-.card-rule-icon.is-turn-continue { background: #24724d; }
-.card-rule-icon.is-turn-end { background: #a93e36; }
-.card-rule-icon.is-draw { background: #a86612; }
-.card-rule-icon.is-reaction { background: #7550a6; }
-.card-rule-icon.is-secret { background: #365f9c; }
-.card-rule-icon.is-public { background: #14788a; }
+.card-detail-info__item.is-turn-continue { background: #24724d; }
+.card-detail-info__item.is-turn-end { background: #a93e36; }
+.card-detail-info__item.is-draw { background: #a86612; }
+.card-detail-info__item.is-reaction { background: #7550a6; }
+.card-detail-info__item.is-secret { background: #365f9c; }
+.card-detail-info__item.is-public { background: #14788a; }
 
-.card-rule-icon img {
-  width: 15px;
-  height: 15px;
+.card-detail-info__item img {
+  width: 18px;
+  height: 18px;
   filter: brightness(0) invert(1);
-  pointer-events: none;
-}
-
-.card-rule-icon__tooltip {
-  position: absolute;
-  top: calc(100% + 7px);
-  left: 0;
-  z-index: 8;
-  width: max-content;
-  max-width: 150px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  border-radius: 7px;
-  padding: 5px 7px;
-  color: #fff;
-  background: rgba(16, 20, 17, 0.96);
-  box-shadow: 0 5px 14px rgba(8, 10, 9, 0.42);
-  font-size: 0.67rem;
-  font-weight: 800;
-  line-height: 1.15;
-  white-space: normal;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-3px);
-  transition: opacity 120ms ease, transform 120ms ease;
-}
-
-.card-rule-icon:hover,
-.card-rule-icon:focus-visible,
-.card-rule-icon.is-open {
-  outline: none;
-  transform: translateY(-2px) scale(1.08);
-  box-shadow: 0 4px 10px rgba(16, 20, 17, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.48);
-}
-
-.card-rule-icon:hover .card-rule-icon__tooltip,
-.card-rule-icon:focus-visible .card-rule-icon__tooltip,
-.card-rule-icon.is-open .card-rule-icon__tooltip {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.card-face--mini .card-face__rule-icons {
-  top: 36px;
-  transform: scale(0.78);
-  transform-origin: left top;
 }
 
 @media (forced-colors: active) {
-  .card-rule-icon { border: 2px solid ButtonText; color: ButtonText; background: Canvas; forced-color-adjust: auto; }
-  .card-rule-icon img { filter: none; }
-  .card-rule-icon__tooltip { border: 1px solid ButtonText; color: ButtonText; background: Canvas; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card-rule-icon,
-  .card-rule-icon__tooltip { transition: none; }
+  .card-detail-info,
+  .card-detail-info__item { border: 1px solid ButtonText; color: ButtonText; background: Canvas; forced-color-adjust: auto; }
+  .card-detail-info__item img { filter: none; }
 }
 
 .card-button strong {
@@ -2658,6 +2618,13 @@ h2 {
 
 /* Responsive table and controls */
 @media (max-width: 760px) {
+  .card-detail-info {
+    position: static;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 8px 0 12px;
+  }
+
   :root {
     --hand-card-width: 112px;
     --table-card-width: 132px;

@@ -223,20 +223,17 @@ test("mobile menu opens logbook and navigates to the catalog", () => {
   assert.equal(getSelector("#catalogDetailRules").children.length, 12);
 });
 
-test("hand, reveal en catalogus renderen toegankelijke regeliconen", () => {
+test("regeliconen staan alleen als tekstchips in een groot kaartdetail", () => {
   const { getSelector, sandbox } = loadGame();
   getSelector("#startGameButton").click();
-  assert.equal(getSelector("#playerHand").children[0].children.at(-1).className, "card-face__rule-icons");
-  sandbox.renderCardFace(getSelector("#revealCard"), sandbox.ExplodingDinosCards.makeCard("trike", true), { large: true });
-  const firstRuleIcon = getSelector("#revealCard").children.at(-1).children[0];
-  assert.equal(firstRuleIcon.getAttribute("aria-label"), "Beurt gaat door");
-  assert.equal(firstRuleIcon.getAttribute("role"), "button");
-  assert.equal(firstRuleIcon.getAttribute("tabindex"), "0");
-  firstRuleIcon.click();
-  assert.equal(firstRuleIcon.classList.contains("is-open"), true);
-  assert.equal(firstRuleIcon.getAttribute("aria-expanded"), "true");
+  assert.equal(getSelector("#playerHand").children[0].children.some((child) => child.className === "card-face__rule-icons"), false);
+  getSelector("#playerHand").children[0].click();
+  assert.equal(getSelector("#revealDetailInfo").classList.contains("is-hidden"), false);
+  assert.equal(getSelector("#revealDetailInfo").children[0].children[1].textContent.length > 0, true);
   getSelector("#showCatalogPage").click();
-  assert.equal(getSelector("#catalogGrid").children[0].children.at(-2).className, "card-face__rule-icons");
+  assert.equal(getSelector("#catalogGrid").children[0].children.some((child) => child.className === "card-face__rule-icons"), false);
+  getSelector("#catalogGrid").children[0].click();
+  assert.equal(getSelector("#catalogDetailInfo").classList.contains("is-hidden"), false);
 });
 
 test("attack reaction choices put playable cards above disabled cards", () => {
