@@ -2167,11 +2167,15 @@ h2 {
 }
 
 .draw-reveal__card.is-start-race {
-  width: min(760px, 82vw);
+  width: min(100%, 440px, calc(32dvh * 16 / 9));
   aspect-ratio: 16 / 9;
   padding: 0;
   overflow: hidden;
   background: var(--panel);
+}
+
+.draw-reveal__panel:has(.draw-reveal__card.is-start-race) {
+  overflow: hidden;
 }
 
 .start-race-image {

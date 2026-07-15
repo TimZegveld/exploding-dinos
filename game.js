@@ -1,5 +1,6 @@
 const RAPTOR_TURN_LOAD = 2;
-const AUTO_CONFIRM_DELAY_MS = 3000;
+const AUTO_CONFIRM_DELAY_MS = 10000;
+const PASSIVE_AUTO_CONFIRM_LABELS = new Set(["OK", "Kijk naar de gloed", "Leg in hand"]);
 const { random: runtimeRandom, schedule } = globalThis.ExplodingDinosRuntime;
 const {
   assertValidInteractionState,
@@ -209,6 +210,7 @@ let isFullLogOpen = false;
 let motion = { kind: null, tone: null, id: 0 };
 let motionTimer = null;
 let autoConfirmToken = 0;
+let autoConfirmInterval = null;
 let tutorialStep = 0;
 let selectedOpponentIds = opponentPersonas.slice(0, DEFAULT_OPPONENTS).map((persona) => persona.personaId);
 let activeDialog = null;
@@ -820,7 +822,7 @@ function renderReveal() {
       els.revealSecondaryButton.disabled = Boolean(activeReveal.secondaryDisabled);
       els.revealSecondaryButton.classList.remove("is-hidden");
     }
-    if (activeReveal.autoConfirm && activeReveal.buttonText === "OK") armAutoConfirm(activeReveal, () => closeActiveReveal());
+    if (activeReveal.autoConfirm) armAutoConfirm(activeReveal, () => closeActiveReveal());
     return;
   }
 
@@ -1511,7 +1513,7 @@ function showCardMoment({
     endGame,
     winner,
     image,
-    autoConfirm: autoConfirm || (buttonText === "OK" && !secondaryButtonText),
+    autoConfirm: autoConfirm || (PASSIVE_AUTO_CONFIRM_LABELS.has(buttonText) && !secondaryButtonText),
     motionTone: motionTone ?? (shaking ? "meteor" : null)
   };
   render();
@@ -1521,11 +1523,28 @@ function armAutoConfirm(subject, callback) {
   if (!subject || subject.autoConfirmArmed) return;
   subject.autoConfirmArmed = true;
   const token = ++autoConfirmToken;
+  const baseLabel = els.revealButton.textContent;
+  let remainingSeconds = AUTO_CONFIRM_DELAY_MS / 1000;
   els.revealButton.classList.add("is-auto-confirming");
-  els.revealButton.dataset.autoConfirm = "Automatisch verder over 3 seconden";
-  els.revealButton.textContent = `${els.revealButton.textContent} · automatisch over 3 sec.`;
+  const updateCountdown = () => {
+    els.revealButton.dataset.autoConfirm = `Automatisch verder over ${remainingSeconds} seconden`;
+    els.revealButton.textContent = `${baseLabel} · automatisch over ${remainingSeconds} sec.`;
+  };
+  updateCountdown();
+  window.clearInterval?.(autoConfirmInterval);
+  autoConfirmInterval = window.setInterval?.(() => {
+    if (token !== autoConfirmToken || (activeReveal !== subject && state.pendingDraw !== subject)) {
+      window.clearInterval?.(autoConfirmInterval);
+      autoConfirmInterval = null;
+      return;
+    }
+    remainingSeconds = Math.max(1, remainingSeconds - 1);
+    updateCountdown();
+  }, 1000) ?? null;
   schedule(() => {
     if (token !== autoConfirmToken || (activeReveal !== subject && state.pendingDraw !== subject)) return;
+    window.clearInterval?.(autoConfirmInterval);
+    autoConfirmInterval = null;
     callback();
   }, AUTO_CONFIRM_DELAY_MS);
 }
@@ -1547,6 +1566,8 @@ function closeActiveReveal(useSecondary = false) {
 
   const reveal = activeReveal;
   autoConfirmToken += 1;
+  window.clearInterval?.(autoConfirmInterval);
+  autoConfirmInterval = null;
   activeReveal = null;
   let callbackResult;
   if (useSecondary && reveal.onSecondary) {

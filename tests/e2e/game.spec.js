@@ -11,10 +11,6 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === "error") browserErrors.push(message.text());
   });
   page.browserErrors = browserErrors;
-  await page.addInitScript(() => {
-    window.setInterval = () => 0;
-    window.clearInterval = () => {};
-  });
   await page.goto(gameUrl);
 });
 
@@ -754,8 +750,27 @@ test("dino-race maakt startspeler en volgorde bekend en sluit automatisch", asyn
   await expect(page.locator("#revealEyebrow")).toHaveText("De dino-race is beslist!");
   await expect(page.locator("#revealText")).toContainText("Speelvolgorde:");
   await expect(page.locator(".start-race-image")).toBeVisible();
-  await expect(page.locator("#revealButton")).toContainText("automatisch over 3 sec.");
-  await expect(page.locator("#drawReveal")).toBeHidden({ timeout: 4500 });
+  await expect(page.locator("#revealButton")).toContainText("automatisch over 10 sec.");
+  const raceLayout = await page.locator(".draw-reveal__panel").evaluate((panel) => {
+    const image = panel.querySelector(".start-race-image");
+    return {
+      panelHasScrollbar: panel.scrollHeight > panel.clientHeight || panel.scrollWidth > panel.clientWidth,
+      imageFitsWidth: image.getBoundingClientRect().width <= panel.getBoundingClientRect().width
+    };
+  });
+  expect(raceLayout.panelHasScrollbar).toBe(false);
+  expect(raceLayout.imageFitsWidth).toBe(true);
+  await expect(page.locator("#revealButton")).toContainText(/automatisch over [89] sec\./, { timeout: 2200 });
+  await expect(page.locator("#drawReveal")).toBeHidden({ timeout: 11500 });
+});
+
+test("alternatieve passieve bevestigingen krijgen ook de tienseconden-timer", async ({ page }) => {
+  await startGame(page);
+  for (const label of ["Kijk naar de gloed", "Leg in hand"]) {
+    await page.evaluate((buttonText) => eval(`showCardMoment({ title: "Passieve melding", cards: [], text: "Geen keuze nodig.", buttonText: ${JSON.stringify(buttonText)} });`), label);
+    await expect(page.locator("#revealButton")).toHaveText(`${label} · automatisch over 10 sec.`);
+    await page.locator("#revealButton").click();
+  }
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {
