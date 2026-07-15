@@ -35,6 +35,7 @@ function createSingleplayerViewModel({ state, viewerId, colors, subtitle, canPla
     canDraw: hasGame && state.current === viewerId && !state.gameOver && !drawBlocked,
     deckCount: state.deck.length,
     discardTop: state.discard.at(-1) ?? null,
+    discardCount: state.discard.length,
     hand: hand.map((card) => ({ card, playable: canPlayCard(card), disabled: state.gameOver || state.eliminated[viewerId] || handBlocked })),
     opponents: state.players.filter((player) => player.id !== viewerId).map((player) => normalizePlayer(player, {
       cardCount: state.hands[player.id]?.length ?? 0,
@@ -71,6 +72,7 @@ function createMultiplayerViewModel(room, colors) {
     canDraw: isTurn && !game.winnerId && !game.eliminated[room.viewerId] && !game.pending,
     deckCount: game.deckCount,
     discardTop: game.discardTop,
+    discardCount: game.discardCount,
     hand: game.hand.map((card) => ({ card, playable: isTurn && !game.pending && playable.has(card.id) && !game.winnerId, disabled: Boolean(game.winnerId || game.eliminated[room.viewerId] || game.pending) })),
     opponents: game.players.filter((player) => player.id !== room.viewerId).map((player) => {
       const index = game.players.findIndex((item) => item.id === player.id);

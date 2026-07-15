@@ -534,6 +534,7 @@ function publicGame(game, viewerId) {
     winnerId: game.winnerId,
     deckCount: game.deck.length,
     discardTop: game.discard.at(-1) ?? null,
+    discardCount: game.discard.length,
     hand: game.hands[viewerId] ?? [],
     eliminated: game.eliminated,
     pending: publicPending(game, viewerId),

@@ -91,10 +91,14 @@ function renderHand(container, cards, { renderCardFace, onCard }) {
   }));
 }
 
-function renderDiscard(discard, discardTop, card, renderCardFace) {
+function renderDiscard(discard, discardTop, card, renderCardFace, count = card ? 1 : 0) {
+  const total = Number.isFinite(count) ? count : card ? 1 : 0;
   discardTop.className = "";
   discardTop.removeAttribute?.("aria-label");
   discard.classList.toggle("is-empty", !card);
+  discard.classList.toggle("has-stack", total > 1);
+  discard.dataset.count = String(total);
+  discard.dataset.countLabel = `${total} ${total === 1 ? "kaart" : "kaarten"}`;
   if (!card) {
     discardTop.className = "discard__empty";
     discardTop.setAttribute("aria-label", "Aflegstapel is leeg");
@@ -102,7 +106,7 @@ function renderDiscard(discard, discardTop, card, renderCardFace) {
     return;
   }
   discardTop.className = "discard__top-card";
-  discardTop.setAttribute("aria-label", `Afgelegde kaart: ${card.name}`);
+  discardTop.setAttribute("aria-label", `Afgelegde kaart: ${card.name}. Totaal ${total} ${total === 1 ? "kaart" : "kaarten"}.`);
   renderCardFace(discardTop, card, { mini: true });
 }
 
@@ -133,7 +137,7 @@ function renderTable(elements, model, handlers) {
   }
   renderOpponents(elements.opponents, model.opponents);
   renderHand(elements.playerHand, model.hand, handlers);
-  renderDiscard(elements.discard, elements.discardTop, model.discardTop, handlers.renderCardFace);
+  renderDiscard(elements.discard, elements.discardTop, model.discardTop, handlers.renderCardFace, model.discardCount);
   if (elements.gameLog && model.log) renderLog(elements.gameLog, model.log);
 }
 

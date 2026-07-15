@@ -550,7 +550,7 @@ function syncDialogAccessibility() {
 }
 
 function renderDiscardPile() {
-  SharedGameView.renderDiscard(els.discard, els.discardTop, state.discard.at(-1) ?? null, renderCardFace);
+  SharedGameView.renderDiscard(els.discard, els.discardTop, state.discard.at(-1) ?? null, renderCardFace, state.discard.length);
   els.discard.classList.toggle("is-receiving", motion.kind === "discard");
 }
 
