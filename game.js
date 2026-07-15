@@ -434,6 +434,7 @@ function startGame() {
   log(`Stapel bevat ${meteors} Meteorietinslag en ${extraDefuses} extra Schuilgrot.`);
   setAction("Speel actiekaarten, maak paren met soortkaarten, of trek om je beurt te eindigen.");
   render();
+  continueAfterPause();
 }
 
 function openStartModal() {

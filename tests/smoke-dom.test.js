@@ -88,12 +88,19 @@ test("starting from the modal renders the initial table", () => {
 
 test("singleplayer kan met een willekeurige tegenstander beginnen", () => {
   const { getSelector, sandbox } = loadGame();
-  sandbox.ExplodingDinosRuntime.configure({ random: () => 0.999 });
+  const scheduledTurns = [];
+  sandbox.ExplodingDinosRuntime.configure({
+    random: () => 0.999,
+    schedule: (callback, delay) => scheduledTurns.push({ callback, delay })
+  });
 
   getSelector("#startGameButton").click();
 
   assert.notEqual(getSelector("#turnStatus").textContent, "Jouw beurt");
   assert.ok(getSelector("#gameLog").children.some((item) => /begint/.test(item.textContent)));
+  assert.equal(scheduledTurns.length, 1);
+  assert.equal(scheduledTurns[0].callback, sandbox.pcTurn);
+  assert.equal(scheduledTurns[0].delay, 650);
 });
 
 test("mobile hand toggle collapses and opens the player hand", () => {
