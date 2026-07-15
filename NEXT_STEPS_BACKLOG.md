@@ -20,7 +20,8 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 - Soortparen behouden hun unieke Dinos-beloningen. Ze worden niet vervangen door de generieke officiële paarregel.
 - Het standaardspel gebruikt exact `aantal spelers` Meteorietinslagen. Er zijn geen risicostanden of lobby-instellingen.
 - Desktop toont geen hamburgermenu en houdt het logboek zichtbaar naast het spel. Op kleine schermen bevat het menu de navigatie en direct een compact logboek, zonder aparte logboekknop.
-- Singleplayer maakt de willekeurige startspeler en volledige speelvolgorde bekend met een passend geschaalde dino-race zonder modalscrollbar. Passieve bevestigingen sluiten na 10 seconden automatisch; beslisgates blijven handmatig.
+- Singleplayer maakt de willekeurige startspeler en volledige speelvolgorde bekend met een passend geschaalde dino-race zonder modalscrollbar. Passieve bevestigingen tellen zichtbaar af en sluiten na 10 seconden automatisch; beslisgates blijven handmatig.
+- Multiplayer is expliciet uitgesloten van de lokale auto-bevestiging en ruimt bij online activatie achtergebleven singleplayer-reveals en timers op.
 
 ## Fase A - regelpariteit en duidelijkheid
 

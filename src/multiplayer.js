@@ -736,6 +736,7 @@ function renderChoice(pending, game) {
 }
 
 function renderOnlineGame(room) {
+  globalThis.ExplodingDinosSingleplayer?.enterMultiplayerMode?.();
   const game = room.game;
   const viewModel = createMultiplayerViewModel(room, multiplayerColors);
   activeRoom = room;

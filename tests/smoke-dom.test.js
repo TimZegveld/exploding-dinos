@@ -244,6 +244,21 @@ test("regeliconen staan alleen als tekstchips in een groot kaartdetail", () => {
   assert.equal(detailChip.children.at(-1).className, "card-detail-info__tooltip");
 });
 
+test("multiplayer annuleert een lopende singleplayer-aftelling", () => {
+  const { getSelector, sandbox } = loadGame();
+  const scheduled = [];
+  sandbox.ExplodingDinosRuntime.configure({ schedule: (callback, delay) => scheduled.push({ callback, delay }) });
+  getSelector("#startGameButton").click();
+
+  assert.equal(getSelector("#revealButton").classList.contains("is-auto-confirming"), true);
+  assert.equal(scheduled[0].delay, 10000);
+  sandbox.ExplodingDinosSingleplayer.enterMultiplayerMode();
+  assert.equal(getSelector("#revealButton").classList.contains("is-auto-confirming"), false);
+  assert.equal(getSelector("#revealButton").dataset.autoConfirm, undefined);
+  scheduled[0].callback();
+  assert.equal(getSelector("#revealButton").classList.contains("is-auto-confirming"), false);
+});
+
 test("attack reaction choices put playable cards above disabled cards", () => {
   const { getSelector, sandbox } = loadGame();
 
