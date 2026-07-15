@@ -135,6 +135,8 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen. Singleplayer toont dit eerst als een dino-race met de winnaar en de volledige speelvolgorde.
 - Passieve singleplayermeldingen zoals `OK`, `Kijk naar de gloed` en `Leg in hand` tellen zichtbaar af en gaan na 10 seconden automatisch verder. Keuzes, reacties, kaartinspectie en meteorietplaatsing wachten altijd op de speler.
 - Multiplayer gebruikt deze lokale aftelling niet. Zodra een online spel wordt weergegeven, worden achtergebleven singleplayertimers en reveal-state geannuleerd; online bevestigingen blijven volledig servergestuurd en handmatig.
+- Bij de eerste weergave van een online potje toont de dino-race de servergekozen startspeler en de volledige speelvolgorde. Iedere speler bevestigt deze melding zelf; er is geen multiplayeraftelling.
+- Online winst en verlies gebruiken een compacte verticale eindkaart met uitslag, illustratie en vervolgstap. Op mobiel verdwijnen het losse actie- en uitlegpaneel; dezelfde functies blijven in het hamburgermenu beschikbaar.
 - Na een online potje ziet iedere speler een duidelijke overwinnings- of verlieskaart; de host kan daar direct een nieuwe room maken.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.

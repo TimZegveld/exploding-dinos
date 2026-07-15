@@ -49,6 +49,8 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Het hamburgermenu verschijnt alleen tot 760 px. Desktop toont het logboek permanent in het zijpaneel; mobiel toont het compacte logboek direct in het menu zonder loze tussenknop.
 - Een nieuwe singleplayer toont de willekeurige startspeler en volledige volgorde met een dino-raceillustratie die zonder scrollbar in de modal past. Passieve bevestigingen zoals `OK`, `Kijk naar de gloed` en `Leg in hand` tellen zichtbaar af en gaan na 10 seconden automatisch; echte keuzes nooit.
 - Multiplayer annuleert bij iedere online render achtergebleven singleplayer-reveals en afteltimers; online knoppen krijgen zelf geen lokale auto-bevestiging.
+- Multiplayer toont bij de eerste render de startspeler en geroteerde volgorde met de dino-race; winst en verlies gebruiken een compacte verticale eindkaart.
+- Tot 760 px is het losse actie-/uitlegpaneel verborgen, omdat `Hoe speel je?`, `Nieuw spel` en het logboek al via het hamburgermenu bereikbaar zijn.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 - De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 

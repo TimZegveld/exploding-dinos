@@ -22,6 +22,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 - Desktop toont geen hamburgermenu en houdt het logboek zichtbaar naast het spel. Op kleine schermen bevat het menu de navigatie en direct een compact logboek, zonder aparte logboekknop.
 - Singleplayer maakt de willekeurige startspeler en volledige speelvolgorde bekend met een passend geschaalde dino-race zonder modalscrollbar. Passieve bevestigingen tellen zichtbaar af en sluiten na 10 seconden automatisch; beslisgates blijven handmatig.
 - Multiplayer is expliciet uitgesloten van de lokale auto-bevestiging en ruimt bij online activatie achtergebleven singleplayer-reveals en timers op.
+- Multiplayer toont de servergekozen startspeler en volledige speelvolgorde één keer per room met de dino-race. Eindkaarten zijn verticaal en compact; mobiel staat het redundante actie-/uitlegpaneel alleen in het hamburgermenu.
 
 ## Fase A - regelpariteit en duidelijkheid
 

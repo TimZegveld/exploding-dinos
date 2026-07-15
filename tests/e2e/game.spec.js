@@ -225,6 +225,7 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
     status: "playing",
     version: 3,
     game: {
+      startingPlayerId: "player-host",
       currentPlayerId: "player-host",
       winnerId: null,
       deckCount: 18,
@@ -448,6 +449,16 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await page.locator("#multiplayerStartButton").click();
 
   await expect(page.locator("#multiplayerModal")).toBeHidden();
+  await expect(page.locator("#revealEyebrow")).toHaveText("De dino-race is beslist!");
+  await expect(page.locator("#revealText")).toHaveText("Tim start. Speelvolgorde: Tim → Nova.");
+  await expect(page.locator(".start-race-image")).toHaveAttribute("src", "assets/dino-start-race.webp");
+  await expect(page.locator("#revealButton")).toHaveText("Spel starten");
+  await expect(page.locator("#revealButton")).not.toHaveClass(/is-auto-confirming/);
+  currentRoom = gameRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("De dino-race is beslist!");
+  await page.locator("#revealButton").click();
+  await expect(page.locator("#drawReveal")).toBeHidden();
   await expect(page.locator("#turnStatus")).toHaveText("Jouw beurt");
   await expect(page.locator("#opponents .opponent-seat")).toHaveCount(1);
   await expect(page.locator("#opponents")).toContainText("Nova");
@@ -598,6 +609,8 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealEyebrow")).toHaveText("Verloren");
   await expect(page.locator("#revealCard")).toContainText("Nova wint");
   await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/defeat-dino.webp");
+  const lossLayout = await page.locator("#revealCard").evaluate((card) => ({ columns: getComputedStyle(card).gridTemplateColumns.split(" ").length, overflow: card.scrollWidth > card.clientWidth }));
+  expect(lossLayout).toEqual({ columns: 1, overflow: false });
 
   currentRoom = winnerRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
@@ -802,6 +815,7 @@ test("mobiele bediening blijft binnen het scherm", async ({ page }, testInfo) =>
   test.skip(!testInfo.project.name.includes("mobile"), "alleen relevant voor mobiel");
   await startGame(page);
   await expect(page.locator("#mobileMenuButton")).toBeVisible();
+  await expect(page.locator(".side-panel")).toBeHidden();
   const drawButton = await page.locator("#drawButton").boundingBox();
   const viewport = page.viewportSize();
   expect(drawButton.y).toBeGreaterThanOrEqual(0);

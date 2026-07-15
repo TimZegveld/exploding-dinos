@@ -2054,6 +2054,17 @@ h2 {
     var(--card);
 }
 
+.draw-reveal__card.end-card.is-multi {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(360px, 100%);
+  padding: 14px;
+}
+
+.draw-reveal__panel:has(.draw-reveal__card.end-card) {
+  width: min(430px, 100%);
+  overflow: hidden;
+}
+
 .draw-reveal__card.end-card.is-loss {
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--card), transparent 6%), color-mix(in srgb, var(--card-set), transparent 4%)),
@@ -2068,7 +2079,7 @@ h2 {
 .end-card__scene {
   position: relative;
   display: grid;
-  width: min(330px, 62vw);
+  width: min(300px, 100%);
   aspect-ratio: 1;
   place-items: center;
   overflow: hidden;
@@ -2172,6 +2183,12 @@ h2 {
   padding: 0;
   overflow: hidden;
   background: var(--panel);
+}
+
+.draw-reveal__card.is-start-race.is-multi {
+  display: block;
+  grid-template-columns: none;
+  width: min(100%, 440px, calc(32dvh * 16 / 9));
 }
 
 .draw-reveal__panel:has(.draw-reveal__card.is-start-race) {
@@ -2962,7 +2979,7 @@ h2 {
   }
 
   .side-panel {
-    gap: 10px;
+    display: none;
   }
 
   .action-panel #newGameButton,

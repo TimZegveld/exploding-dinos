@@ -35,6 +35,7 @@ function startGame(players, randomValue = Math.random()) {
 
   return {
     players: players.map(({ id, name }) => ({ id, name })),
+    startingPlayerId,
     hands,
     deck,
     discard: [],
@@ -659,6 +660,7 @@ function playableCardIds(game, viewerId) {
 
 function publicGame(game, viewerId) {
   return {
+    startingPlayerId: game.startingPlayerId,
     currentPlayerId: game.currentPlayerId,
     forcedDrawsRemaining: game.forcedDrawsRemaining,
     winnerId: game.winnerId,

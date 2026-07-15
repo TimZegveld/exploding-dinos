@@ -24,6 +24,8 @@ test("online spel deelt één grot en vier veilige willekeurige kaarten en houdt
   const game = startGame(players);
   const viewA = publicGame(game, "player-a");
   const viewB = publicGame(game, "player-b");
+  assert.equal(viewA.startingPlayerId, game.startingPlayerId);
+  assert.equal(viewB.startingPlayerId, game.startingPlayerId);
 
   assert.equal(viewA.hand.length, 5);
   assert.equal(viewB.hand.length, 5);
