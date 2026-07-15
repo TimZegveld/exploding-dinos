@@ -44,6 +44,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
 - Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
 - Regeliconen staan alleen in grote kaartdetails, buiten het kaartvlak, als gekleurde icoon-plus-tekstchips voor beurtverloop, trekken en reageren. Openbaar/geheim blijft gewone detailtekst; mobiel staat de balk onder de regeltekst.
+- Iedere detailchip toont via hover, toetsenbordfocus of tik een uitgebreidere uitleg; het reactielabel heet concreet `Brul Terug mogelijk`.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 - De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 

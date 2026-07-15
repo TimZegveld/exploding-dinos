@@ -965,6 +965,7 @@ h2 {
 .card-detail-info.is-hidden { display: none; }
 
 .card-detail-info__item {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -978,6 +979,7 @@ h2 {
   font-weight: 600;
   line-height: 1.1;
   white-space: nowrap;
+  cursor: help;
 }
 
 .card-detail-info__item.is-turn-continue { background: #24724d; }
@@ -991,10 +993,51 @@ h2 {
   filter: brightness(0) invert(1);
 }
 
+.card-detail-info__tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 9;
+  width: min(260px, 78vw);
+  border: 1px solid color-mix(in srgb, var(--line), transparent 10%);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.card-detail-info__item:hover,
+.card-detail-info__item:focus-visible,
+.card-detail-info__item.is-open {
+  outline: 3px solid color-mix(in srgb, currentColor, transparent 35%);
+  outline-offset: 2px;
+}
+
+.card-detail-info__item:hover .card-detail-info__tooltip,
+.card-detail-info__item:focus-visible .card-detail-info__tooltip,
+.card-detail-info__item.is-open .card-detail-info__tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (forced-colors: active) {
   .card-detail-info,
   .card-detail-info__item { border: 1px solid ButtonText; color: ButtonText; background: Canvas; forced-color-adjust: auto; }
   .card-detail-info__item img { filter: none; }
+  .card-detail-info__tooltip { border: 1px solid ButtonText; color: ButtonText; background: Canvas; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-detail-info__tooltip { transition: none; }
 }
 
 .card-button strong {

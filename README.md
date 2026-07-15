@@ -139,6 +139,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.
 - Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
 - Iedere actieve speler mag buiten de eigen beurt met `Brul Terug` reageren op een zichtbare actiekaart. Meteorietinslag, Schuilgrot en soortcombinaties zijn niet reacteerbaar. Een oneven keten blokkeert de actie; een even keten laat haar doorgaan.
+- Het detailchipje `Brul Terug mogelijk` betekent dat het om een zichtbare, losse actie gaat waarvan het effect nog niet is uitgevoerd. Het geldt voor Raptor Aanval, Gerichte Raptorjacht, Dino Sprint, Triceratops Blik, Tijdlijn Kneden, Vulkaan Shuffle, Diep Graven en Fossielgraaier; niet voor gevaren, automatische bescherming, Brul Terug zelf of soortcombinaties.
 - Als iemand jou aanvalt, kun je na het algemene `Brul Terug`-venster een eigen raptoraanval gebruiken om de aanval door te schuiven en de beurten te stapelen. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
 - Een aanval sluit de beurt van de aanvaller af. Het doelwit voert twee volledige beurten uit: in iedere beurt mogen actiekaarten worden gespeeld en een normale trek sluit die beurt af. Een tegenaanval schuift de volledige openstaande last door en telt er twee beurten bij op.
 - `Dino Sprint` handelt exact één volledige beurt af zonder te trekken, ook tijdens een aanvalslast.

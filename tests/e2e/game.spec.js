@@ -725,6 +725,14 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   await expect(page.locator("#catalogDetailInfo .card-detail-info__item").first()).toContainText(/Beurt|Trekken/);
   await page.locator("#closeCatalogDetail").click();
   await expect(page.locator("#catalogDetail")).toBeHidden();
+  await page.locator("#catalogGrid .catalog-card").filter({ hasText: "Raptor Aanval" }).click();
+  const reactionInfo = page.locator("#catalogDetailInfo .is-reaction");
+  await expect(reactionInfo).toContainText("Brul Terug mogelijk");
+  await reactionInfo.hover();
+  const reactionTooltip = reactionInfo.locator(".card-detail-info__tooltip");
+  await expect(reactionTooltip).toBeVisible();
+  await expect(reactionTooltip).toContainText("Voordat het effect");
+  await expect(reactionTooltip).toContainText("Brul Terug");
 });
 
 test("eindscherm biedt direct een nieuw spel aan", async ({ page }) => {

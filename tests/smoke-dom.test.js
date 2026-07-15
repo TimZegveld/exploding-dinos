@@ -237,6 +237,9 @@ test("regeliconen staan alleen als tekstchips in een groot kaartdetail", () => {
   assert.equal(getSelector("#catalogGrid").children[0].children.some((child) => child.className === "card-face__rule-icons"), false);
   getSelector("#catalogGrid").children[0].click();
   assert.equal(getSelector("#catalogDetailInfo").classList.contains("is-hidden"), false);
+  const detailChip = getSelector("#catalogDetailInfo").children[0];
+  assert.equal(detailChip.getAttribute("tabindex"), "0");
+  assert.equal(detailChip.children.at(-1).className, "card-detail-info__tooltip");
 });
 
 test("attack reaction choices put playable cards above disabled cards", () => {
