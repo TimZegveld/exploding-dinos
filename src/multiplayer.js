@@ -70,6 +70,7 @@ let showingRoomInfo = false;
 let inspectedOnlineCard = null;
 let onlineHandOpen = false;
 let onlineRevealActions = null;
+let onlineOracleDraft = null;
 
 const DINO_NAME_STARTS = ["Brullende", "Knetterende", "Sluwe", "Dappere", "Machtige", "Flitsende", "Mollige", "Vurige", "Slaperige", "Wilde", "Blije", "Stekelige"];
 const DINO_NAME_ENDS = ["Bronto", "Raptor", "Tricera", "Stego", "Ptero", "Rex", "Ankylo", "Dilo", "Spino", "Carno", "Fossielsnuit", "Staartzwieper"];
@@ -237,7 +238,12 @@ function runOnlineRevealAction(action) {
 }
 
 function renderOnlineOracle(pending) {
-  const order = [...pending.cards];
+  const pendingCardIds = pending.cards.map((card) => card.id);
+  const keepsExistingDraft = onlineOracleDraft
+    && onlineOracleDraft.length === pendingCardIds.length
+    && onlineOracleDraft.every((card) => pendingCardIds.includes(card.id));
+  const order = keepsExistingDraft ? onlineOracleDraft : [...pending.cards];
+  onlineOracleDraft = order;
   const renderOrder = () => {
     const nodes = order.map((card, index) => {
       const wrap = document.createElement("div");
@@ -253,8 +259,16 @@ function renderOnlineOracle(pending) {
       down.textContent = "↓";
       up.disabled = index === 0;
       down.disabled = index === order.length - 1;
-      up.addEventListener("click", () => { [order[index - 1], order[index]] = [order[index], order[index - 1]]; renderOrder(); });
-      down.addEventListener("click", () => { [order[index], order[index + 1]] = [order[index + 1], order[index]]; renderOrder(); });
+      up.addEventListener("click", () => {
+        [order[index - 1], order[index]] = [order[index], order[index - 1]];
+        onlineOracleDraft = order;
+        renderOrder();
+      });
+      down.addEventListener("click", () => {
+        [order[index], order[index + 1]] = [order[index + 1], order[index]];
+        onlineOracleDraft = order;
+        renderOrder();
+      });
       controls.append(up, down);
       wrap.append(position, face, controls);
       return wrap;
@@ -267,6 +281,37 @@ function renderOnlineOracle(pending) {
     });
   };
   renderOrder();
+}
+
+function openOnlineRoomInfo() {
+  if (!activeRoom) return;
+  showingRoomInfo = true;
+  renderPlayers(activeRoom);
+  elements.activeCode.textContent = activeRoom.code;
+  elements.modal.classList.remove("is-hidden");
+  elements.lobby.classList.remove("is-hidden");
+}
+
+function renderOnlineEndState(room) {
+  const won = room.game.winnerId === room.viewerId;
+  const winner = room.game.players.find((player) => player.id === room.game.winnerId);
+  const result = document.createElement("strong");
+  result.textContent = won ? "Gefeliciteerd!" : `${winner?.name ?? "De andere speler"} wint`;
+  const scene = document.createElement("div");
+  scene.className = "end-card__scene";
+  const image = document.createElement("img");
+  image.src = won ? "assets/endings/victory-dino.png" : "assets/endings/defeat-dino.png";
+  image.alt = won ? "Vrolijke dino viert de overwinning" : "Dino kijkt verslagen na een komische meteorietinslag";
+  scene.append(image);
+  renderStandardOnlineReveal({
+    title: won ? "Overwinning" : "Verloren",
+    text: won ? "Jij bent de laatste dino die nog overeind staat." : "Je bent uitgeschakeld in dit online potje.",
+    nodes: [result, scene],
+    primary: room.isHost
+      ? { label: "Nieuwe room maken", action: startNewRoom }
+      : { label: "Roominfo", action: openOnlineRoomInfo }
+  });
+  elements.revealCard.classList.add("end-card", won ? "is-win" : "is-loss");
 }
 
 function showOnlineCardDetail(card, playable) {
@@ -290,6 +335,7 @@ function showOnlineCardDetail(card, playable) {
 }
 
 function renderChoice(pending, game) {
+  if (pending?.type !== "ORACLE_ORDER") onlineOracleDraft = null;
   if (!pending) {
     onlineRevealActions = null;
     elements.choice?.classList.add("is-hidden");
@@ -660,7 +706,8 @@ function renderOnlineGame(room) {
   elements.mainHandToggle.setAttribute("aria-expanded", String(onlineHandOpen));
   elements.mainHandToggle.disabled = Boolean(game.eliminated[room.viewerId]);
 
-  renderChoice(game.pending, game);
+  if (game.winnerId) renderOnlineEndState(room);
+  else renderChoice(game.pending, game);
   startPolling();
 }
 
@@ -821,6 +868,27 @@ async function leaveRoom() {
   showJoin();
 }
 
+async function startNewRoom() {
+  const oldSession = session;
+  if (!oldSession) return;
+  elements.newGame.disabled = true;
+  if (elements.mobileNewGame) elements.mobileNewGame.disabled = true;
+  stopPolling();
+  try {
+    await request(`/api/rooms/${encodeURIComponent(oldSession.code)}`, { method: "DELETE" });
+  } catch { /* Een nieuwe room maken blijft mogelijk als de oude niet bereikbaar is. */ }
+  saveSession(null);
+  syncRoomUrl(null);
+  activeRoom = null;
+  resetOnlineTable();
+  try {
+    await createRoom();
+  } finally {
+    elements.newGame.disabled = false;
+    if (elements.mobileNewGame) elements.mobileNewGame.disabled = false;
+  }
+}
+
 async function copyRoomLink() {
   const link = invitationUrl(session.code);
   try {
@@ -890,14 +958,10 @@ elements.revealSecondary.addEventListener("click", (event) => {
       elements.mobileMenuButton.setAttribute("aria-expanded", "false");
     }
     if (activeRoom.game.winnerId && activeRoom.isHost) {
-      startOnlineGame();
+      startNewRoom();
       return;
     }
-    showingRoomInfo = true;
-    renderPlayers(activeRoom);
-    elements.activeCode.textContent = activeRoom.code;
-    elements.modal.classList.remove("is-hidden");
-    elements.lobby.classList.remove("is-hidden");
+    openOnlineRoomInfo();
   }, true);
 });
 elements.leave.addEventListener("click", (event) => {

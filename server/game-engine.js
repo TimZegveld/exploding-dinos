@@ -1,5 +1,5 @@
 const { buildCardPool, deckModeForPlayers, makeCard, partyPackDistribution, shuffle } = require("../src/cards");
-const { calculateSetupCounts, resolveMeteorDraw } = require("../src/rules");
+const { calculateSetupCounts, chooseStartingPlayerId, resolveMeteorDraw } = require("../src/rules");
 const { isChoiceAction } = require("../src/protocol");
 
 const PAIR_REWARD_TYPES = new Set(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
@@ -9,7 +9,7 @@ function fail(message, statusCode = 409) {
   throw Object.assign(new Error(message), { statusCode });
 }
 
-function startGame(players) {
+function startGame(players, randomValue = Math.random()) {
   if (players.length < 2) fail("Er zijn minimaal twee spelers nodig.");
   const playerCount = players.length;
   const hands = Object.fromEntries(players.map((player) => [player.id, [makeCard("shelter", true)]]));
@@ -29,17 +29,20 @@ function startGame(players) {
     ...Array.from({ length: meteors }, () => makeCard("meteor", false))
   ]);
 
+  const startingPlayerId = chooseStartingPlayerId(players, randomValue);
+  const startingPlayer = players.find((player) => player.id === startingPlayerId);
+
   return {
     players: players.map(({ id, name }) => ({ id, name })),
     hands,
     deck,
     discard: [],
-    currentPlayerId: players[0].id,
+    currentPlayerId: startingPlayerId,
     forcedDrawsRemaining: 0,
     eliminated: Object.fromEntries(players.map((player) => [player.id, false])),
     pending: null,
     winnerId: null,
-    log: [`Online potje gestart met ${playerCount} spelers.`, `${players[0].name} is aan de beurt.`]
+    log: [`Online potje gestart met ${playerCount} spelers.`, `${startingPlayer.name} is aan de beurt.`]
   };
 }
 

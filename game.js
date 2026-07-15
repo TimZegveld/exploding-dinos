@@ -26,6 +26,7 @@ const {
 const {
   applyRaptorAttack,
   calculateSetupCounts,
+  chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
   insertMeteorBack,
@@ -398,11 +399,11 @@ function startGame() {
 
   state = structuredClone(initialState);
   state.players = players;
+  state.current = chooseStartingPlayerId(players, runtimeRandom());
   state.hands = Object.fromEntries(players.map((player) => [player.id, []]));
   players.forEach((player) => addCardToHand(player.id, makeCard("shelter", true)));
   state.pendingTurns = Object.fromEntries(players.map((player) => [player.id, 1]));
   state.eliminated = Object.fromEntries(players.map((player) => [player.id, false]));
-  state.current = "player";
   activeReveal = null;
   isPlayerHandOpen = false;
   els.gameLog.replaceChildren();
@@ -426,6 +427,7 @@ function startGame() {
   state.deck = shuffle(drawPile);
 
   log(`Nieuw Party Pack spel gestart met ${playerCount} spelers.`);
+  log(`${label(state.current)} begint.`);
   log(`Tegenstanders: ${players.filter((player) => !player.isHuman).map((player) => player.name).join(", ")}.`);
   log(`Stapel bevat ${meteors} Meteorietinslag en ${extraDefuses} extra Schuilgrot.`);
   setAction("Speel actiekaarten, maak paren met soortkaarten, of trek om je beurt te eindigen.");

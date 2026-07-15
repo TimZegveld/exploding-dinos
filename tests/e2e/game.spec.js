@@ -117,6 +117,21 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
       }
     }
   };
+  const oracleRoom = {
+    ...gameRoom,
+    version: 11,
+    game: {
+      ...gameRoom.game,
+      pending: {
+        type: "ORACLE_ORDER",
+        cards: [
+          { id: "oracle-top", type: "sprint", name: "Bovenste kaart", text: "Eerst.", kind: "action" },
+          { id: "oracle-middle", type: "volcano", name: "Middelste kaart", text: "Tweede.", kind: "action" },
+          { id: "oracle-bottom", type: "trike", name: "Onderste kaart", text: "Derde.", kind: "action" }
+        ]
+      }
+    }
+  };
   const drawRoom = {
     ...gameRoom,
     version: 4,
@@ -232,7 +247,19 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
     version: 6,
     game: { ...gameRoom.game, winnerId: "player-host", currentPlayerId: null }
   };
+  const loserRoom = {
+    ...winnerRoom,
+    version: 7,
+    game: { ...winnerRoom.game, winnerId: "player-guest" }
+  };
+  const freshRoom = {
+    ...roomBase,
+    code: "BRUL99",
+    version: 1,
+    players: [{ id: "player-fresh", name: "Tim", joinedAt: 3 }]
+  };
   let currentRoom = roomBase;
+  let createRequests = 0;
 
   await page.route("https://api.test/**", async (route) => {
     const url = new URL(route.request().url());
@@ -246,10 +273,12 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
     if (isStart) currentRoom = gameRoom;
     if (isStop) currentRoom = roomBase;
     const isCreate = route.request().method() === "POST" && url.pathname === "/api/rooms";
+    if (isCreate) createRequests += 1;
+    const createdRoom = createRequests === 1 ? roomBase : freshRoom;
     await route.fulfill({
       status: isCreate ? 201 : 200,
       contentType: "application/json",
-      body: JSON.stringify(isCreate ? { room: roomBase, token: "host-token" } : { room: isStart ? gameRoom : currentRoom })
+      body: JSON.stringify(isCreate ? { room: createdRoom, token: createRequests === 1 ? "host-token" : "fresh-token" } : { room: isStart ? gameRoom : currentRoom })
     });
   });
   await page.evaluate(() => { window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test"; });
@@ -312,6 +341,15 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
 
   currentRoom = gameRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+
+  currentRoom = oracleRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  const orderedCards = page.locator(".multiplayer-choice__ordered-card");
+  await expect(orderedCards).toHaveCount(3);
+  await orderedCards.nth(0).locator("button").last().click();
+  await expect(orderedCards.nth(0)).toContainText("Middelste kaart");
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(orderedCards.nth(0)).toContainText("Middelste kaart");
 
   currentRoom = forcedDrawRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
@@ -390,8 +428,18 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Brul Terug");
   await expect(page.locator("#revealButton")).toHaveText("Niets doen");
 
+  currentRoom = loserRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Verloren");
+  await expect(page.locator("#revealCard")).toContainText("Nova wint");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/defeat-dino.png");
+
   currentRoom = winnerRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Overwinning");
+  await expect(page.locator("#revealCard")).toContainText("Gefeliciteerd!");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.png");
+  await expect(page.locator("#revealButton")).toHaveText("Nieuwe room maken");
   if (await page.locator("#newGameButton").isVisible()) {
     await expect(page.locator("#newGameButton")).toHaveText("Nieuw online spel");
     await page.locator("#newGameButton").click();
@@ -400,17 +448,11 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
     await expect(page.locator("#mobileNewGameButton")).toHaveText("Nieuw online spel");
     await page.locator("#mobileNewGameButton").click();
   }
-  await expect(page.locator("#turnStatus")).toHaveText("Jouw beurt");
-  await expect(page.locator("#playerHand .card-button")).toHaveCount(1);
-
-  if (await page.locator("#newGameButton").isVisible()) {
-    await page.locator("#newGameButton").click();
-  } else {
-    await page.locator("#mobileMenuButton").click();
-    await page.locator("#mobileNewGameButton").click();
-  }
-  await page.locator("#stopMultiplayerGameButton").click();
   await expect(page.locator("#multiplayerLobby")).toBeVisible();
+  await expect(page.locator("#activeRoomCode")).toHaveText("BRUL99");
+  await expect(page).toHaveURL(/\?room=BRUL99$/);
+  await expect(page.locator("#multiplayerPlayers li")).toHaveCount(1);
+  await expect(page.locator("#multiplayerStartButton")).toBeDisabled();
   await expect(page.locator("#startModal")).toBeVisible();
   await expect(page.locator("#opponents .opponent-seat")).toHaveCount(0);
   await expect(page.locator("#playerHand .card-button")).toHaveCount(0);

@@ -32,14 +32,23 @@ test("setup counts add the right meteors and extra shelters per deck mode", () =
     mode: "compact",
     shelterCount: 3,
     extraDefuses: 1,
-    meteors: 1
+    meteors: 3
   });
   assert.deepEqual(plain(calculateSetupCounts(5, distribution, deckModeForPlayers)), {
     mode: "standard",
     shelterCount: 7,
     extraDefuses: 2,
-    meteors: 4
+    meteors: 6
   });
+});
+
+test("startspeler wordt uit alle spelers willekeurig gekozen", () => {
+  const { chooseStartingPlayerId } = loadRulesModule();
+  const players = [{ id: "first" }, { id: "middle" }, { id: "last" }];
+
+  assert.equal(chooseStartingPlayerId(players, 0), "first");
+  assert.equal(chooseStartingPlayerId(players, 0.5), "middle");
+  assert.equal(chooseStartingPlayerId(players, 0.999), "last");
 });
 
 test("meteor without shelter discards the meteor and marks no survival", () => {

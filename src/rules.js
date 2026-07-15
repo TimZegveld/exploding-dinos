@@ -11,8 +11,14 @@ function calculateSetupCounts(playerCount, distribution, deckModeForPlayers) {
     mode,
     shelterCount,
     extraDefuses: Math.max(0, shelterCount - playerCount),
-    meteors: Math.max(1, playerCount - 1)
+    meteors: Math.max(1, playerCount + 1)
   };
+}
+
+function chooseStartingPlayerId(players, randomValue = Math.random()) {
+  if (!players.length) return null;
+  const index = Math.min(players.length - 1, Math.floor(Math.max(0, randomValue) * players.length));
+  return players[index].id;
 }
 
 function resolveMeteorDraw(hand, discard, meteorCard) {
@@ -77,6 +83,7 @@ function getCardTurnEffect(card) {
 const ExplodingDinosRules = {
   applyRaptorAttack,
   calculateSetupCounts,
+  chooseStartingPlayerId,
   determineSetPairRewardType,
   getCardTurnEffect,
   insertMeteorBack,

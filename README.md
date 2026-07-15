@@ -119,6 +119,10 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
+- De trekstapel start met één Meteorietinslag meer dan het aantal spelers (`aantal spelers + 1`).
+- Na afloop maakt de host voor een volgend online potje altijd een nieuwe room met een nieuwe uitnodigingscode.
+- Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen.
+- Na een online potje ziet iedere speler een duidelijke overwinnings- of verlieskaart; de host kan daar direct een nieuwe room maken.
 - Iedere speler heeft een eigen kleuraccent. De gloeiende rand laat zien wie aan de beurt is, een kaart trekt of een kaart speelt.
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.

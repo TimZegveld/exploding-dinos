@@ -131,6 +131,7 @@ function createRoomService({ now = () => Date.now(), roomLifetimeMs = 12 * 60 * 
     if (!viewer) throw Object.assign(new Error("Je spelerssessie is niet geldig."), { statusCode: 401 });
     if (viewer.id !== room.hostId) throw Object.assign(new Error("Alleen de host kan het potje starten."), { statusCode: 403 });
     if (room.status === "playing") throw Object.assign(new Error("Dit potje is al gestart."), { statusCode: 409 });
+    if (room.status === "finished") throw Object.assign(new Error("Maak voor een nieuw potje een nieuwe room."), { statusCode: 409 });
     if (room.players.length < 2) throw Object.assign(new Error("Er zijn minimaal twee spelers nodig."), { statusCode: 409 });
     room.game = startGame(room.players);
     room.status = "playing";

@@ -17,6 +17,10 @@ function loadGame() {
   harness.runBrowserScript("src/ui/reveal-view.js");
   harness.runBrowserScript("src/ui/choice-view.js");
   harness.runBrowserScript("game.js");
+  let randomCalls = 0;
+  harness.sandbox.ExplodingDinosRuntime.configure({
+    random: () => randomCalls++ === 0 ? 0 : Math.random()
+  });
   return harness;
 }
 
@@ -78,6 +82,16 @@ test("starting from the modal renders the initial table", () => {
   assert.equal(getSelector("#discardTop").attributes["aria-label"], "Aflegstapel is leeg");
   assert.match(getSelector("#actionText").textContent, /Speel actiekaarten/);
   assert.ok(Number(getSelector("#deckCount").textContent) > 0);
+});
+
+test("singleplayer kan met een willekeurige tegenstander beginnen", () => {
+  const { getSelector, sandbox } = loadGame();
+  sandbox.ExplodingDinosRuntime.configure({ random: () => 0.999 });
+
+  getSelector("#startGameButton").click();
+
+  assert.notEqual(getSelector("#turnStatus").textContent, "Jouw beurt");
+  assert.ok(getSelector("#gameLog").children.some((item) => /begint/.test(item.textContent)));
 });
 
 test("mobile hand toggle collapses and opens the player hand", () => {
