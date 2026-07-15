@@ -9,7 +9,7 @@ const cardCatalog = {
     design: {
       tone: "meteor",
       icon: "impact",
-      image: "assets/cards/illustrations/meteor-impact.png"
+      image: "assets/cards/illustrations/meteor-impact.webp"
     }
   },
   shelter: {
@@ -21,7 +21,7 @@ const cardCatalog = {
     design: {
       tone: "shelter",
       icon: "cave",
-      image: "assets/cards/illustrations/schuilgrot-shelter.png"
+      image: "assets/cards/illustrations/schuilgrot-shelter.webp"
     }
   },
   raptor: {
@@ -33,7 +33,7 @@ const cardCatalog = {
     design: {
       tone: "raptor",
       icon: "claw",
-      image: "assets/cards/illustrations/raptor-aanval.png"
+      image: "assets/cards/illustrations/raptor-aanval.webp"
     }
   },
   targetedRaptor: {
@@ -69,7 +69,7 @@ const cardCatalog = {
     design: {
       tone: "trike",
       icon: "timeline",
-      image: "assets/cards/illustrations/triceratops-blik-peek.png"
+      image: "assets/cards/illustrations/triceratops-blik-peek.webp"
     }
   },
   oracle: {
@@ -93,7 +93,7 @@ const cardCatalog = {
     design: {
       tone: "volcano",
       icon: "volcano",
-      image: "assets/cards/illustrations/volcano-shuffle.png"
+      image: "assets/cards/illustrations/volcano-shuffle.webp"
     }
   },
   dig: {
@@ -105,7 +105,7 @@ const cardCatalog = {
     design: {
       tone: "dig",
       icon: "dig",
-      image: "assets/cards/illustrations/diep-graven.png"
+      image: "assets/cards/illustrations/diep-graven.webp"
     }
   },
   fossil: {
@@ -141,11 +141,11 @@ const cardCatalog = {
     design: {
       tone: "feral",
       icon: "claw",
-      image: "assets/cards/illustrations/wilde-dino-joker.png",
+      image: "assets/cards/illustrations/wilde-dino-joker.webp",
       images: [
-        "assets/cards/illustrations/wilde-dino-joker.png",
-        "assets/cards/illustrations/wilde-dino-chameleon-chaos.png",
-        "assets/cards/illustrations/wilde-dino-feather-storm.png"
+        "assets/cards/illustrations/wilde-dino-joker.webp",
+        "assets/cards/illustrations/wilde-dino-chameleon-chaos.webp",
+        "assets/cards/illustrations/wilde-dino-feather-storm.webp"
       ]
     }
   },
@@ -158,12 +158,12 @@ const cardCatalog = {
     design: {
       tone: "mini-raptor",
       icon: "claw",
-      image: "assets/cards/illustrations/mini-raptor-quick-steal.png",
+      image: "assets/cards/illustrations/mini-raptor-quick-steal.webp",
       images: [
-        "assets/cards/illustrations/mini-raptor-quick-steal.png",
-        "assets/cards/illustrations/mini-raptor-mossy-getaway.png",
-        "assets/cards/illustrations/mini-raptor-feather-flash.png",
-        "assets/cards/illustrations/mini-raptor-bone-snatch.png"
+        "assets/cards/illustrations/mini-raptor-quick-steal.webp",
+        "assets/cards/illustrations/mini-raptor-mossy-getaway.webp",
+        "assets/cards/illustrations/mini-raptor-feather-flash.webp",
+        "assets/cards/illustrations/mini-raptor-bone-snatch.webp"
       ]
     }
   },
@@ -176,11 +176,11 @@ const cardCatalog = {
     design: {
       tone: "stego-snack",
       icon: "leaf",
-      image: "assets/cards/illustrations/stego-snack-discard.png",
+      image: "assets/cards/illustrations/stego-snack-discard.webp",
       images: [
-        "assets/cards/illustrations/stego-snack-discard.png",
-        "assets/cards/illustrations/stego-snack-fern-salad.png",
-        "assets/cards/illustrations/stego-snack-moonlit-munch.png"
+        "assets/cards/illustrations/stego-snack-discard.webp",
+        "assets/cards/illustrations/stego-snack-fern-salad.webp",
+        "assets/cards/illustrations/stego-snack-moonlit-munch.webp"
       ]
     }
   },
@@ -193,11 +193,11 @@ const cardCatalog = {
     design: {
       tone: "bronto-buik",
       icon: "leaf",
-      image: "assets/cards/illustrations/bronto-buik-belly-card.png",
+      image: "assets/cards/illustrations/bronto-buik-belly-card.webp",
       images: [
-        "assets/cards/illustrations/bronto-buik-belly-card.png",
-        "assets/cards/illustrations/bronto-buik-belly-bridge.png",
-        "assets/cards/illustrations/bronto-buik-cloud-gazer.png"
+        "assets/cards/illustrations/bronto-buik-belly-card.webp",
+        "assets/cards/illustrations/bronto-buik-belly-bridge.webp",
+        "assets/cards/illustrations/bronto-buik-cloud-gazer.webp"
       ]
     }
   },
@@ -210,11 +210,11 @@ const cardCatalog = {
     design: {
       tone: "tricera-tuk",
       icon: "leaf",
-      image: "assets/cards/illustrations/tricera-tuk-sleep.png",
+      image: "assets/cards/illustrations/tricera-tuk-sleep.webp",
       images: [
-        "assets/cards/illustrations/tricera-tuk-sleep.png",
-        "assets/cards/illustrations/tricera-tuk-hammock-horns.png",
-        "assets/cards/illustrations/tricera-tuk-mud-nap.png"
+        "assets/cards/illustrations/tricera-tuk-sleep.webp",
+        "assets/cards/illustrations/tricera-tuk-hammock-horns.webp",
+        "assets/cards/illustrations/tricera-tuk-mud-nap.webp"
       ]
     }
   },
@@ -227,11 +227,11 @@ const cardCatalog = {
     design: {
       tone: "ptero-pret",
       icon: "speed",
-      image: "assets/cards/illustrations/ptero-pret-sky-sort.png",
+      image: "assets/cards/illustrations/ptero-pret-sky-sort.webp",
       images: [
-        "assets/cards/illustrations/ptero-pret-sky-sort.png",
-        "assets/cards/illustrations/ptero-pret-cliff-dive.png",
-        "assets/cards/illustrations/ptero-pret-gust-loop.png"
+        "assets/cards/illustrations/ptero-pret-sky-sort.webp",
+        "assets/cards/illustrations/ptero-pret-cliff-dive.webp",
+        "assets/cards/illustrations/ptero-pret-gust-loop.webp"
       ]
     }
   }

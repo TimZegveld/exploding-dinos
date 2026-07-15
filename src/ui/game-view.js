@@ -11,6 +11,7 @@ function createPlayerPortrait(player, options = {}) {
     image.src = player.portrait;
     image.alt = "";
     image.loading = "lazy";
+    image.decoding = "async";
     image.addEventListener("error", () => {
       image.remove();
       portrait.classList.add("is-fallback");

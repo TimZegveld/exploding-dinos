@@ -450,7 +450,7 @@ function startGame() {
   showCardMoment({
     title: "De dino-race is beslist!",
     cards: [],
-    image: "assets/dino-start-race.png",
+    image: "assets/dino-start-race.webp",
     text: `${label(state.current)} start. Speelvolgorde: ${turnOrder.map((player) => player.name).join(" → ")}.`,
     buttonText: "OK",
     owner: null,
@@ -800,6 +800,7 @@ function renderReveal() {
       image.src = activeReveal.image;
       image.alt = "Dino's racen naar de finish; de winnaar mag beginnen.";
       image.className = "start-race-image";
+      image.decoding = "async";
       els.revealCard.classList.add("is-start-race");
       els.revealCard.append(image);
     } else if (activeReveal.cards.length === 1 && activeReveal.faceDown) {
@@ -1132,6 +1133,7 @@ function renderCardFace(element, card, options = {}) {
     const image = document.createElement("img");
     image.src = kindIcon.src;
     image.alt = "";
+    image.decoding = "async";
     icon.append(image);
     header.append(icon);
   } else {
@@ -1145,6 +1147,7 @@ function renderCardFace(element, card, options = {}) {
   image.src = card.design.image;
   image.alt = "";
   image.loading = "lazy";
+  image.decoding = "async";
   const crop = card.design.crop ?? {};
   image.style.setProperty("--card-art-position", crop.default ?? "50% 50%");
   image.style.setProperty("--card-art-position-mini", crop.mini ?? crop.default ?? "50% 50%");
@@ -1181,6 +1184,7 @@ function renderCardDetailInfo(target, card) {
     const image = document.createElement("img");
     image.src = `assets/cards/icons/rule-${icon}.svg`;
     image.alt = "";
+    image.decoding = "async";
     const label = document.createElement("span");
     label.textContent = info.label;
     const tooltip = document.createElement("span");
@@ -1428,12 +1432,12 @@ function renderEndGameReveal(reveal) {
 
   const image = document.createElement("img");
   image.src = reveal.winner === "player"
-    ? "assets/endings/victory-dino.png"
-    : "assets/endings/defeat-dino.png";
+    ? "assets/endings/victory-dino.webp"
+    : "assets/endings/defeat-dino.webp";
   image.alt = reveal.winner === "player"
     ? "Vrolijke dino viert de overwinning"
     : "Dino kijkt verslagen na een komische meteorietinslag";
-  image.loading = "lazy";
+  image.decoding = "async";
   scene.append(image);
 
   const setup = document.createElement("p");

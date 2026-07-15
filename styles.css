@@ -576,7 +576,7 @@ h2 {
   color: var(--on-accent);
   background:
     linear-gradient(180deg, rgba(37, 29, 23, 0.04), rgba(37, 29, 23, 0.5)),
-    url("assets/cards/illustrations/empty-discard-pile.png") center / cover no-repeat;
+    url("assets/cards/illustrations/empty-discard-pile.webp") center / cover no-repeat;
   overflow: hidden;
 }
 

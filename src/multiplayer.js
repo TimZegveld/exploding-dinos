@@ -334,7 +334,7 @@ function renderOnlineEndState(room) {
   const scene = document.createElement("div");
   scene.className = "end-card__scene";
   const image = document.createElement("img");
-  image.src = won ? "assets/endings/victory-dino.png" : "assets/endings/defeat-dino.png";
+  image.src = won ? "assets/endings/victory-dino.webp" : "assets/endings/defeat-dino.webp";
   image.alt = won ? "Vrolijke dino viert de overwinning" : "Dino kijkt verslagen na een komische meteorietinslag";
   scene.append(image);
   renderStandardOnlineReveal({
