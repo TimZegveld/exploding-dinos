@@ -129,8 +129,8 @@ function renderTable(elements, model, handlers) {
   elements.turnStatus.classList.toggle("is-multiple-forced-draws", forcedDrawCount > 1);
   elements.drawButton.classList.toggle("is-forced-draw", forcedDrawCount > 0);
   if (forcedDrawCount > 0) {
-    elements.drawButton.dataset.forcedDraws = `${forcedDrawCount} ${forcedDrawCount === 1 ? "verplichte kaart" : "verplichte kaarten"}`;
-    elements.drawButton.setAttribute("aria-label", `Trek kaart. Nog ${forcedDrawCount} verplicht.`);
+    elements.drawButton.dataset.forcedDraws = `${forcedDrawCount} ${forcedDrawCount === 1 ? "beurt resterend" : "beurten resterend"}`;
+    elements.drawButton.setAttribute("aria-label", `Trek kaart om deze beurt af te sluiten. Nog ${forcedDrawCount} ${forcedDrawCount === 1 ? "beurt" : "beurten"}.`);
   } else {
     delete elements.drawButton.dataset.forcedDraws;
     elements.drawButton.setAttribute("aria-label", "Trek kaart");

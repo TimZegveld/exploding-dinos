@@ -507,11 +507,11 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
 
   currentRoom = forcedDrawRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
-  await expect(page.locator("#turnStatus")).toHaveText("Let op: trek nog 2 kaarten");
+  await expect(page.locator("#turnStatus")).toHaveText("2 beurten resterend");
   await expect(page.locator("#turnStatus")).toHaveClass(/is-multiple-forced-draws/);
   await expect(page.locator("#playerHint")).toHaveText("2 beurten resterend");
-  await expect(page.locator("#drawButton")).toHaveAttribute("data-forced-draws", "2 verplichte kaarten");
-  await expect(page.locator("#drawButton")).toHaveAttribute("aria-label", "Trek kaart. Nog 2 verplicht.");
+  await expect(page.locator("#drawButton")).toHaveAttribute("data-forced-draws", "2 beurten resterend");
+  await expect(page.locator("#drawButton")).toHaveAttribute("aria-label", "Trek kaart om deze beurt af te sluiten. Nog 2 beurten.");
 
   currentRoom = forcedDrawRevealRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
