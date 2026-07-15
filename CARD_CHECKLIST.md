@@ -4,12 +4,13 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Start hier in een nieuwe chat
 
-- Werkbranch: `codex/multiplayer-room-lobby`.
+- Multiplayer is via een pull request naar `main` gemerged en door GitHub Pages gepubliceerd.
+- Werkbranch voor deze statusupdate: `codex/update-multiplayer-release-status`.
 - Laatste functionele commit vóór deze overdracht: `f60839c` (`Mark multiplayer as in development`).
 - Render Blueprint: `render.yaml`; service: `https://exploding-dinos-api.onrender.com`.
 - Healthcheck: `https://exploding-dinos-api.onrender.com/api/health` retourneert `200` met `{"ok":true}`.
 - De frontend gebruikt lokaal `http://localhost:3000` en online automatisch de Render-URL via `src/multiplayer-config.js`.
-- Render staat gekoppeld aan de werkbranch. GitHub Pages publiceert nog vanaf `main`; multiplayer staat dus pas publiek na een merge naar `main`.
+- De multiplayerfrontend wordt nu vanaf `main` via GitHub Pages gepubliceerd.
 - Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
 
 ## Huidige stand
@@ -27,16 +28,17 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - In multiplayer zien alle spelers zowel de getrokken `Meteorietinslag` als de ingezette `Schuilgrot`; alleen de terugplaatsingspositie blijft geheim.
 - Elk nieuw spel stopt standaard `aantal spelers + 1` Meteorietinslagen in de trekstapel.
 - De README bevat actuele start-, test- en GitHub Pages-instructies.
-- De bestaande singleplayer staat live via GitHub Pages; de multiplayerbranch is nog niet naar `main` gemerged.
+- Singleplayer en multiplayer staan live via GitHub Pages.
 - De mobiele layout heeft een compacte sticky header, een bereikbare trekactie, horizontale tegenstander- en handrails, leesbare kaarttekst, touchfeedback en safe-area-ondersteuning.
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 
 ## Volgende prioriteit
 
-- [ ] Maak een pull request van `codex/multiplayer-room-lobby` naar `main` en controleer de diff.
-- [ ] Merge de branch naar `main`, zodat GitHub Pages de multiplayerfrontend met de Render-URL publiceert.
-- [ ] Wacht op de GitHub Pages-deployment en voer daarna een publieke rooktest uit:
+- [x] Maak een pull request van `codex/multiplayer-room-lobby` naar `main` en controleer de diff.
+- [x] Merge de branch naar `main`, zodat GitHub Pages de multiplayerfrontend met de Render-URL publiceert.
+- [x] Wacht tot GitHub Pages de multiplayerfrontend heeft gepubliceerd.
+- [ ] Voer een publieke rooktest uit:
   - Maak een room op `https://timzegveld.github.io/exploding-dinos/`.
   - Open de uitnodigingslink in een tweede browser of privévenster.
   - Start een potje, trek en speel enkele kaarten en ververs beide spelers eenmaal.

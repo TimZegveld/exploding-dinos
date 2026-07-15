@@ -112,6 +112,17 @@ function renderTable(elements, model, handlers) {
   elements.deckCount.textContent = String(model.deckCount);
   elements.playerHint.textContent = model.playerHint;
   elements.drawButton.disabled = !model.canDraw;
+  const forcedDrawCount = Number(model.forcedDrawCount) || 0;
+  elements.turnStatus.classList.toggle("is-forced-draw", forcedDrawCount > 0);
+  elements.turnStatus.classList.toggle("is-multiple-forced-draws", forcedDrawCount > 1);
+  elements.drawButton.classList.toggle("is-forced-draw", forcedDrawCount > 0);
+  if (forcedDrawCount > 0) {
+    elements.drawButton.dataset.forcedDraws = `${forcedDrawCount} ${forcedDrawCount === 1 ? "verplichte kaart" : "verplichte kaarten"}`;
+    elements.drawButton.setAttribute("aria-label", `Trek kaart. Nog ${forcedDrawCount} verplicht.`);
+  } else {
+    delete elements.drawButton.dataset.forcedDraws;
+    elements.drawButton.setAttribute("aria-label", "Trek kaart");
+  }
   renderOpponents(elements.opponents, model.opponents);
   renderHand(elements.playerHand, model.hand, handlers);
   renderDiscard(elements.discard, elements.discardTop, model.discardTop, handlers.renderCardFace);

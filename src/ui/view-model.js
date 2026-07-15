@@ -53,10 +53,11 @@ function createMultiplayerViewModel(room, colors) {
   const viewer = game.players.find((player) => player.id === room.viewerId);
   const current = game.players.find((player) => player.id === game.currentPlayerId);
   const isTurn = game.currentPlayerId === room.viewerId;
+  const forcedDrawCount = isTurn ? game.forcedDrawsRemaining : 0;
   const turnText = game.winnerId
     ? game.winnerId === room.viewerId ? "Jij hebt gewonnen!" : `${game.players.find((player) => player.id === game.winnerId)?.name} heeft gewonnen`
     : isTurn
-      ? game.forcedDrawsRemaining > 0 ? `Nog ${game.forcedDrawsRemaining} kaart(en) trekken` : "Jouw beurt"
+      ? forcedDrawCount > 0 ? `Let op: trek nog ${forcedDrawCount} ${forcedDrawCount === 1 ? "kaart" : "kaarten"}` : "Jouw beurt"
       : `${current?.name ?? "Een speler"} is aan de beurt`;
   const playable = new Set(game.playableCardIds ?? []);
   return {
@@ -65,7 +66,8 @@ function createMultiplayerViewModel(room, colors) {
     currentPlayerId: game.currentPlayerId,
     currentColor: colors[game.players.findIndex((player) => player.id === game.currentPlayerId) % colors.length] ?? colors[0],
     turnText,
-    playerHint: game.eliminated[room.viewerId] ? "Uitgeschakeld" : game.forcedDrawsRemaining > 0 ? `${game.forcedDrawsRemaining} verplichte trekking(en) open` : "Speel een kaart of trek",
+    playerHint: game.eliminated[room.viewerId] ? "Uitgeschakeld" : forcedDrawCount > 0 ? `${forcedDrawCount} verplichte ${forcedDrawCount === 1 ? "trekking" : "trekkingen"} over` : "Speel een kaart of trek",
+    forcedDrawCount,
     canDraw: isTurn && !game.winnerId && !game.eliminated[room.viewerId] && !game.pending,
     deckCount: game.deckCount,
     discardTop: game.discardTop,

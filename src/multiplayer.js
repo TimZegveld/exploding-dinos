@@ -365,7 +365,15 @@ function renderChoice(pending, game) {
     return;
   }
   if (pending.type === "DRAW_REVEAL") {
-    renderStandardOnlineReveal({ title: "Je trekt", text: "Lees de kaart rustig. Voeg hem daarna aan je hand toe.", cards: pending.cards, primary: { label: "Neem kaart in hand", action: { type: "CONFIRM_DRAW" } } });
+    const remainingAfterThis = Math.max(0, Number(game.forcedDrawsRemaining) - 1);
+    renderStandardOnlineReveal({
+      title: game.forcedDrawsRemaining > 0 ? `Verplichte trekking — nog ${game.forcedDrawsRemaining}` : "Je trekt",
+      text: remainingAfterThis > 0
+        ? `Bekijk deze kaart. Hierna moet je nog ${remainingAfterThis} ${remainingAfterThis === 1 ? "kaart" : "kaarten"} trekken.`
+        : "Lees de kaart rustig. Voeg hem daarna aan je hand toe.",
+      cards: pending.cards,
+      primary: { label: remainingAfterThis > 0 ? `Neem kaart — daarna nog ${remainingAfterThis}` : "Neem kaart in hand", action: { type: "CONFIRM_DRAW" } }
+    });
     return;
   }
   if (pending.type === "METEOR_REVEAL") {
@@ -666,7 +674,9 @@ function renderOnlineGame(room) {
   const isTurn = game.currentPlayerId === room.viewerId;
   elements.mainAction.textContent = game.winnerId
     ? viewModel.turnText
-    : game.pending ? "Rond de openstaande online keuze af." : isTurn ? "Speel een groen gemarkeerde kaart of trek om je beurt te eindigen." : "Wacht op de andere speler.";
+    : game.pending ? "Rond de openstaande online keuze af."
+      : viewModel.forcedDrawCount > 0 ? `Trek nog ${viewModel.forcedDrawCount} verplichte ${viewModel.forcedDrawCount === 1 ? "kaart" : "kaarten"}. Je beurt eindigt pas daarna.`
+        : isTurn ? "Speel een groen gemarkeerde kaart of trek om je beurt te eindigen." : "Wacht op de andere speler.";
   const newGameLabel = game.winnerId && room.isHost ? "Nieuw online spel" : "Roominfo";
   elements.newGame.textContent = newGameLabel;
   if (elements.mobileNewGame) elements.mobileNewGame.textContent = newGameLabel;
