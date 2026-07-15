@@ -70,6 +70,22 @@ function determineSetPairRewardType(pair, selectedCard) {
   return pair.find((item) => item.type !== "feral")?.type ?? "feral";
 }
 
+const SPECIES_TYPES = Object.freeze(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
+
+function selectFiveSpeciesCombo(hand) {
+  const selected = SPECIES_TYPES.map((type) => hand.find((card) => card.type === type));
+  const missingIndexes = selected.map((card, index) => card ? -1 : index).filter((index) => index >= 0);
+  if (missingIndexes.length === 0) return selected;
+  if (missingIndexes.length === 1) {
+    const feral = hand.find((card) => card.type === "feral");
+    if (feral) {
+      selected[missingIndexes[0]] = feral;
+      return selected;
+    }
+  }
+  return [];
+}
+
 function isNopeChainBlocked(nopeCount) {
   return (nopeCount ?? 0) % 2 === 1;
 }
@@ -97,6 +113,7 @@ function getCardTurnEffect(card) {
 }
 
 const ExplodingDinosRules = {
+  SPECIES_TYPES,
   NOPE_REACTABLE_TYPES,
   applyRaptorAttack,
   canReactWithNope,
@@ -107,7 +124,8 @@ const ExplodingDinosRules = {
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,
-  resolveMeteorDraw
+  resolveMeteorDraw,
+  selectFiveSpeciesCombo
 };
 globalThis.ExplodingDinosRules = ExplodingDinosRules;
 if (typeof module !== "undefined" && module.exports) module.exports = ExplodingDinosRules;

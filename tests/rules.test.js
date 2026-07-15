@@ -117,6 +117,14 @@ test("set-pair reward type follows the selected species or the non-feral pair ca
   assert.equal(determineSetPairRewardType([feral, card("feral", "f2")], feral), "feral");
 });
 
+test("vijf soorten gebruikt vijf namen of maximaal één Wilde Dino", () => {
+  const { selectFiveSpeciesCombo } = loadRulesModule();
+  const exact = [card("miniRaptor"), card("stegoSnack"), card("brontoBuik"), card("triceraTuk"), card("pteroPret")];
+  assert.equal(selectFiveSpeciesCombo(exact).length, 5);
+  assert.equal(selectFiveSpeciesCombo([...exact.slice(0, 4), card("feral")]).length, 5);
+  assert.equal(selectFiveSpeciesCombo([...exact.slice(0, 3), card("feral")]).length, 0);
+});
+
 test("Brul Terug chains block on odd counts and resolve on even counts", () => {
   const { isNopeChainBlocked } = loadRulesModule();
 

@@ -1,9 +1,9 @@
 const { buildCardPool, deckModeForPlayers, makeCard, partyPackDistribution, shuffle } = require("../src/cards");
-const { calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, isNopeChainBlocked, resolveMeteorDraw } = require("../src/rules");
+const { calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
 const { isChoiceAction } = require("../src/protocol");
 
 const PAIR_REWARD_TYPES = new Set(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
-const ONLINE_PLAYABLE_TYPES = new Set(["sprint", "trike", "volcano", "dig", "oracle", "fossil", ...PAIR_REWARD_TYPES, "raptor", "targetedRaptor"]);
+const ONLINE_PLAYABLE_TYPES = new Set(["sprint", "trike", "volcano", "dig", "oracle", "fossil", "feral", ...PAIR_REWARD_TYPES, "raptor", "targetedRaptor"]);
 const REACTION_TIMEOUT_MS = 30_000;
 
 function fail(message, statusCode = 409) {
@@ -126,7 +126,15 @@ function drawCard(game, playerId) {
 
 function resolvePlayedCardEffect(game, playerId, card, context = {}) {
   const oldDiscardChoices = context.oldDiscardChoices ?? [];
-  if (card.type === "sprint") {
+  if (context.fiveSpecies) {
+    const playedIds = new Set(context.playedIds);
+    const cards = game.discard
+      .filter((item) => item.type !== "meteor" && !playedIds.has(item.id))
+      .slice()
+      .sort((a, b) => Number(b.type === "shelter") - Number(a.type === "shelter"));
+    if (cards.length) game.pending = { type: "DISCARD_PICK", playerId, cards, source: "Vijf soorten" };
+    else game.log.push("Er lag geen niet-meteor kaart voor de vijf-soortenbeloning.");
+  } else if (card.type === "sprint") {
     if (game.forcedDrawsRemaining > 1) game.forcedDrawsRemaining -= 1;
     else {
       game.forcedDrawsRemaining = 0;
@@ -233,7 +241,16 @@ function playCard(game, playerId, cardId, now = Date.now()) {
   }
   const oldDiscardChoices = game.discard.filter((item) => item.type !== "meteor");
   let playedCards = [card];
-  if (PAIR_REWARD_TYPES.has(card.type)) {
+  const fiveSpecies = selectFiveSpeciesCombo(hand);
+  const playsFiveSpecies = fiveSpecies.length === 5 && (PAIR_REWARD_TYPES.has(card.type) || card.type === "feral");
+  if (playsFiveSpecies) {
+    const preferredIndex = fiveSpecies.findIndex((item) => item.type === card.type);
+    if (preferredIndex >= 0) fiveSpecies[preferredIndex] = card;
+  }
+  if (card.type === "feral" && !playsFiveSpecies) fail("Wilde Dino kan alleen als joker in een geldige combinatie worden gespeeld.");
+  if (playsFiveSpecies) {
+    playedCards = fiveSpecies;
+  } else if (PAIR_REWARD_TYPES.has(card.type)) {
     if (card.type === "pteroPret" && game.deck.length < 2) fail("Er zijn te weinig kaarten over voor Ptero Pret.");
     const companion = hand.find((item, itemIndex) => itemIndex !== index && (item.type === card.type || item.type === "feral"));
     if (!companion) fail(`${card.name} heeft een tweede ${card.name} of Wilde Dino nodig.`);
@@ -244,8 +261,8 @@ function playCard(game, playerId, cardId, now = Date.now()) {
   game.discard.push(...playedCards);
   const player = game.players.find((item) => item.id === playerId);
   game.log.push(`${player.name} speelde ${card.name}.`);
-  const context = { oldDiscardChoices };
-  game.pending = { type: "PLAY_REVEAL", playerId, card, context, reactionNow: now };
+  const context = { oldDiscardChoices, fiveSpecies: playsFiveSpecies, playedIds: playedCards.map((item) => item.id) };
+  game.pending = { type: "PLAY_REVEAL", playerId, card, cards: playedCards, context, reactionNow: now };
 }
 
 function beginAttack(game, attackerId, targetId, attackLoad) {
@@ -476,8 +493,18 @@ function resolveChoice(game, playerId, action, now = Date.now()) {
     if (index === -1) fail("Deze kaart ligt niet meer in de aflegstapel.", 400);
     const [card] = game.discard.splice(index, 1);
     game.hands[playerId].push(card);
+    if (pending.source === "Vijf soorten") {
+      game.pending = { type: "PUBLIC_PICK_REVEAL", playerId, card, source: pending.source };
+      game.log.push(`${game.players.find((player) => player.id === playerId).name} nam open ${card.name} terug met vijf soorten.`);
+    } else {
+      game.pending = null;
+      game.log.push(`${game.players.find((player) => player.id === playerId).name} nam een kaart terug met Stego Snack.`);
+    }
+    return;
+  }
+  if (action.type === "CONFIRM_PUBLIC_PICK") {
+    requirePending(game, playerId, "PUBLIC_PICK_REVEAL");
     game.pending = null;
-    game.log.push(`${game.players.find((player) => player.id === playerId).name} nam een kaart terug met Stego Snack.`);
     return;
   }
   if (action.type === "BRONTO_CHOICE") {
@@ -508,8 +535,11 @@ function publicPending(game, viewerId) {
       playerId: game.pending.playerId,
       playerName: player?.name ?? "Een speler",
       isActor: game.pending.playerId === viewerId,
-      cards: [game.pending.card]
+      cards: game.pending.cards ?? [game.pending.card]
     };
+  }
+  if (game.pending.type === "PUBLIC_PICK_REVEAL") {
+    return { type: "PUBLIC_PICK_REVEAL", playerId: game.pending.playerId, playerName: player?.name, isActor: game.pending.playerId === viewerId, source: game.pending.source, cards: [game.pending.card] };
   }
   if (game.pending.type === "ACTION_REACTION") {
     if (game.pending.playerId !== viewerId) {
@@ -604,6 +634,7 @@ function publicPending(game, viewerId) {
   return {
     type: game.pending.type,
     title: game.pending.title,
+    source: game.pending.source,
     cards: game.pending.cards ?? (game.pending.card ? [game.pending.card] : []),
     deckSize: game.deck.length
   };
@@ -626,6 +657,7 @@ function playableCardIds(game, viewerId) {
   const hand = game.hands[viewerId] ?? [];
   return hand.filter((card, index) => {
     if (["sprint", "trike", "volcano", "dig", "oracle", "fossil", "raptor", "targetedRaptor"].includes(card.type)) return true;
+    if ((PAIR_REWARD_TYPES.has(card.type) || card.type === "feral") && selectFiveSpeciesCombo(hand).length === 5) return true;
     if (PAIR_REWARD_TYPES.has(card.type)) return hand.some((other, otherIndex) => otherIndex !== index && (other.type === card.type || other.type === "feral"));
     return false;
   }).map((card) => card.id);

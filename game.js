@@ -33,7 +33,8 @@ const {
   insertMeteorBack,
   isNopeChainBlocked,
   resolveIncomingAttackLoad,
-  resolveMeteorDraw
+  resolveMeteorDraw,
+  selectFiveSpeciesCombo
 } = globalThis.ExplodingDinosRules;
 const { createSingleplayerViewModel } = globalThis.ExplodingDinosViewModel;
 const SharedGameView = globalThis.ExplodingDinosGameView;
@@ -1513,7 +1514,7 @@ function canPlayInspectedCard(owner, card) {
 
 function canPlayCard(owner, card) {
   if (card.playable) return true;
-  if (isSetCard(card)) return findPairForCard(getHand(owner), card).length === 2;
+  if (isSetCard(card)) return selectFiveSpeciesCombo(getHand(owner)).length === 5 || findPairForCard(getHand(owner), card).length === 2;
   return false;
 }
 
@@ -1527,6 +1528,13 @@ function playCard(owner, cardId, options = {}) {
   const card = hand[index];
   if (!canPlayCard(owner, card)) return;
   if (isSetCard(card)) {
+    const fiveSpecies = selectFiveSpeciesCombo(hand);
+    if (fiveSpecies.length === 5) {
+      const preferredIndex = fiveSpecies.findIndex((item) => item.type === card.type);
+      if (preferredIndex >= 0) fiveSpecies[preferredIndex] = card;
+      playFiveSpeciesCombo(owner, fiveSpecies);
+      return;
+    }
     playSetPair(owner, card, options);
     return;
   }
@@ -2126,6 +2134,41 @@ function resolveSprint(owner) {
   setAction(`${label(owner)} beëindigt de beurt zonder te trekken.`);
 }
 
+function playFiveSpeciesCombo(owner, combo) {
+  const hand = getHand(owner);
+  const ids = new Set(combo.map((card) => card.id));
+  combo.forEach((card) => state.discard.push(card));
+  state.hands[owner] = hand.filter((card) => !ids.has(card.id));
+  state.activity = { owner, type: "play" };
+  log(`${label(owner)} speelt vijf verschillende soorten.`);
+  showCardMoment({
+    title: "Vijf verschillende soorten",
+    cards: combo,
+    text: `${label(owner)} mag één niet-meteor kaart open uit de aflegstapel terugnemen.`,
+    buttonText: "Kies een kaart",
+    owner,
+    onClose: () => startFiveSpeciesReward(owner, ids)
+  });
+}
+
+function startFiveSpeciesReward(owner, playedIds) {
+  const cards = state.discard
+    .filter((card) => card.type !== "meteor" && !playedIds.has(card.id))
+    .slice()
+    .sort((a, b) => Number(b.type === "shelter") - Number(a.type === "shelter"));
+  if (!cards.length) {
+    setAction("Er ligt geen niet-meteor kaart in de aflegstapel.");
+    return;
+  }
+  if (owner !== "player") {
+    reclaimDiscardCard(owner, cards[0].id, "Vijf soorten");
+    return;
+  }
+  state.pendingDiscardChoice = { owner, cards, source: "Vijf soorten" };
+  setAction("Kies open één niet-meteor kaart. Schuilgrotten staan bovenaan.");
+  render();
+}
+
 function restartTutorial() {
   tutorialStep = 0;
   renderTutorial();
@@ -2444,7 +2487,7 @@ function confirmDiscardChoice(index) {
   const card = pendingDiscardChoice.cards[index];
   state.pendingDiscardChoice = null;
   if (card) {
-    reclaimDiscardCard(pendingDiscardChoice.owner, card.id);
+    reclaimDiscardCard(pendingDiscardChoice.owner, card.id, pendingDiscardChoice.source);
   }
   render();
   continueAfterPause();
@@ -2574,7 +2617,7 @@ function resolvePteroCards(owner, cards, selectedTopId) {
   setAction(`${topText}${bottomText}.`);
 }
 
-function reclaimDiscardCard(owner, cardId) {
+function reclaimDiscardCard(owner, cardId, source = "Stego Snack") {
   const index = state.discard.findIndex((card) => card.id === cardId);
   if (index === -1) {
     setAction("Die kaart ligt niet meer in de aflegstapel.");
@@ -2585,7 +2628,7 @@ function reclaimDiscardCard(owner, cardId) {
   addCardToHand(owner, card);
   setAction(`${label(owner)} snackt ${card.name} terug uit de aflegstapel.`);
   showCardMoment({
-    title: "Stego Snack",
+    title: source,
     cards: card,
     text: `${label(owner)} neemt ${card.name} terug in de hand.`,
     buttonText: owner === "player" ? "Leg in hand" : "OK",

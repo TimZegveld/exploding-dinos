@@ -484,7 +484,16 @@ function renderChoice(pending, game) {
       renderCardFace: globalThis.renderCardFace,
       onSelect: (card) => performGameAction(isDiscard ? { type: "CHOOSE_DISCARD", cardId: card.id } : { type: "PTERO_CHOICE", topCardId: card.id })
     });
-    renderStandardOnlineReveal({ title: isDiscard ? "Stego Snack" : "Ptero Pret", text: isDiscard ? "Kies een oudere kaart uit de aflegstapel om terug te nemen." : "Kies welke kaart bovenop komt. De andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
+    renderStandardOnlineReveal({ title: isDiscard ? pending.source ?? "Stego Snack" : "Ptero Pret", text: isDiscard ? (pending.source === "Vijf soorten" ? "Kies open één niet-meteor kaart. Schuilgrotten staan bovenaan." : "Kies een oudere kaart uit de aflegstapel om terug te nemen.") : "Kies welke kaart bovenop komt. De andere gaat onderop.", nodes, cardClass: isDiscard ? "is-discard-choice" : "is-ptero-choice" });
+    return;
+  }
+  if (pending.type === "PUBLIC_PICK_REVEAL") {
+    renderStandardOnlineReveal({
+      title: "Vijf soorten",
+      text: `${pending.playerName} neemt open ${pending.cards[0]?.name ?? "een kaart"} terug.`,
+      cards: pending.cards,
+      primary: pending.isActor ? { label: "Verder", action: { type: "CONFIRM_PUBLIC_PICK" } } : { label: `Wachten op ${pending.playerName}`, action: null, disabled: true }
+    });
     return;
   }
   if (pending.type === "ACTION_REACTION") {

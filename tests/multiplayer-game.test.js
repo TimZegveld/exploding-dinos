@@ -410,6 +410,32 @@ test("Stego Snack neemt een oudere niet-meteor kaart terug", () => {
   assert.equal(game.hands["player-a"].at(-1).id, "old");
 });
 
+test("vijf soorten neemt open een niet-meteor terug met Schuilgrot bovenaan", () => {
+  const game = startGame(players);
+  game.hands["player-a"] = [
+    { id: "mini", type: "miniRaptor", name: "Mini-Raptor" },
+    { id: "stego", type: "stegoSnack", name: "Stego Snack" },
+    { id: "bronto", type: "brontoBuik", name: "Bronto Buik" },
+    { id: "tuk", type: "triceraTuk", name: "Tricera-Tuk" },
+    { id: "ptero", type: "pteroPret", name: "Ptero Pret" }
+  ];
+  game.discard = [
+    { id: "safe", type: "sprint", name: "Dino Sprint" },
+    { id: "meteor-old", type: "meteor", name: "Meteorietinslag" },
+    { id: "shelter-old", type: "shelter", name: "Schuilgrot" }
+  ];
+
+  playCard(game, "player-a", "mini");
+  assert.equal(game.pending.type, "DISCARD_PICK");
+  assert.equal(game.pending.cards[0].type, "shelter");
+  assert.equal(game.pending.cards.some((item) => item.type === "meteor"), false);
+  applyAction(game, "player-a", { type: "CHOOSE_DISCARD", cardId: "shelter-old" });
+  assert.equal(publicGame(game, "player-b").pending.type, "PUBLIC_PICK_REVEAL");
+  assert.equal(publicGame(game, "player-b").pending.cards[0].type, "shelter");
+  applyAction(game, "player-a", { type: "CONFIRM_PUBLIC_PICK" });
+  assert.equal(game.pending, null);
+});
+
 test("Bronto Buik kan de bovenste kaart onderop schuiven", () => {
   const game = startGame(players);
   game.hands["player-a"] = [
