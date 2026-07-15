@@ -197,7 +197,7 @@ test("Ptero Pret-paar legt gekozen kaart bovenop en de andere onderop", () => {
   assert.equal(game.forcedDrawsRemaining, 0);
 });
 
-test("Raptor Aanval geeft de volgende speler twee verplichte trekkingen", () => {
+test("Raptor Aanval geeft de volgende speler twee volledige beurten", () => {
   const game = startGame(players);
   game.hands["player-a"] = [{ id: "raptor", type: "raptor", name: "Raptor Aanval" }];
   game.deck = [
@@ -218,6 +218,28 @@ test("Raptor Aanval geeft de volgende speler twee verplichte trekkingen", () => 
   applyAction(game, "player-b", { type: "DRAW_CARD" });
   applyAction(game, "player-b", { type: "CONFIRM_DRAW" });
   assert.equal(game.currentPlayerId, "player-a");
+});
+
+test("aanvalslasten 2, 4 en 6 laten acties toe en verbruiken één last per afgesloten beurt", () => {
+  for (const load of [2, 4, 6]) {
+    const game = startGame(players);
+    game.currentPlayerId = "player-b";
+    game.forcedDrawsRemaining = load;
+    game.hands["player-b"] = [{ id: `trike-${load}`, type: "trike", name: "Triceratops Blik" }];
+    game.deck = [
+      { id: `draw-${load}`, type: "sprint", name: "Veilige kaart" },
+      { id: `peek-${load}`, type: "volcano", name: "Bovenste kaart" }
+    ];
+
+    playCard(game, "player-b", `trike-${load}`);
+    assert.equal(game.pending.type, "PEEK");
+    applyAction(game, "player-b", { type: "CONFIRM_PEEK" });
+    assert.equal(game.forcedDrawsRemaining, load);
+    applyAction(game, "player-b", { type: "DRAW_CARD" });
+    applyAction(game, "player-b", { type: "CONFIRM_DRAW" });
+    assert.equal(game.forcedDrawsRemaining, load - 1);
+    assert.equal(game.currentPlayerId, "player-b");
+  }
 });
 
 test("Gerichte Raptorjacht vraagt de aanvaller om een geldig doelwit", () => {

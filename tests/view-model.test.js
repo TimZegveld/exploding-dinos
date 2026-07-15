@@ -26,12 +26,12 @@ function room(viewerId, forcedDrawsRemaining) {
   };
 }
 
-test("multiplayer benadrukt meerdere verplichte trekkingen voor de actieve speler", () => {
+test("multiplayer toont volledige resterende aanvalbeurten voor de actieve speler", () => {
   const model = createMultiplayerViewModel(room("player-a", 2), ["#111", "#222"]);
 
   assert.equal(model.forcedDrawCount, 2);
-  assert.equal(model.turnText, "Let op: trek nog 2 kaarten");
-  assert.equal(model.playerHint, "2 verplichte trekkingen over");
+  assert.equal(model.playerHint, "2 beurten resterend");
+  assert.equal(model.turnText, "2 beurten resterend");
   assert.equal(model.discardCount, 3);
 });
 

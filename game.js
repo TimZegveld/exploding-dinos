@@ -1816,7 +1816,7 @@ function resolveAttackReactionWithCard(cardId) {
   showCardMoment({
     title: "Tegenaanval",
     cards: reactionCard,
-    text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet nu ${shiftedLoad} kaarten trekken, tenzij die zich verdedigt.`,
+    text: `De aanval schuift naar ${objectLabel(pending.actor)}. Die moet nu ${shiftedLoad} volledige beurten uitvoeren, tenzij die doorschuift.`,
     buttonText: "OK",
     owner: "player",
     target: pending.actor,
@@ -2082,7 +2082,7 @@ function resolveRaptorAttack(owner, target, attackLoad = RAPTOR_TURN_LOAD, retur
   state.attackReturn = null;
   state.pendingTurns = applyRaptorAttack(state.pendingTurns, target, attackLoad);
   state.current = target;
-  setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} kaart(en) trekken.`);
+  setAction(`${label(target)} is het doelwit en moet nu ${attackLoad} volledige beurten uitvoeren.`);
   render();
   continueAfterPause();
 }

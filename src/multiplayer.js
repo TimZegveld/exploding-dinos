@@ -401,9 +401,9 @@ function renderChoice(pending, game) {
   if (pending.type === "DRAW_REVEAL") {
     const remainingAfterThis = Math.max(0, Number(game.forcedDrawsRemaining) - 1);
     renderStandardOnlineReveal({
-      title: game.forcedDrawsRemaining > 0 ? `Verplichte trekking — nog ${game.forcedDrawsRemaining}` : "Je trekt",
+      title: game.forcedDrawsRemaining > 0 ? `Aanvalbeurt — nog ${game.forcedDrawsRemaining}` : "Je trekt",
       text: remainingAfterThis > 0
-        ? `Bekijk deze kaart. Hierna moet je nog ${remainingAfterThis} ${remainingAfterThis === 1 ? "kaart" : "kaarten"} trekken.`
+        ? `Deze trek sluit één volledige beurt af. Hierna heb je nog ${remainingAfterThis} ${remainingAfterThis === 1 ? "beurt" : "beurten"}. Je mag tussendoor actiekaarten spelen.`
         : "Lees de kaart rustig. Voeg hem daarna aan je hand toe.",
       cards: pending.cards,
       primary: { label: remainingAfterThis > 0 ? `Neem kaart — daarna nog ${remainingAfterThis}` : "Neem kaart in hand", action: { type: "CONFIRM_DRAW" } }
@@ -469,7 +469,7 @@ function renderChoice(pending, game) {
     const title = pending.type === "TARGET_CHOICE" ? "Kies een doelwit" : pending.type === "FOSSIL_TARGET" ? "Fossielgraaier" : "Mini-Raptor";
     const targets = pending.targets.map((target, index) => ({ ...target, initials: target.name.slice(0, 2).toUpperCase(), color: multiplayerColors[index % multiplayerColors.length], label: target.name }));
     const nodes = SharedChoiceView.targetChoices(targets, { createPortrait: SharedGameView.createPlayerPortrait, onSelect: (target) => performGameAction({ type: actionType, targetId: target.id }) });
-    renderStandardOnlineReveal({ title, text: pending.type === "TARGET_CHOICE" ? `Deze aanval veroorzaakt ${pending.attackLoad} verplichte trekkingen.` : "Kies van wie je een gesloten kaart wilt stelen.", nodes, cardClass: "is-steal-target" });
+    renderStandardOnlineReveal({ title, text: pending.type === "TARGET_CHOICE" ? `Deze aanval veroorzaakt ${pending.attackLoad} volledige beurten.` : "Kies van wie je een gesloten kaart wilt stelen.", nodes, cardClass: "is-steal-target" });
     return;
   }
   if (pending.type === "FOSSIL_CARD") {
@@ -575,7 +575,7 @@ function renderChoice(pending, game) {
 
   if (pending.type === "TARGET_CHOICE") {
     elements.choiceTitle.textContent = "Kies een doelwit";
-    elements.choiceText.textContent = `Deze aanval veroorzaakt ${pending.attackLoad} verplichte trekkingen.`;
+    elements.choiceText.textContent = `Deze aanval veroorzaakt ${pending.attackLoad} volledige beurten.`;
     elements.choiceControls.append(...pending.targets.map((target) => actionButton(
       target.name,
       { type: "CHOOSE_TARGET", targetId: target.id }
@@ -622,12 +622,12 @@ function renderChoice(pending, game) {
 
   if (pending.type === "ATTACK_REACTION") {
     elements.choiceTitle.textContent = `${pending.attackerName} valt je aan`;
-    elements.choiceText.textContent = `Je moet ${pending.attackLoad} kaarten trekken. Blokkeer, schuif door of accepteer.`;
+    elements.choiceText.textContent = `Je moet ${pending.attackLoad} volledige beurten uitvoeren. Schuif de last door of accepteer.`;
     const byId = Object.fromEntries(game.hand.map((card) => [card.id, card]));
     pending.attackCardIds.forEach((cardId) => {
       elements.choiceControls.append(actionButton(`Schuif door met ${byId[cardId]?.name ?? "Raptoraanval"}`, { type: "ATTACK_REFLECT", cardId }, "secondary-action"));
     });
-    elements.choiceControls.append(actionButton(`Accepteer ${pending.attackLoad} trekkingen`, { type: "ATTACK_PASS" }));
+    elements.choiceControls.append(actionButton(`Accepteer ${pending.attackLoad} beurten`, { type: "ATTACK_PASS" }));
     return;
   }
 

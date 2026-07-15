@@ -26,7 +26,7 @@ const cardCatalog = {
   },
   raptor: {
     name: "Raptor Aanval",
-    text: "De volgende speler moet nu 2 kaarten trekken.",
+    text: "De volgende speler moet 2 volledige beurten uitvoeren.",
     kind: "action",
     playable: true,
     turnEffect: "endTurn",
@@ -38,7 +38,7 @@ const cardCatalog = {
   },
   targetedRaptor: {
     name: "Gerichte Raptorjacht",
-    text: "Kies wie nu 2 kaarten moet trekken.",
+    text: "Kies wie 2 volledige beurten moet uitvoeren.",
     kind: "action",
     playable: true,
     turnEffect: "endTurn",

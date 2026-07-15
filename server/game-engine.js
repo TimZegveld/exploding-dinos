@@ -81,7 +81,7 @@ function finishDraw(game) {
   }
   if (game.forcedDrawsRemaining > 1) {
     game.forcedDrawsRemaining -= 1;
-    game.log.push(`${game.forcedDrawsRemaining} verplichte trekking(en) over.`);
+    game.log.push(`${game.forcedDrawsRemaining} volledige aanvalbeurt(en) over.`);
     return;
   }
   game.forcedDrawsRemaining = 0;
@@ -253,7 +253,7 @@ function beginAttack(game, attackerId, targetId, attackLoad) {
   const attacker = game.players.find((player) => player.id === attackerId);
   const target = game.players.find((player) => player.id === targetId);
   game.pending = { type: "ATTACK_REACTION", playerId: targetId, attackerId, targetId, attackLoad };
-  game.log.push(`${attacker.name} valt ${target.name} aan voor ${attackLoad} trekkingen.`);
+  game.log.push(`${attacker.name} valt ${target.name} aan voor ${attackLoad} volledige beurten.`);
 }
 
 function acceptAttack(game, pending) {
@@ -261,7 +261,7 @@ function acceptAttack(game, pending) {
   game.currentPlayerId = pending.targetId;
   game.forcedDrawsRemaining = pending.attackLoad;
   const target = game.players.find((player) => player.id === pending.targetId);
-  game.log.push(`${target.name} moet ${pending.attackLoad} kaarten trekken.`);
+  game.log.push(`${target.name} moet ${pending.attackLoad} volledige beurten uitvoeren.`);
 }
 
 function removeReactionCard(game, playerId, cardId, allowedTypes) {

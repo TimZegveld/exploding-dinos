@@ -58,7 +58,7 @@ function createMultiplayerViewModel(room, colors) {
   const turnText = game.winnerId
     ? game.winnerId === room.viewerId ? "Jij hebt gewonnen!" : `${game.players.find((player) => player.id === game.winnerId)?.name} heeft gewonnen`
     : isTurn
-      ? forcedDrawCount > 0 ? `Let op: trek nog ${forcedDrawCount} ${forcedDrawCount === 1 ? "kaart" : "kaarten"}` : "Jouw beurt"
+      ? forcedDrawCount > 0 ? `${forcedDrawCount} ${forcedDrawCount === 1 ? "beurt" : "beurten"} resterend` : "Jouw beurt"
       : `${current?.name ?? "Een speler"} is aan de beurt`;
   const playable = new Set(game.playableCardIds ?? []);
   return {
@@ -67,7 +67,7 @@ function createMultiplayerViewModel(room, colors) {
     currentPlayerId: game.currentPlayerId,
     currentColor: colors[game.players.findIndex((player) => player.id === game.currentPlayerId) % colors.length] ?? colors[0],
     turnText,
-    playerHint: game.eliminated[room.viewerId] ? "Uitgeschakeld" : forcedDrawCount > 0 ? `${forcedDrawCount} verplichte ${forcedDrawCount === 1 ? "trekking" : "trekkingen"} over` : "Speel een kaart of trek",
+    playerHint: game.eliminated[room.viewerId] ? "Uitgeschakeld" : forcedDrawCount > 0 ? `${forcedDrawCount} ${forcedDrawCount === 1 ? "beurt" : "beurten"} resterend` : "Speel een kaart of trek",
     forcedDrawCount,
     canDraw: isTurn && !game.winnerId && !game.eliminated[room.viewerId] && !game.pending,
     deckCount: game.deckCount,
