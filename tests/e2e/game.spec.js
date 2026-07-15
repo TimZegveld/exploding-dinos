@@ -231,6 +231,11 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
     version: 6,
     game: { ...gameRoom.game, winnerId: "player-host", currentPlayerId: null }
   };
+  const loserRoom = {
+    ...winnerRoom,
+    version: 7,
+    game: { ...winnerRoom.game, winnerId: "player-guest" }
+  };
   const freshRoom = {
     ...roomBase,
     code: "BRUL99",
@@ -393,8 +398,18 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Brul Terug");
   await expect(page.locator("#revealButton")).toHaveText("Niets doen");
 
+  currentRoom = loserRoom;
+  await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Verloren");
+  await expect(page.locator("#revealCard")).toContainText("Nova wint");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/defeat-dino.png");
+
   currentRoom = winnerRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
+  await expect(page.locator("#revealEyebrow")).toHaveText("Overwinning");
+  await expect(page.locator("#revealCard")).toContainText("Gefeliciteerd!");
+  await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.png");
+  await expect(page.locator("#revealButton")).toHaveText("Nieuwe room maken");
   if (await page.locator("#newGameButton").isVisible()) {
     await expect(page.locator("#newGameButton")).toHaveText("Nieuw online spel");
     await page.locator("#newGameButton").click();

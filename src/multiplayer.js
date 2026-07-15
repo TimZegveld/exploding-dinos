@@ -283,6 +283,37 @@ function renderOnlineOracle(pending) {
   renderOrder();
 }
 
+function openOnlineRoomInfo() {
+  if (!activeRoom) return;
+  showingRoomInfo = true;
+  renderPlayers(activeRoom);
+  elements.activeCode.textContent = activeRoom.code;
+  elements.modal.classList.remove("is-hidden");
+  elements.lobby.classList.remove("is-hidden");
+}
+
+function renderOnlineEndState(room) {
+  const won = room.game.winnerId === room.viewerId;
+  const winner = room.game.players.find((player) => player.id === room.game.winnerId);
+  const result = document.createElement("strong");
+  result.textContent = won ? "Gefeliciteerd!" : `${winner?.name ?? "De andere speler"} wint`;
+  const scene = document.createElement("div");
+  scene.className = "end-card__scene";
+  const image = document.createElement("img");
+  image.src = won ? "assets/endings/victory-dino.png" : "assets/endings/defeat-dino.png";
+  image.alt = won ? "Vrolijke dino viert de overwinning" : "Dino kijkt verslagen na een komische meteorietinslag";
+  scene.append(image);
+  renderStandardOnlineReveal({
+    title: won ? "Overwinning" : "Verloren",
+    text: won ? "Jij bent de laatste dino die nog overeind staat." : "Je bent uitgeschakeld in dit online potje.",
+    nodes: [result, scene],
+    primary: room.isHost
+      ? { label: "Nieuwe room maken", action: startNewRoom }
+      : { label: "Roominfo", action: openOnlineRoomInfo }
+  });
+  elements.revealCard.classList.add("end-card", won ? "is-win" : "is-loss");
+}
+
 function showOnlineCardDetail(card, playable) {
   inspectedOnlineCard = { card, playable };
   elements.choice?.classList.add("is-hidden");
@@ -665,7 +696,8 @@ function renderOnlineGame(room) {
   elements.mainHandToggle.setAttribute("aria-expanded", String(onlineHandOpen));
   elements.mainHandToggle.disabled = Boolean(game.eliminated[room.viewerId]);
 
-  renderChoice(game.pending, game);
+  if (game.winnerId) renderOnlineEndState(room);
+  else renderChoice(game.pending, game);
   startPolling();
 }
 
@@ -919,11 +951,7 @@ elements.revealSecondary.addEventListener("click", (event) => {
       startNewRoom();
       return;
     }
-    showingRoomInfo = true;
-    renderPlayers(activeRoom);
-    elements.activeCode.textContent = activeRoom.code;
-    elements.modal.classList.remove("is-hidden");
-    elements.lobby.classList.remove("is-hidden");
+    openOnlineRoomInfo();
   }, true);
 });
 elements.leave.addEventListener("click", (event) => {
