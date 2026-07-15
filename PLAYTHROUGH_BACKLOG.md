@@ -40,6 +40,11 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 - [ ] **12. Sluitkruis in gamestijl ontwerpen en implementeren**  
   Maak een herbruikbaar sluiticoon in de stijl van de game en vervang de losse tekstkruisjes in alle dialogen.
 
+## Technische kwaliteit
+
+- [ ] **13. Verouderde skill-smokeharness repareren**
+  Laat de harness dezelfde scripts in dezelfde volgorde laden als `index.html`, zodat de snelle ontwikkelcontrole weer betrouwbaar werkt.
+
 ## Werkwijze
 
 - Ieder genummerd onderwerp krijgt een eigen commit.
