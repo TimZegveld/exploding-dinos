@@ -128,7 +128,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
-- De trekstapel start met één Meteorietinslag meer dan het aantal spelers (`aantal spelers + 1`).
+- De trekstapel start standaard met exact evenveel Meteorietinslagen als spelers (`aantal spelers`).
 - Na afloop maakt de host voor een volgend online potje altijd een nieuwe room met een nieuwe uitnodigingscode.
 - Bij ieder nieuw singleplayer- en multiplayerpotje wordt de startspeler willekeurig gekozen.
 - Na een online potje ziet iedere speler een duidelijke overwinnings- of verlieskaart; de host kan daar direct een nieuwe room maken.
@@ -138,7 +138,9 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
 - Iedere actieve speler mag buiten de eigen beurt met `Brul Terug` reageren op een zichtbare actiekaart. Meteorietinslag, Schuilgrot en soortcombinaties zijn niet reacteerbaar. Een oneven keten blokkeert de actie; een even keten laat haar doorgaan.
 - Als iemand jou aanvalt, kun je na het algemene `Brul Terug`-venster een eigen raptoraanval gebruiken om de aanval door te schuiven en de beurten te stapelen. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
-- Een aanval sluit de beurt van de aanvaller af en wordt meteen uitgevochten: het doelwit moet het openstaande aantal kaarten trekken, met ruimte voor acties tussen meerdere trekken. Na de laatste verplichte trek gaat het spel verder met de volgende speler.
+- Een aanval sluit de beurt van de aanvaller af. Het doelwit voert twee volledige beurten uit: in iedere beurt mogen actiekaarten worden gespeeld en een normale trek sluit die beurt af. Een tegenaanval schuift de volledige openstaande last door en telt er twee beurten bij op.
+- `Dino Sprint` handelt exact één volledige beurt af zonder te trekken, ook tijdens een aanvalslast.
+- Vijf verschillende soortnamen mogen samen worden gespeeld om openbaar een niet-Meteorietinslag uit de aflegstapel te nemen. Maximaal één `Wilde Dino` mag één ontbrekende soort vervangen; `Schuilgrot` staat bovenaan de keuze.
 - Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop; de gekozen rosterselectie blijft beschikbaar voor het volgende potje.
 - Trekt iemand een `Meteorietinslag`, dan schudt de kaart zichtbaar. Met `Schuilgrot` kiest de speler geheim waar de meteoriet teruggaat in de stapel; jij kiest daarbij een genummerde positie.
 
@@ -152,11 +154,11 @@ Statuslegenda:
 
 | Type | Kaart | Aantal | Regel in deze iteratie | Status |
 |---|---:|---:|---|---|
-| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers + 1` exemplaren gebruikt. | klaar |
+| `meteor` | Meteorietinslag | 11 | Trek je deze zonder `Schuilgrot`, dan ben je uitgeschakeld. De getrokken meteoriet is voor iedereen zichtbaar. Per potje worden `aantal spelers` exemplaren gebruikt. | klaar |
 | `shelter` | Schuilgrot | 10 | Wordt automatisch en voor iedereen zichtbaar gebruikt tegen `Meteorietinslag`; daarna gaat de meteoriet op een geheime positie terug in de stapel. | klaar |
-| `raptor` | Raptor Aanval | 5 | De volgende speler moet meteen 2 kaarten trekken; als reactie schuift hij de volledige aanvalslast door. | klaar |
-| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat meteen 2 kaarten moet trekken; als reactie mag je opnieuw een doelwit kiezen. | klaar |
-| `sprint` | Dino Sprint | 10 | Sla je beurt over; bij extra beurten raak je 1 extra pending beurt kwijt. | klaar |
+| `raptor` | Raptor Aanval | 5 | De volgende speler voert 2 volledige beurten uit; een tegenaanval schuift de volledige last door en telt er 2 bij op. | klaar |
+| `targetedRaptor` | Gerichte Raptorjacht | 5 | Kies bewust een doelwit dat 2 volledige beurten uitvoert; bij doorschuiven kies je opnieuw een geldig doelwit. | klaar |
+| `sprint` | Dino Sprint | 10 | Beëindig exact 1 beurt zonder te trekken; tijdens een aanval vervalt 1 openstaande beurt. | klaar |
 | `trike` | Triceratops Blik | 6 | Bekijk de bovenste 3 kaarten. | klaar |
 | `oracle` | Tijdlijn Kneden | 6 | Bekijk de bovenste 3 kaarten en leg ze terug in jouw volgorde. | klaar |
 | `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar |
