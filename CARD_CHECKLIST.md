@@ -21,6 +21,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Huidige stand
 
+- Iedere speler start met exact 5 kaarten: 1 gegarandeerde Schuilgrot en 4 willekeurige kaarten zonder Meteorietinslag of extra Schuilgrot.
 - `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 93 tests.
 - De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.

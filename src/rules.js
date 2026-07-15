@@ -1,4 +1,6 @@
 (() => {
+const STARTING_RANDOM_CARD_COUNT = 4;
+
 function calculateSetupCounts(playerCount, distribution, deckModeForPlayers) {
   const mode = deckModeForPlayers(playerCount);
   const shelterCount = mode === "compact"
@@ -127,6 +129,7 @@ function arrangePteroEdges(deck, selectedTopId) {
 }
 
 const ExplodingDinosRules = {
+  STARTING_RANDOM_CARD_COUNT,
   SPECIES_TYPES,
   NOPE_REACTABLE_TYPES,
   applyRaptorAttack,

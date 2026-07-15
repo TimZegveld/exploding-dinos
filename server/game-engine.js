@@ -1,5 +1,5 @@
 const { buildCardPool, deckModeForPlayers, makeCard, partyPackDistribution, shuffle } = require("../src/cards");
-const { arrangePteroEdges, calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, getPteroEdgeCards, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
+const { STARTING_RANDOM_CARD_COUNT, arrangePteroEdges, calculateSetupCounts, canReactWithNope, chooseStartingPlayerId, getPteroEdgeCards, isNopeChainBlocked, resolveMeteorDraw, selectFiveSpeciesCombo } = require("../src/rules");
 const { isChoiceAction } = require("../src/protocol");
 
 const PAIR_REWARD_TYPES = new Set(["miniRaptor", "stegoSnack", "brontoBuik", "triceraTuk", "pteroPret"]);
@@ -16,7 +16,7 @@ function startGame(players, randomValue = Math.random()) {
   const hands = Object.fromEntries(players.map((player) => [player.id, [makeCard("shelter", true)]]));
   const pool = buildCardPool(playerCount);
 
-  for (let index = 0; index < 7; index += 1) {
+  for (let index = 0; index < STARTING_RANDOM_CARD_COUNT; index += 1) {
     players.forEach((player) => {
       const card = pool.pop();
       if (card) hands[player.id].push(card);

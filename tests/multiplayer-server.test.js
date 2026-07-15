@@ -60,8 +60,8 @@ test("alleen de host start en iedere speler krijgt zijn eigen hand", () => {
   const guestRoom = service.viewRoom(host.room.code, guest.token);
 
   assert.equal(hostRoom.status, "playing");
-  assert.equal(hostRoom.game.hand.length, 8);
-  assert.equal(guestRoom.game.hand.length, 8);
+  assert.equal(hostRoom.game.hand.length, 5);
+  assert.equal(guestRoom.game.hand.length, 5);
   assert.notDeepEqual(hostRoom.game.hand.map((card) => card.id), guestRoom.game.hand.map((card) => card.id));
 });
 

@@ -68,17 +68,20 @@ test("opponent selection hints at hidden npc play styles", () => {
 });
 
 test("starting from the modal renders the initial table", () => {
-  const { getSelector } = loadGame();
+  const { getSelector, sandbox } = loadGame();
 
   getSelector("#startGameButton").click();
 
   assert.equal(getSelector("#startModal").classList.contains("is-hidden"), true);
   assert.equal(getSelector("#turnStatus").textContent, "Jouw beurt");
-  assert.equal(getSelector("#playerHand").children.length, 8);
+  assert.equal(getSelector("#playerHand").children.length, 5);
   assert.equal(getSelector("#opponents").children.length, 1);
-  assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "8 kaarten");
+  assert.equal(getSelector("#opponents").children[0].children[0].children[0].children[1].children[1].dataset.mobileText, "5 kaarten");
   assert.equal(getSelector("#opponents").children[0].children[1].children.length, 5);
-  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "8");
+  assert.equal(getSelector("#opponents").children[0].children[1].children.at(-1).textContent, "5");
+  const startingHand = sandbox.getHand("player");
+  assert.equal(startingHand.filter((card) => card.type === "shelter").length, 1);
+  assert.equal(startingHand.some((card) => card.type === "meteor"), false);
   assert.equal(getSelector("#discardTop").textContent, "");
   assert.equal(getSelector("#discardTop").className, "discard__empty");
   assert.equal(getSelector("#discardTop").attributes["aria-label"], "Aflegstapel is leeg");
@@ -130,13 +133,13 @@ test("mobile hand toggle collapses and opens the player hand", () => {
   getSelector("#startGameButton").click();
 
   assert.equal(getSelector(".player-zone").classList.contains("is-hand-collapsed"), true);
-  assert.match(getSelector("#handToggle").textContent, /Open hand \(8\)/);
+  assert.match(getSelector("#handToggle").textContent, /Open hand \(5\)/);
   assert.equal(getSelector("#handToggle").attributes["aria-expanded"], "false");
 
   getSelector("#handToggle").click();
 
   assert.equal(getSelector(".player-zone").classList.contains("is-hand-collapsed"), false);
-  assert.match(getSelector("#handToggle").textContent, /Sluit hand \(8\)/);
+  assert.match(getSelector("#handToggle").textContent, /Sluit hand \(5\)/);
   assert.equal(getSelector("#handToggle").attributes["aria-expanded"], "true");
 });
 

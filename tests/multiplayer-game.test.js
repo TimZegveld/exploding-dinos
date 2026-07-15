@@ -20,14 +20,18 @@ function playCard(game, playerId, cardId) {
   }
 }
 
-test("online spel deelt acht kaarten en houdt handen geheim", () => {
+test("online spel deelt één grot en vier veilige willekeurige kaarten en houdt handen geheim", () => {
   const game = startGame(players);
   const viewA = publicGame(game, "player-a");
   const viewB = publicGame(game, "player-b");
 
-  assert.equal(viewA.hand.length, 8);
-  assert.equal(viewB.hand.length, 8);
-  assert.equal(viewA.players[1].cardCount, 8);
+  assert.equal(viewA.hand.length, 5);
+  assert.equal(viewB.hand.length, 5);
+  assert.equal(viewA.players[1].cardCount, 5);
+  [viewA.hand, viewB.hand].forEach((hand) => {
+    assert.equal(hand.filter((card) => card.type === "shelter").length, 1);
+    assert.equal(hand.some((card) => card.type === "meteor"), false);
+  });
   assert.equal("hands" in viewA, false);
   assert.notDeepEqual(viewA.hand.map((card) => card.id), viewB.hand.map((card) => card.id));
 });

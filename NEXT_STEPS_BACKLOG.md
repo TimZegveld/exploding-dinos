@@ -14,7 +14,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 
 ## Vastgestelde uitgangspunten
 
-- Startspel blijft 8 handkaarten per speler: 1 gegarandeerde Schuilgrot plus 7 gedeelde kaarten. Dit komt overeen met de officiële opzet.
+- Startspel gebruikt 5 handkaarten per speler: 1 gegarandeerde Schuilgrot plus 4 willekeurige kaarten zonder Meteorietinslag of extra Schuilgrot.
 - Schuilgrot blijft automatisch gebruikt worden. Digitaal bestaat er geen zinvolle keuze om hem niet te gebruiken. Presentatie blijft openbaar; alleen de gekozen terugplaatsingspositie van de meteoriet is geheim.
 - Vulkaan Shuffle blijft voorlopig de huidige kracht houden: schudden plus alleen voor de speler de nieuwe bovenste kaart tonen. Dit is bewust sterker dan de officiële Schud-kaart.
 - Soortparen behouden hun unieke Dinos-beloningen. Ze worden niet vervangen door de generieke officiële paarregel.
@@ -55,7 +55,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 
 - [x] **EK-05 Visuele snelstart bovenaan `Hoe speel je?`**
   - Bouw een compacte drie-stappenlus: `Speel 0 of meer kaarten` -> `Trek 1 kaart om je beurt te beëindigen` -> `Meteoriet: Schuilgrot of uitschakeling`.
-  - Voeg voorbereiding toe: 1 Schuilgrot + 7 kaarten per speler; meteorieten en extra grotten daarna toevoegen; stapel schudden.
+  - Voorbereiding na balansbesluit: 1 Schuilgrot + 4 willekeurige niet-meteor/niet-grotkaarten per speler; meteorieten en extra grotten daarna toevoegen; stapel schudden.
   - Gebruik bestaande gamestijl, illustraties en responsive patronen; geen kopie van artwork/layout uit de officiële handleiding.
   - Acceptatie: begrijpelijk zonder scrollen op desktop en binnen compacte mobiele sectie; toetsenbord/focus/reduced-motion correct.
   - Tests: Playwright desktop, Pixel 5, 320x568 en mobiel landschap.

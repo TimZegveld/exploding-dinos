@@ -24,6 +24,7 @@ const {
   shuffle
 } = globalThis.ExplodingDinosCards;
 const {
+  STARTING_RANDOM_CARD_COUNT,
   applyRaptorAttack,
   arrangePteroEdges,
   calculateSetupCounts,
@@ -420,7 +421,7 @@ function startGame() {
 
   const pool = buildCardPool(playerCount);
 
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < STARTING_RANDOM_CARD_COUNT; i += 1) {
     players.forEach((player) => {
       const card = pool.pop();
       if (card) addCardToHand(player.id, card);

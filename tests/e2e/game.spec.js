@@ -28,7 +28,7 @@ async function startGame(page) {
   await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
   await page.locator("#startGameButton").click();
   await expect(page.locator("#startModal")).toBeHidden();
-  await expect(page.locator("#playerHand .card-button")).toHaveCount(8);
+  await expect(page.locator("#playerHand .card-button")).toHaveCount(5);
   await expect(page.locator("#opponents .opponent-seat")).toHaveCount(1);
 }
 
@@ -626,8 +626,8 @@ test("hand van een tegenstander blijft compact en toont het totale aantal", asyn
 
   const seat = page.locator("#opponents .opponent-seat").first();
   await expect(seat.locator(".pc-hand .card-back")).toHaveCount(4);
-  await expect(seat.locator(".opponent-card-count")).toHaveText("8");
-  await expect(seat).toHaveAttribute("aria-label", /8 kaarten/);
+  await expect(seat.locator(".opponent-card-count")).toHaveText("5");
+  await expect(seat).toHaveAttribute("aria-label", /5 kaarten/);
 
   const dimensions = await seat.evaluate((element) => {
     const hand = element.querySelector(".pc-hand").getBoundingClientRect();
@@ -665,7 +665,7 @@ test("logboek staat achter het menu met vijf acties en een volledige weergave", 
 test("uitleg doorloopt een geïsoleerde voorbeeldbeurt met private en publieke informatie", async ({ page }) => {
   await page.locator("#startExplainButton").click();
   await expect(page.locator("#tutorial")).toBeVisible();
-  await expect(page.locator(".quickstart__setup")).toContainText("1 Schuilgrot + 7 kaarten");
+  await expect(page.locator(".quickstart__setup")).toContainText("1 Schuilgrot + 4 kaarten");
   await expect(page.locator(".quickstart__loop li")).toHaveCount(3);
   await expect(page.locator(".quickstart__loop")).toContainText("Trek 1 kaart om je beurt te beëindigen");
   await expect(page.locator("#tutorialProgress")).toHaveText("Stap 1 van 6");

@@ -112,6 +112,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 
 ## Regels in deze iteratie
 
+- Iedere speler start met 5 kaarten: exact 1 Schuilgrot en 4 willekeurige kaarten. Meteorietinslagen en extra Schuilgrotten worden pas daarna aan de trekstapel toegevoegd.
 - Jij speelt tegen 1 tot 4 gekozen pc-tegenspelers uit een roster van 9 persona's met eigen gender, rol, dinoras, kleuraccent, portret-slot en portretprompt.
 - Iedere pc-tegenspeler heeft een eigen speelstijl die kaartkeuze, doelwitkeuze, blokkeren, risico nemen en deckcontrole subtiel beinvloedt.
 - De startselectie adviseert beginners om met 1 tegenstander te beginnen; extra tegenstanders zorgen voor meer chaos.
