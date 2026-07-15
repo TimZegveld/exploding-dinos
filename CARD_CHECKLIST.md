@@ -42,7 +42,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Tegenstanderhanden gebruiken op desktop en mobiel maximaal vier overlappende kaartruggen en een badge met het volledige kaartenaantal; ook een lege hand toont expliciet `0`.
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
 - Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
-- Regeliconen staan alleen in grote kaartdetails, buiten het kaartvlak, als gekleurde icoon-plus-tekstchips in een vaste infobalk rechtsonder; mobiel staat de balk onder de regeltekst.
+- Regeliconen staan alleen in grote kaartdetails, buiten het kaartvlak, als gekleurde icoon-plus-tekstchips voor beurtverloop, trekken en reageren. Openbaar/geheim blijft gewone detailtekst; mobiel staat de balk onder de regeltekst.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 - De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 

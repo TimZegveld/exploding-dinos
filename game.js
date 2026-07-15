@@ -1141,7 +1141,7 @@ function renderCardFace(element, card, options = {}) {
   element.append(header, art, text);
 }
 
-const ruleLabels = { "turn-continue": "Beurt gaat door", "turn-end": "Beurt eindigt", draw: "Trekken vereist", reaction: "Reacteerbaar", secret: "Geheime informatie", public: "Openbare informatie" };
+const ruleLabels = { "turn-continue": "Beurt gaat door", "turn-end": "Beurt eindigt", draw: "Trekken vereist", reaction: "Reacteerbaar" };
 
 function renderCardDetailInfo(target, card) {
   const items = (card.rules?.icons ?? []).map((icon) => {

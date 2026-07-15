@@ -100,7 +100,9 @@ test("all 17 cards expose complete shared rule metadata", () => {
   assert.equal(Object.keys(cardCatalog).length, 17);
   Object.entries(cardCatalog).forEach(([type, card]) => {
     assert.deepEqual(Object.keys(card.rules).sort(), ["icons", "reactable", "target", "timing", "turn", "visibility"], type);
-    assert.ok(card.rules.icons.includes("secret") || card.rules.icons.includes("public"), type);
+    assert.equal(card.rules.icons.includes("secret"), false, type);
+    assert.equal(card.rules.icons.includes("public"), false, type);
+    assert.ok(card.rules.visibility, type);
   });
 });
 

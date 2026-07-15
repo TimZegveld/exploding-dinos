@@ -974,7 +974,8 @@ h2 {
   color: #fff;
   background: #365e4b;
   font-size: 0.72rem;
-  font-weight: 850;
+  font-style: italic;
+  font-weight: 600;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -983,8 +984,6 @@ h2 {
 .card-detail-info__item.is-turn-end { background: #a93e36; }
 .card-detail-info__item.is-draw { background: #a86612; }
 .card-detail-info__item.is-reaction { background: #7550a6; }
-.card-detail-info__item.is-secret { background: #365f9c; }
-.card-detail-info__item.is-public { background: #14788a; }
 
 .card-detail-info__item img {
   width: 18px;
