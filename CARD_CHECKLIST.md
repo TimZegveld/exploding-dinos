@@ -21,8 +21,8 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 64 tests.
-- De gerichte desktop-Chromiumtest voor de multiplayerflow is groen.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 78 tests.
+- De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` eindigt na het herschikken de beurt.
 - `CARD_RULES_AUDIT.md` vergelijkt kaarttekst, README en singleplayer-/multiplayergedrag en legt open regelbesluiten vast.
@@ -50,12 +50,13 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - [x] Maak een pull request van `codex/multiplayer-room-lobby` naar `main` en controleer de diff.
 - [x] Merge de branch naar `main`, zodat GitHub Pages de multiplayerfrontend met de Render-URL publiceert.
 - [x] Wacht tot GitHub Pages de multiplayerfrontend heeft gepubliceerd.
-- [ ] Voer een publieke rooktest uit:
+- [x] Voer een publieke rooktest uit:
   - Maak een room op `https://timzegveld.github.io/exploding-dinos/`.
   - Open de uitnodigingslink in een tweede browser of privévenster.
   - Start een potje, trek en speel enkele kaarten en ververs beide spelers eenmaal.
   - Controleer dat Meteorietinslag en Schuilgrot openbaar zijn en de terugplaatsingspositie geheim blijft.
 - [ ] Controleer in Render dat `ALLOWED_ORIGIN=https://timzegveld.github.io` actief is en de laatste deployment groen blijft.
+  - Live gecontroleerd op 15 juli 2026: `/api/health` retourneert `ok: true` en de CORS-header is exact `https://timzegveld.github.io`; alleen de visuele bevestiging in het Render-dashboard blijft handmatig.
 - [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.
   - Controleer Safari safe areas, adresbalk-resize, scrollgedrag van beide rails en mobiel landschap.
   - Noteer alleen problemen die niet door de huidige Chromium-browsermatrix worden gevangen.

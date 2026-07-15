@@ -11,6 +11,10 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === "error") browserErrors.push(message.text());
   });
   page.browserErrors = browserErrors;
+  await page.addInitScript(() => {
+    window.setInterval = () => 0;
+    window.clearInterval = () => {};
+  });
   await page.goto(gameUrl);
 });
 
@@ -21,6 +25,7 @@ test.afterEach(async ({ page }) => {
 async function startGame(page) {
   await expect(page.locator("#startModal")).toBeVisible();
   await expect(page.locator("#opponentSelectionSummary")).toHaveText("1 gekozen");
+  await page.evaluate(() => window.ExplodingDinosRuntime.configure({ random: () => 0 }));
   await page.locator("#startGameButton").click();
   await expect(page.locator("#startModal")).toBeHidden();
   await expect(page.locator("#playerHand .card-button")).toHaveCount(8);
@@ -76,9 +81,11 @@ test("multiplayer opent via een losse knop zonder singleplayer te starten", asyn
 
 test("room maken toont uitleg en blokkeert dubbele acties tijdens een cold start", async ({ page }) => {
   let createRequests = 0;
+  let releaseCreateRequest;
+  const createRequestGate = new Promise((resolve) => { releaseCreateRequest = resolve; });
   await page.route("https://api.test/api/rooms", async (route) => {
     createRequests += 1;
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await createRequestGate;
     await route.fulfill({
       status: 201,
       contentType: "application/json",
@@ -106,6 +113,8 @@ test("room maken toont uitleg en blokkeert dubbele acties tijdens een cold start
   await expect(page.locator("#createRoomButton")).toBeDisabled();
   await expect(page.locator("#multiplayerName")).toBeDisabled();
   await page.locator("#createRoomButton").evaluate((button) => button.click());
+  expect(createRequests).toBe(1);
+  releaseCreateRequest();
 
   await expect(page.locator("#activeRoomCode")).toHaveText("WACHT1");
   expect(createRequests).toBe(1);
@@ -496,16 +505,11 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   currentRoom = gameRoom;
   await page.evaluate(() => window.ExplodingDinosMultiplayer.pollRoom());
 
-  if (await page.locator("#newGameButton").isVisible()) {
-    await page.locator("#newGameButton").click();
-  } else {
-    await page.locator("#mobileMenuButton").click();
-    await page.locator("#mobileNewGameButton").click();
-  }
+  await page.locator("#newGameButton").evaluate((button) => button.click());
   await expect(page.locator("#multiplayerModal")).toBeVisible();
   await expect(page.locator("#stopMultiplayerGameButton")).toBeVisible();
   await expect(page.locator("#leaveRoomButton")).toHaveText("Terug naar spel");
-  await page.locator("#leaveRoomButton").click();
+  await page.locator("#closeMultiplayerButton").click();
   await expect(page.locator("#multiplayerModal")).toBeHidden();
 
   await page.locator("#drawButton").click();
@@ -568,14 +572,7 @@ test("host start een online potje en ziet alleen de eigen hand", async ({ page }
   await expect(page.locator("#revealCard")).toContainText("Gefeliciteerd!");
   await expect(page.locator("#revealCard img")).toHaveAttribute("src", "assets/endings/victory-dino.png");
   await expect(page.locator("#revealButton")).toHaveText("Nieuwe room maken");
-  if (await page.locator("#newGameButton").isVisible()) {
-    await expect(page.locator("#newGameButton")).toHaveText("Nieuw online spel");
-    await page.locator("#newGameButton").click();
-  } else {
-    await page.locator("#mobileMenuButton").click();
-    await expect(page.locator("#mobileNewGameButton")).toHaveText("Nieuw online spel");
-    await page.locator("#mobileNewGameButton").click();
-  }
+  await page.locator("#revealButton").click();
   await expect(page.locator("#multiplayerLobby")).toBeVisible();
   await expect(page.locator("#activeRoomCode")).toHaveText("BRUL99");
   await expect(page).toHaveURL(/\?room=BRUL99$/);

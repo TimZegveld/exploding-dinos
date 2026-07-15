@@ -52,6 +52,8 @@ npm run test:browser
 
 Installeer bij een nieuwe checkout eerst de ontwikkelafhankelijkheden en Chromium met `npm install` en `npx playwright install chromium`. Met `npm run test:all` draaien beide testlagen achter elkaar.
 
+Met `npm run test:public` draait een expliciete live-rooktest tegen GitHub Pages en Render. Deze maakt met twee geïsoleerde browsersessies tijdelijk een echte room, start en ververst het potje, speelt indien mogelijk een veilige actiekaart en controleert de openbare Meteorietinslag en Schuilgrot plus de geheime terugplaatsing. De test verwijdert de room na afloop en hoort niet bij de standaard lokale suite.
+
 ## Online zetten
 
 De game is geschikt voor statische hosting, omdat alles uit HTML, CSS, JavaScript en assets bestaat. De voorkeursroute is GitHub Pages.
