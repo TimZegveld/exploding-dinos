@@ -1139,12 +1139,38 @@ function renderCardFace(element, card, options = {}) {
   (card.rules?.icons ?? []).forEach((icon) => {
     const item = document.createElement("span");
     item.className = `card-rule-icon is-${icon}`;
-    item.title = ruleLabels[icon];
+    item.dataset.tooltip = ruleLabels[icon];
     item.setAttribute("aria-label", ruleLabels[icon]);
+    item.setAttribute("aria-expanded", "false");
+    item.setAttribute("role", "button");
+    item.setAttribute("tabindex", "0");
     const image = document.createElement("img");
     image.src = `assets/cards/icons/rule-${icon}.svg`;
     image.alt = "";
-    item.append(image);
+    const tooltip = document.createElement("span");
+    tooltip.className = "card-rule-icon__tooltip";
+    tooltip.textContent = ruleLabels[icon];
+    tooltip.setAttribute("aria-hidden", "true");
+    const toggleTooltip = (event) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      const willOpen = !item.classList.contains("is-open");
+      Array.from(ruleIcons.children).forEach((sibling) => {
+        sibling.classList.remove("is-open");
+        sibling.setAttribute("aria-expanded", "false");
+      });
+      item.classList.toggle("is-open", willOpen);
+      item.setAttribute("aria-expanded", String(willOpen));
+    };
+    item.addEventListener("click", toggleTooltip);
+    item.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") toggleTooltip(event);
+      if (event.key === "Escape") {
+        item.classList.remove("is-open");
+        item.setAttribute("aria-expanded", "false");
+      }
+    });
+    item.append(image, tooltip);
     ruleIcons.append(item);
   });
   element.append(header, art, text, ruleIcons);

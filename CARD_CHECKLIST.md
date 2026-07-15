@@ -21,7 +21,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 90 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 92 tests.
 - De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` eindigt na het herschikken de beurt.
@@ -42,6 +42,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Tegenstanderhanden gebruiken op desktop en mobiel maximaal vier overlappende kaartruggen en een badge met het volledige kaartenaantal; ook een lege hand toont expliciet `0`.
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
 - Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
+- Regeliconen staan los van het kaarttypelogo, gebruiken betekenisvolle accentkleuren en tonen hun tekst via hover, toetsenbordfocus of tikken op mobiel.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 - De smokeharness van de projectskill volgt automatisch de scriptvolgorde uit `index.html`; een regressietest bewaakt runtime-initialisatie, eventbinding en de eerste render.
 

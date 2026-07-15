@@ -228,7 +228,13 @@ test("hand, reveal en catalogus renderen toegankelijke regeliconen", () => {
   getSelector("#startGameButton").click();
   assert.equal(getSelector("#playerHand").children[0].children.at(-1).className, "card-face__rule-icons");
   sandbox.renderCardFace(getSelector("#revealCard"), sandbox.ExplodingDinosCards.makeCard("trike", true), { large: true });
-  assert.equal(getSelector("#revealCard").children.at(-1).children[0].getAttribute("aria-label"), "Beurt gaat door");
+  const firstRuleIcon = getSelector("#revealCard").children.at(-1).children[0];
+  assert.equal(firstRuleIcon.getAttribute("aria-label"), "Beurt gaat door");
+  assert.equal(firstRuleIcon.getAttribute("role"), "button");
+  assert.equal(firstRuleIcon.getAttribute("tabindex"), "0");
+  firstRuleIcon.click();
+  assert.equal(firstRuleIcon.classList.contains("is-open"), true);
+  assert.equal(firstRuleIcon.getAttribute("aria-expanded"), "true");
   getSelector("#showCatalogPage").click();
   assert.equal(getSelector("#catalogGrid").children[0].children.at(-2).className, "card-face__rule-icons");
 });

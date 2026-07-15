@@ -945,28 +945,97 @@ h2 {
 .card-face__rule-icons {
   position: absolute;
   top: 42px;
-  right: 7px;
-  z-index: 3;
+  left: 7px;
+  z-index: 4;
   display: flex;
-  gap: 3px;
+  gap: 4px;
+  max-width: calc(100% - 14px);
 }
 
 .card-rule-icon {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
-  border: 1px solid currentColor;
+  flex: 0 0 auto;
+  width: 23px;
+  height: 23px;
+  border: 2px solid rgba(255, 255, 255, 0.88);
   border-radius: 50%;
-  color: #fff7dc;
-  background: rgba(16, 20, 17, 0.82);
+  color: #fff;
+  background: #365e4b;
+  box-shadow: 0 2px 6px rgba(16, 20, 17, 0.42), inset 0 0 0 1px rgba(18, 24, 20, 0.28);
+  cursor: help;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.card-rule-icon img { width: 13px; height: 13px; }
-.card-face.is-mini .card-face__rule-icons { top: 34px; transform: scale(0.78); transform-origin: right top; }
+.card-rule-icon.is-turn-continue { background: #24724d; }
+.card-rule-icon.is-turn-end { background: #a93e36; }
+.card-rule-icon.is-draw { background: #a86612; }
+.card-rule-icon.is-reaction { background: #7550a6; }
+.card-rule-icon.is-secret { background: #365f9c; }
+.card-rule-icon.is-public { background: #14788a; }
+
+.card-rule-icon img {
+  width: 15px;
+  height: 15px;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+
+.card-rule-icon__tooltip {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  z-index: 8;
+  width: max-content;
+  max-width: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 7px;
+  padding: 5px 7px;
+  color: #fff;
+  background: rgba(16, 20, 17, 0.96);
+  box-shadow: 0 5px 14px rgba(8, 10, 9, 0.42);
+  font-size: 0.67rem;
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-3px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.card-rule-icon:hover,
+.card-rule-icon:focus-visible,
+.card-rule-icon.is-open {
+  outline: none;
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 4px 10px rgba(16, 20, 17, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.48);
+}
+
+.card-rule-icon:hover .card-rule-icon__tooltip,
+.card-rule-icon:focus-visible .card-rule-icon__tooltip,
+.card-rule-icon.is-open .card-rule-icon__tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-face--mini .card-face__rule-icons {
+  top: 36px;
+  transform: scale(0.78);
+  transform-origin: left top;
+}
 
 @media (forced-colors: active) {
-  .card-rule-icon { border: 2px solid ButtonText; color: ButtonText; background: Canvas; }
+  .card-rule-icon { border: 2px solid ButtonText; color: ButtonText; background: Canvas; forced-color-adjust: auto; }
+  .card-rule-icon img { filter: none; }
+  .card-rule-icon__tooltip { border: 1px solid ButtonText; color: ButtonText; background: Canvas; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-rule-icon,
+  .card-rule-icon__tooltip { transition: none; }
 }
 
 .card-button strong {

@@ -717,6 +717,17 @@ test("catalogus toont alle kaarten en opent kaartdetails", async ({ page }) => {
   expect(layeredLayout.artPosition).toBe("absolute");
   expect(layeredLayout.artHeight).toBeGreaterThan(layeredLayout.cardHeight * 0.85);
   expect(layeredLayout.textBackdrop).toContain("blur");
+  const firstRuleIcon = firstCard.locator(".card-rule-icon").first();
+  const iconLayout = await firstCard.evaluate((card) => {
+    const typeIcon = card.querySelector(".card-face__icon").getBoundingClientRect();
+    const rules = card.querySelector(".card-face__rule-icons").getBoundingClientRect();
+    return { separate: rules.right < typeIcon.left || rules.bottom < typeIcon.top };
+  });
+  expect(iconLayout.separate).toBe(true);
+  await firstRuleIcon.click();
+  await expect(firstRuleIcon).toHaveAttribute("aria-expanded", "true");
+  await expect(firstRuleIcon.locator(".card-rule-icon__tooltip")).toBeVisible();
+  await expect(page.locator("#catalogDetail")).toBeHidden();
   await page.locator("#catalogGrid .catalog-card").first().click();
   await expect(page.locator("#catalogDetail")).toBeVisible();
   await expect(page.locator("#catalogDetailTitle")).not.toBeEmpty();
