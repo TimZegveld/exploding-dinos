@@ -49,6 +49,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 - [ ] Review en merge PR #6 van `codex/playthrough-backlog` naar `main`.
 - [ ] Test na de merge de nieuwe GitHub Pages-deployment met `npm run test:public`.
+- [ ] Werk na de merge de machinegerichte vervolgstappen uit `NEXT_STEPS_BACKLOG.md` af op een nieuwe branch; start met de regelbesluiten in fase A.
 - [ ] Controleer in Render dat `ALLOWED_ORIGIN=https://timzegveld.github.io` actief is en de laatste deployment groen blijft.
   - Live gecontroleerd op 15 juli 2026: `/api/health` retourneert `ok: true` en de CORS-header is exact `https://timzegveld.github.io`; alleen de visuele bevestiging in het Render-dashboard blijft handmatig.
 - [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.
