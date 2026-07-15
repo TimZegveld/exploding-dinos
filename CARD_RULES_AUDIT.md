@@ -7,7 +7,7 @@ Deze audit vergelijkt de korte kaarttekst in `src/cards.js`, de regels in `READM
 - De kernwerking van alle 17 kaarttypes bestaat in singleplayer en multiplayer.
 - Triceratops Blik meldde in singleplayer Meteorietinslag en Schuilgrot nog apart. Die extra waarschuwingen zijn verwijderd; de speler ziet alleen de drie kaarten en hun volgorde.
 - Fossielgraaier en Tricera-Tuk hebben duidelijkere korte kaarttekst gekregen zonder hun werking te veranderen.
-- Het belangrijkste open regelbesluit is het bereik van Brul Terug. Singleplayer ondersteunt blokkeren van vrijwel alle gespeelde actiekaarten; multiplayer ondersteunt Brul Terug alleen als reactie op een aanval en op de daaropvolgende Brul Terug-keten.
+- Het bereik van Brul Terug is geharmoniseerd: iedere actieve speler mag buiten de eigen beurt reageren op iedere zichtbare actiekaart, maar nooit op Meteorietinslag, Schuilgrot of een soortcombinatie.
 
 ## Vergelijking per kaart
 
@@ -23,7 +23,7 @@ Deze audit vergelijkt de korte kaarttekst in `src/cards.js`, de regels in `READM
 | Vulkaan Shuffle | Schudt de stapel en toont alleen de spelende speler de nieuwe bovenste kaart. | Geen functioneel verschil gevonden. | Behouden. |
 | Diep Graven | Toont de onderste kaart en laat die nemen of blind van boven trekken; die trek beëindigt de beurt. | Het beurt-einde staat niet expliciet op de korte kaart. | Vermeld het beurt-einde in uitgebreid kaartdetail. |
 | Fossielgraaier | Laat een tegenstander en daarna één van diens gesloten kaarten kiezen. | "Van de ander" was onduidelijk bij meer dan twee spelers. | Opgelost in de korte kaarttekst. |
-| Brul Terug | Een oneven keten blokkeert; een even keten neutraliseert de eerdere Brul Terug. | Singleplayer biedt hem bij bijna iedere actie; multiplayer alleen bij aanvallen. | Kies één bereik en maak beide modi plus uitleg gelijk. |
+| Brul Terug | Iedere actieve speler mag op een zichtbare actiekaart reageren. Een oneven keten blokkeert; een even keten laat de oorspronkelijke actie doorgaan. | Singleplayer en multiplayer gebruiken dezelfde reactietabel. Multiplayer sluit iedere reactor met expliciet passen of na 30 seconden; geheime effectinformatie volgt pas daarna. | Opgelost in EK-01. |
 | Wilde Dino | Werkt als joker naast één soortkaart en activeert de beloning van die soort. | In multiplayer moet de soortkaart worden aangeklikt; Wilde Dino zelf start daar geen paar. | Maak de partnerkeuze in beide modi gelijk. |
 | Mini-Raptor | Een paar kiest een doelwit en steelt daar één willekeurige kaart. | Geen functioneel verschil gevonden. | Behouden. |
 | Stego Snack | Een paar kiest een niet-meteor die al in de aflegstapel lag; het zojuist gespeelde paar is uitgesloten. | "Oudere" betekent feitelijk: aanwezig vóór het paar werd gespeeld. | Leg deze definitie uit in uitgebreid kaartdetail. |
@@ -33,7 +33,7 @@ Deze audit vergelijkt de korte kaarttekst in `src/cards.js`, de regels in `READM
 
 ## Aanbevolen verbeteringen
 
-1. **Brul Terug harmoniseren.** Alleen aanvallen blokkeren is eenvoudiger. Alle acties blokkeren geeft meer interactie, maar vraagt multiplayerreacties rond geheime kijk- en keuzeacties.
+1. **Brul Terug harmoniseren.** Afgerond in EK-01 met een algemeen reactievenster vóór het actie-effect en servergestuurde time-out.
 2. **Uitgebreide kaartdetails toevoegen.** Houd kaartfronten kort en toon timing, doelwit, beurt-einde en mogelijke reacties in het bestaande kaartdetail.
 3. **Dino Sprint-pariteit vastleggen.** Test een normale beurt en aanvalslasten van twee, vier en zes trekkingen in beide modi.
 4. **Wilde Dino-partnerkeuze gelijktrekken.** Laat spelers bewust kiezen welke soortbeloning wordt geactiveerd wanneer meerdere partners mogelijk zijn.

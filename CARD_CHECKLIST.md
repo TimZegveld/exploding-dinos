@@ -4,8 +4,8 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Start hier in een nieuwe chat
 
-- De volledige playthrough-backlog met 13 punten staat in PR #6 en is klaar voor review.
-- Werkbranch: `codex/playthrough-backlog`.
+- De volledige playthrough-backlog uit PR #6 is gemergd; de vervolgbacklog wordt in één nieuwe pull request uitgevoerd.
+- Werkbranch: `codex/ek-01-brul-terug-parity`; ieder EK-ID blijft één eigen functionele commit.
 - Laatste functionele commit vóór deze documentatie-update: `13aad5c` (`Stabilize browser and public smoke tests`).
 - Render Blueprint: `render.yaml`; service: `https://exploding-dinos-api.onrender.com`.
 - Healthcheck: `https://exploding-dinos-api.onrender.com/api/health` retourneert `200` met `{"ok":true}`.
@@ -21,7 +21,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Huidige stand
 
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 78 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 81 tests.
 - De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` eindigt na het herschikken de beurt.
@@ -47,9 +47,11 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Volgende prioriteit
 
-- [ ] Review en merge PR #6 van `codex/playthrough-backlog` naar `main`.
+- [x] Review en merge PR #6 van `codex/playthrough-backlog` naar `main`.
 - [ ] Test na de merge de nieuwe GitHub Pages-deployment met `npm run test:public`.
 - [ ] Werk na de merge de machinegerichte vervolgstappen uit `NEXT_STEPS_BACKLOG.md` af op een nieuwe branch; start met de regelbesluiten in fase A.
+  - [x] EK-01: algemeen `Brul Terug`-reactiemodel met 30 seconden time-out, expliciet passen, geheimhouding en reconnectpariteit.
+  - [ ] EK-02: raptoraanvallen als volledige beurten modelleren en uitleggen.
 - [ ] Controleer in Render dat `ALLOWED_ORIGIN=https://timzegveld.github.io` actief is en de laatste deployment groen blijft.
   - Live gecontroleerd op 15 juli 2026: `/api/health` retourneert `ok: true` en de CORS-header is exact `https://timzegveld.github.io`; alleen de visuele bevestiging in het Render-dashboard blijft handmatig.
 - [ ] Test complete potjes handmatig op echte iOS- en Android-apparaten, inclusief vier tegenstanders en lange handen.
@@ -82,7 +84,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Technische aandachtspunten
 
-- [ ] Maak de willekeurige room-servertest deterministisch; `spelacties vereisen de actuele roomversie` kan incidenteel een Meteorietinslag trekken terwijl de test een gewone `DRAW_REVEAL` verwacht.
+- [x] Maak de willekeurige room-servertest deterministisch; `spelacties vereisen de actuele roomversie` gebruikt nu een vaste veilige trekkaart.
 - [ ] Bepaal of rooms voor productie persistent moeten worden. Ze staan nu alleen in het geheugen en verdwijnen bij een Render-restart of nieuwe deployment.
 - [x] Houd rekening met de cold start van het gratis Render-plan met zichtbare wachtstatus, geblokkeerde dubbele acties en een timeoutmelding.
 

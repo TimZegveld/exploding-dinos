@@ -36,7 +36,7 @@ De lokale roomserver is geen oude mock of aparte signalserver: `npm run start:se
 
 De multiplayer-API draait op Render via `render.yaml`: `https://exploding-dinos-api.onrender.com`. `src/multiplayer-config.js` gebruikt deze URL automatisch buiten localhost. De Render-service beperkt browsertoegang via `ALLOWED_ORIGIN` tot `https://timzegveld.github.io`. Op het gratis Render-plan kan de eerste aanvraag na inactiviteit langer duren doordat de service opnieuw moet opstarten. Tijdens het maken of joinen van een room toont de lobby daarom een laadindicator en uitleg, blokkeert hij dubbele aanvragen en geeft hij na 90 seconden een duidelijke melding om opnieuw te proberen.
 
-De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
+De multiplayerlaag levert roombeheer, joinen, polling, uitnodigingslinks, reconnect en een servergestuurd volledig kaartspel. De host kan met 2-5 mensen starten; iedere speler ontvangt alleen de eigen geheime hand. Alle actiekaarten, aanvallen, `Brul Terug`-ketens, steelkaarten en soortparen zijn online aangesloten. Bij een zichtbare actiekaart mogen alle actieve spelers om de beurt `Brul Terug` spelen of passen; na 30 seconden past de server automatisch. Het actie-effect en eventuele geheime informatie ontstaan pas nadat het reactievenster is gesloten. `Wilde Dino` werkt servergestuurd als joker voor ieder soortpaar. Meteorietinslag, geheime terugplaatsing, Schuilgrot, verplichte trekkingen, eliminatie en winst worden eveneens door de server verwerkt. Singleplayer blijft daarnaast volledig speelbaar.
 
 ## Testen
 
@@ -136,7 +136,8 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Trek een kaart om je beurt te eindigen. De kaart verschijnt eerst groot in beeld; klik daarna nog een keer om hem aan je hand toe te voegen.
 - Gespeelde kaarten verschijnen eerst groot in beeld met het portret van de speler die de kaart speelt. Het effect gaat pas door nadat je klikt.
 - Gestolen kaarten verschijnen groot in beeld als jij erbij betrokken bent. Diefstal tussen twee pc's blijft anoniem.
-- Als iemand jou aanvalt, zie je je hand als reactie-keuze. `Brul Terug` blokkeert de aanval; een eigen raptoraanval schuift de aanval door en stapelt de beurten. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
+- Iedere actieve speler mag buiten de eigen beurt met `Brul Terug` reageren op een zichtbare actiekaart. Meteorietinslag, Schuilgrot en soortcombinaties zijn niet reacteerbaar. Een oneven keten blokkeert de actie; een even keten laat haar doorgaan.
+- Als iemand jou aanvalt, kun je na het algemene `Brul Terug`-venster een eigen raptoraanval gebruiken om de aanval door te schuiven en de beurten te stapelen. Bij `Gerichte Raptorjacht` als reactie kies je zelf het nieuwe doelwit.
 - Een aanval sluit de beurt van de aanvaller af en wordt meteen uitgevochten: het doelwit moet het openstaande aantal kaarten trekken, met ruimte voor acties tussen meerdere trekken. Na de laatste verplichte trek gaat het spel verder met de volgende speler.
 - Als het spel is gewonnen of verloren verschijnt een eindscherm met een nieuw-spelknop; de gekozen rosterselectie blijft beschikbaar voor het volgende potje.
 - Trekt iemand een `Meteorietinslag`, dan schudt de kaart zichtbaar. Met `Schuilgrot` kiest de speler geheim waar de meteoriet teruggaat in de stapel; jij kiest daarbij een genummerde positie.
@@ -161,7 +162,7 @@ Statuslegenda:
 | `volcano` | Vulkaan Shuffle | 6 | Schud de trekstapel zichtbaar en bekijk daarna de nieuwe bovenste kaart. | klaar |
 | `dig` | Diep Graven | 7 | Bekijk de onderste kaart; neem hem, of laat hem liggen en trek blind van boven. | klaar |
 | `fossil` | Fossielgraaier | 6 | Kies een gesloten kaart van een tegenstander en steel die. | klaar |
-| `nope` | Brul Terug | 9 | Reageer op een directe actie tegen jou of op een Brul Terug-keten en blokkeer die. | klaar |
+| `nope` | Brul Terug | 9 | Reageer buiten je beurt op iedere zichtbare actiekaart. Oneven ketens blokkeren; even ketens laten de actie doorgaan. | klaar |
 | `feral` | Wilde Dino | 6 | Joker voor een soortpaar; activeert de volledige beloning van de andere soortkaart in het paar. Heeft meerdere illustratievarianten. | klaar |
 | `miniRaptor` | Mini-Raptor | 7 | Soortkaart; speel een paar om een doelwit te kiezen en snel 1 willekeurige kaart te stelen. Heeft meerdere illustratievarianten. | klaar |
 | `stegoSnack` | Stego Snack | 7 | Soortkaart; speel een paar om 1 oudere niet-meteor kaart uit de aflegstapel terug te nemen. Heeft meerdere illustratievarianten. | klaar |

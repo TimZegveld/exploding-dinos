@@ -22,13 +22,15 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
 
 ## Fase A - regelpariteit en duidelijkheid
 
-- [ ] **EK-01 Brul Terug-regelbesluit en pariteit**
+- [x] **EK-01 Brul Terug-regelbesluit en pariteit**
   - Huidig: singleplayer laat Brul Terug bij bijna alle actiekaarten reageren; multiplayer vooral bij aanvallen en Brul Terug-ketens.
   - Aanbevolen regel: blokkeer iedere zichtbare actiekaart, maar nooit Meteorietinslag, Schuilgrot of een soortcombinatie. Iedere speler mag buiten de eigen beurt reageren. Oneven keten blokkeert; even keten laat de oorspronkelijke actie doorgaan.
   - Eerst aan gebruiker tonen: technische impact van een algemeen multiplayer-reactievenster, vooral bij geheime kijk-, herschik- en doelwitacties. Geen implementatie zonder bevestiging van het bereik.
   - Implementatie na akkoord: één gedeeld reactiemodel/protocol; actie-effect pas uitvoeren na gesloten reactievenster; voorkom lekken van geheime kaartinformatie; time-out of expliciet passen voor online spelers.
   - Acceptatie: identieke toegestane/verboden reacties in beide modi; ketens van 0-4 Brul Terug-kaarten correct; uitgeschakelde spelers kunnen niet reageren; geen dubbele actie-uitvoering na polling/reconnect.
   - Tests: pure pariteitstabel per kaarttype, multiplayerketens, reconnect tijdens reactievenster, browserflow met twee spelers.
+  - Besluit 15 juli 2026: algemeen reactiemodel bevestigd met expliciet passen en een servergestuurde time-out van 30 seconden.
+  - Gerealiseerd: reactie vóór ieder zichtbaar actie-effect; alle actieve spelers kunnen buiten hun beurt reageren; geheime kijk-, herschik- en steelinformatie ontstaat pas na het reactievenster; polling/reconnect hervat dezelfde actie zonder dubbele uitvoering.
 
 - [ ] **EK-02 Raptoraanvallen als volledige beurten modelleren en uitleggen**
   - Officiële referentie: Aanval beëindigt de beurt zonder trekken; slachtoffer voert 2 volledige beurten uit; tegenaanval schuift de volledige last door en telt 2 op.
