@@ -14,6 +14,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - De roomlobby toont tijdens een Render-cold-start een laadindicator met uitleg, blokkeert dubbele aanvragen en heeft een begrijpelijke timeoutmelding.
 - De spelersnaam en dobbelknop worden vergrendeld zodra een room actief is en komen pas na verlaten weer vrij.
 - De primaire multiplayeracties `Deelnemen` en `Start multiplayer` gebruiken dezelfde knopstijl en interactiestates als de primaire spelacties.
+- De verouderde disclaimer over multiplayer in ontwikkeling is uit de interface en documentatie verwijderd.
 - Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
 
 ## Huidige stand

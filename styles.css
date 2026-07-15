@@ -2939,12 +2939,6 @@ h2 {
   font-size: 0.9rem;
 }
 
-.multiplayer-development-note {
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
 .multiplayer-modal {
   position: fixed;
   z-index: 90;

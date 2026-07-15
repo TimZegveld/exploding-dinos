@@ -21,7 +21,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
   Blokkeer het naamveld en de dobbelknop na maken of deelnemen en ontgrendel ze na het verlaten van de room.
 - [x] **6. Multiplayerknoppen visueel gelijktrekken**
   Maak Start multiplayer en Deelnemen consistent met de primaire in-game actieknoppen.
-- [ ] **7. Verouderde multiplayerdisclaimer verwijderen**  
+- [x] **7. Verouderde multiplayerdisclaimer verwijderen**
   Verwijder de melding dat de online modus nog in ontwikkeling is uit UI en documentatie.
 - [ ] **8. Willekeurige naamgenerator beoordelen en uitbreiden**  
   Documenteer de twee huidige lijsten van twaalf naamdelen en beoordeel uitbreiding en het voorkomen van dubbele roomnamen.

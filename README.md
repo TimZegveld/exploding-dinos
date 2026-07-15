@@ -20,7 +20,7 @@ Open daarna op je telefoon `http://<ip-adres-van-je-pc>:8000/`.
 
 ## Multiplayer-lobby
 
-Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Deze modus is nog in ontwikkeling en kan daarom veranderen of tijdelijk niet beschikbaar zijn. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige dinonaam en kan die vóór het maken of joinen met de dobbelknop veranderen. In een room staat de naam vast tot de speler de room verlaat. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
+Singleplayer blijft de standaard startflow. Via **Join multiplayer-room** opent een losse online lobby. Je kunt een room maken, de uitnodigingslink delen en met maximaal vijf browsers of tabs deelnemen. De roomcode komt readonly uit de uitnodigingslink; codes hoeven niet handmatig te worden overgetypt. Iedere nieuwe speler krijgt een willekeurige dinonaam en kan die vóór het maken of joinen met de dobbelknop veranderen. In een room staat de naam vast tot de speler de room verlaat. De lobby gebruikt eenvoudige polling en bewaart de spelerssessie per tab, zodat verversen opnieuw verbindt zonder dat twee tabs dezelfde speler worden.
 
 Start de roomserver lokaal in een tweede terminal:
 
