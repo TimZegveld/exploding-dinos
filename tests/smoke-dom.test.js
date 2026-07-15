@@ -300,6 +300,22 @@ test("singleplayer Dino Sprint verbruikt exact één aanvalbeurt", () => {
   }
 });
 
+test("Mini-Raptor steelt na doelwitkeuze willekeurig zonder positie te tonen", () => {
+  const { getSelector, sandbox } = loadGame();
+  getSelector("#startGameButton").click();
+  const targetHand = sandbox.getHand("pc1");
+  targetHand.splice(0, targetHand.length,
+    sandbox.ExplodingDinosCards.makeCard("sprint", true),
+    sandbox.ExplodingDinosCards.makeCard("trike", true)
+  );
+
+  sandbox.startMiniRaptorSteal("player", "pc1");
+  sandbox.confirmStealTarget();
+
+  assert.equal(targetHand.length, 1);
+  assert.equal(getSelector("#revealText").textContent.includes("Kies een gesloten kaart"), false);
+});
+
 test("iedere actieve speler kan buiten de eigen beurt op een raptoraanval reageren", () => {
   const { getSelector, sandbox } = loadGame();
   const { makeCard } = sandbox.ExplodingDinosCards;

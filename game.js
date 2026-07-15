@@ -2579,11 +2579,18 @@ function confirmStealTarget() {
     return;
   }
 
+  if (pendingStealTarget.reward === "miniRaptorSteal") {
+    stealRandomCard(pendingStealTarget.owner, target);
+    render();
+    continueAfterPause();
+    return;
+  }
+
   state.pendingFossilChoice = {
     owner: pendingStealTarget.owner,
     target,
     cards: [...getHand(target)],
-    title: pendingStealTarget.reward === "miniRaptorSteal" ? "Mini-Raptor graait" : "Paar stelen",
+    title: "Paar stelen",
     selectedIndexes: [],
     maxSelect: pendingStealTarget.maxSelect ?? 1
   };
