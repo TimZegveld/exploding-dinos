@@ -769,3 +769,25 @@ test("mobiele dialogen krijgen focus en sluiten met Escape", async ({ page }, te
   await page.keyboard.press("Escape");
   await expect(page.locator("#tutorial")).toBeHidden();
 });
+
+test("sluitknoppen gebruiken hetzelfde toegankelijke game-icoon", async ({ page }) => {
+  const buttons = page.locator(".game-close");
+  await expect(buttons).toHaveCount(3);
+
+  for (let index = 0; index < 3; index += 1) {
+    const button = buttons.nth(index);
+    await expect(button).toHaveAttribute("aria-label", /sluiten$/i);
+    await expect(button.locator("img")).toHaveAttribute("src", "assets/cards/icons/close.svg");
+    await expect(button.locator("img")).toHaveAttribute("alt", "");
+    expect((await button.textContent()).trim()).toBe("");
+  }
+
+  const shape = await buttons.first().evaluate((button) => ({
+    width: Number.parseFloat(getComputedStyle(button).width),
+    height: Number.parseFloat(getComputedStyle(button).height),
+    radius: getComputedStyle(button).borderRadius
+  }));
+  expect(shape.width).toBe(shape.height);
+  expect(shape.width).toBeGreaterThanOrEqual(42);
+  expect(shape.radius).toBe("50%");
+});

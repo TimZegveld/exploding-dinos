@@ -1200,13 +1200,55 @@ h2 {
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--surface-control);
+}
+
+.game-close {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  padding: 0;
+  overflow: hidden;
+  color: var(--on-danger);
+  background:
+    radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--gold), white 28%), transparent 24%),
+    linear-gradient(145deg, var(--accent), var(--accent-dark));
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 62%),
+    0 4px 0 color-mix(in srgb, var(--card-ink), transparent 25%);
   cursor: pointer;
-  font-size: 1.35rem;
-  font-weight: 900;
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+}
+
+.game-close img {
+  display: block;
+  width: 27px;
+  height: 27px;
+  pointer-events: none;
+  transition: transform 140ms ease;
+}
+
+.game-close:hover {
+  filter: brightness(1.08) saturate(1.08);
+  transform: translateY(-2px) rotate(-3deg);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 52%),
+    0 6px 0 color-mix(in srgb, var(--card-ink), transparent 25%);
+}
+
+.game-close:hover img {
+  transform: scale(1.08) rotate(4deg);
+}
+
+.game-close:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card), transparent 58%);
 }
 
 .mobile-menu__actions {
@@ -1463,16 +1505,7 @@ h2 {
 }
 
 .tutorial__close {
-  flex: 0 0 auto;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: var(--surface-soft);
-  cursor: pointer;
-  font-size: 1.6rem;
-  line-height: 1;
+  align-self: flex-start;
 }
 
 .tutorial__progress {
@@ -2939,12 +2972,6 @@ h2 {
 
 .multiplayer-modal__close {
   align-self: flex-start;
-  width: 42px;
-  min-width: 42px;
-  min-height: 42px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 1.7rem;
 }
 
 .multiplayer-field {

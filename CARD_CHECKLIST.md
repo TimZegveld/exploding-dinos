@@ -41,6 +41,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - De mobiele layout heeft een compacte sticky header, een bereikbare trekactie, horizontale tegenstander- en handrails, leesbare kaarttekst, touchfeedback en safe-area-ondersteuning.
 - Tegenstanderhanden gebruiken op desktop en mobiel maximaal vier overlappende kaartruggen en een badge met het volledige kaartenaantal; ook een lege hand toont expliciet `0`.
 - Dialogen beheren focus, blokkeren achtergrondscroll en ondersteunen Escape waar sluiten veilig is.
+- Menu, uitleg en multiplayer delen één schaalbaar SVG-sluiticoon met een toegankelijk label en consistente interactiestijlen.
 - De Playwright-matrix bevat desktop, Pixel 5, 320 x 568 en mobiel landschap.
 
 ## Volgende prioriteit

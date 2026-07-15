@@ -119,6 +119,7 @@ Elke pc-tegenspeler heeft een eigen stijlprofiel. De profielen gebruiken geen LL
 - Tegenstanderhanden tonen op desktop en telefoon maximaal vier overlappende kaartruggen met een accentbadge voor het werkelijke totaal; naam en kaartenaantal blijven daarbij zichtbaar. Op telefoon staan tegenstanders in een compacte horizontale rij en is je eigen hand een kaartenrail die open- en dichtgeklapt kan worden.
 - Speelbare handkaarten krijgen een duidelijke groene markering en niet-speelbare kaarten worden gedimd. Tikken opent altijd eerst het kaartdetail.
 - Op desktop en telefoon zit het Logboek achter het sluitbare menu en is het dus standaard verborgen. Bij openen zie je eerst de laatste 5 acties en kun je naar het volledige bewaarde logboek schakelen. Op telefoon zitten ook Kaarten en Nieuw spel in dit menu. Dialogen houden de focus vast, blokkeren achtergrondscroll en kunnen waar passend met Escape worden gesloten.
+- Menu, uitleg en multiplayer gebruiken hetzelfde toegankelijke ronde sluiticoon in de visuele stijl van de game.
 - De interface houdt rekening met schermuitsparingen en de home-indicator via CSS safe-area-insets.
 - Actiekaarten kun je voor het trekken spelen.
 - Bij 2-3 spelers gebruikt de game een compacte kaartselectie. Vanaf 4 spelers gebruikt de game de standaard Party Pack-selectie.
