@@ -110,7 +110,7 @@ const cardCatalog = {
   },
   fossil: {
     name: "Fossielgraaier",
-    text: "Kies een gesloten kaart van de ander en steel die.",
+    text: "Kies een tegenstander en steel 1 gekozen gesloten kaart.",
     kind: "action",
     playable: true,
     turnEffect: "continue",
@@ -203,7 +203,7 @@ const cardCatalog = {
   },
   triceraTuk: {
     name: "Tricera-Tuk",
-    text: "Speel als paar. Tuk 1 open beurt weg zonder te trekken.",
+    text: "Speel als paar. Sla 1 trekbeurt over zonder te trekken.",
     kind: "set",
     playable: false,
     turnEffect: "skipTurn",

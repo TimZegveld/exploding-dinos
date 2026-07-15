@@ -276,6 +276,18 @@ test("normal raptor attacks the next player without offering unrelated Brul Teru
   assert.notEqual(getSelector("#revealEyebrow").textContent, "Brul Terug?");
 });
 
+test("Triceratops Blik lists cards without separate danger or shelter warnings", () => {
+  const { sandbox } = loadGame();
+  const text = sandbox.describeTrikePeek([
+    { name: "Meteorietinslag", type: "meteor" },
+    { name: "Schuilgrot", type: "shelter" },
+    { name: "Dino Sprint", type: "sprint" }
+  ]);
+
+  assert.equal(text, "Bovenop liggen: 1. Meteorietinslag | 2. Schuilgrot | 3. Dino Sprint.");
+  assert.doesNotMatch(text, /waarschuwing|in beeld/i);
+});
+
 test("draw button opens a pending draw reveal", () => {
   const { getSelector } = loadGame();
 

@@ -2102,9 +2102,7 @@ function resolveTriceraTuk(owner) {
 
 function startTrikePeek(owner) {
   const peek = state.deck.slice(-3).reverse();
-  const dangerIndex = peek.findIndex((item) => item.type === "meteor");
-  const shelterIndex = peek.findIndex((item) => item.type === "shelter");
-  const visibleText = describeTrikePeek(peek, dangerIndex, shelterIndex);
+  const visibleText = describeTrikePeek(peek);
 
   showCardMoment({
     title: "Triceratops Blik",
@@ -2116,18 +2114,11 @@ function startTrikePeek(owner) {
   });
 }
 
-function describeTrikePeek(cards, dangerIndex, shelterIndex) {
+function describeTrikePeek(cards) {
   if (cards.length === 0) return "De trekstapel is leeg.";
 
   const list = cards.map((item, index) => `${index + 1}. ${item.name}`).join(" | ");
-  const warning = dangerIndex === -1
-    ? "Geen meteoriet in beeld."
-    : `Waarschuwing: Meteorietinslag ligt op plek ${dangerIndex + 1} van boven.`;
-  const shelter = shelterIndex === -1
-    ? "Geen Schuilgrot in beeld."
-    : `Schuilgrot ligt op plek ${shelterIndex + 1} van boven.`;
-
-  return `Bovenop liggen: ${list}. ${warning} ${shelter}`;
+  return `Bovenop liggen: ${list}.`;
 }
 
 function alterFuture(owner) {
