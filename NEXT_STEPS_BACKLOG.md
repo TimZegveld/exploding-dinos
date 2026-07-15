@@ -38,6 +38,7 @@ Doel van dit bestand: uitvoerbare overdracht voor een volgende LLM-chat. Bron va
   - Gewenste Dinos-regel: behoud dit model voor Raptor Aanval. Gerichte Raptorjacht gebruikt hetzelfde lastmodel maar kiest een doelwit; bij doorschuiven wordt opnieuw geldig doelwit gekozen.
   - Vervang misleidende korte tekst `moet 2 kaarten trekken` door `moet 2 beurten uitvoeren`. Maak expliciet dat binnen iedere beurt actiekaarten gespeeld mogen worden en normaal getrokken wordt om die beurt af te sluiten.
   - UI: permanente badge bij actuele speler, bijvoorbeeld `3 beurten resterend`; log benoemt toevoegen, doorschuiven en verbruik van lasten.
+  - UI-verduidelijking 15 juli 2026: singleplayer en multiplayer tonen de resterende aanvalslast prominent in de beurtstatus, bij de hand en op de trekstapel; de tekst maakt duidelijk dat per beurt één kaart wordt getrokken.
   - Acceptatie: lasten 2, 4 en 6; eliminatie midden in last; doelwit valt uit; laatste speler wint; singleplayer/multiplayer gelijk.
   - Tests: regels + serverengine + DOM/Playwright voor badge en stapeling.
 

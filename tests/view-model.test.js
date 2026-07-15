@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { createMultiplayerViewModel } = require("../src/ui/view-model.js");
+const { createMultiplayerViewModel, createSingleplayerViewModel } = require("../src/ui/view-model.js");
 
 function room(viewerId, forcedDrawsRemaining) {
   return {
@@ -30,9 +30,21 @@ test("multiplayer toont volledige resterende aanvalbeurten voor de actieve spele
   const model = createMultiplayerViewModel(room("player-a", 2), ["#111", "#222"]);
 
   assert.equal(model.forcedDrawCount, 2);
-  assert.equal(model.playerHint, "2 beurten resterend");
-  assert.equal(model.turnText, "2 beurten resterend");
+  assert.equal(model.playerHint, "Trek 1 kaart per beurt — nog 2 beurten");
+  assert.equal(model.turnText, "Aanval: nog 2 beurten");
   assert.equal(model.discardCount, 3);
+});
+
+test("singleplayer toont de aanvalslast prominent in status en trekhint", () => {
+  const state = {
+    players: [{ id: "player", name: "Jij", color: "#111" }, { id: "pc", name: "Nova", color: "#222" }], current: "player",
+    pendingTurns: { player: 2, pc: 1 }, pendingNopeReaction: null, gameOver: false,
+    eliminated: { player: false, pc: false }, hands: { player: [], pc: [] }, deck: [], discard: []
+  };
+  const model = createSingleplayerViewModel({ state, viewerId: "player", colors: ["#111"], subtitle: () => "PC", canPlayCard: () => false, drawBlocked: false, handBlocked: false });
+  assert.equal(model.forcedDrawCount, 2);
+  assert.equal(model.turnText, "Aanval: nog 2 beurten");
+  assert.equal(model.playerHint, "Trek 1 kaart per beurt — nog 2 beurten");
 });
 
 test("multiplayer toont de verplichte trekteller niet als een andere speler trekt", () => {

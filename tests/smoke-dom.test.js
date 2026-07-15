@@ -316,8 +316,8 @@ test("singleplayer Dino Sprint verbruikt exact één aanvalbeurt", () => {
     sandbox.resolveRaptorAttack("pc1", "player", load);
     sandbox.resolveSprint("player");
     sandbox.render();
-    assert.equal(getSelector("#playerHint").textContent, load === 2 ? "Speel kaarten of trek om je beurt te beëindigen" : `${load - 1} beurten resterend`);
-    assert.equal(getSelector("#turnStatus").textContent, "Jouw beurt");
+    assert.equal(getSelector("#playerHint").textContent, load === 2 ? "Speel kaarten of trek om je beurt te beëindigen" : `Trek 1 kaart per beurt — nog ${load - 1} beurten`);
+    assert.equal(getSelector("#turnStatus").textContent, load === 2 ? "Jouw beurt" : `Aanval: nog ${load - 1} beurten`);
   }
 });
 
