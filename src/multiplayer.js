@@ -71,6 +71,9 @@ let inspectedOnlineCard = null;
 let onlineHandOpen = false;
 let onlineRevealActions = null;
 let onlineOracleDraft = null;
+let roomConnectionBusy = false;
+
+const ROOM_REQUEST_TIMEOUT_MS = Number(config.requestTimeoutMs) || 90000;
 
 const DINO_NAME_STARTS = ["Brullende", "Knetterende", "Sluwe", "Dappere", "Machtige", "Flitsende", "Mollige", "Vurige", "Slaperige", "Wilde", "Blije", "Stekelige"];
 const DINO_NAME_ENDS = ["Bronto", "Raptor", "Tricera", "Stego", "Ptero", "Rex", "Ankylo", "Dilo", "Spino", "Carno", "Fossielsnuit", "Staartzwieper"];
@@ -122,21 +125,42 @@ function syncRoomUrl(code) {
   } catch { /* De room blijft ook zonder History API bruikbaar. */ }
 }
 
-function setBusy(busy) {
+function setBusy(busy, message = "") {
+  roomConnectionBusy = busy;
   elements.create.disabled = busy;
   elements.join.disabled = busy;
+  elements.name.disabled = busy;
+  elements.randomizeName.disabled = busy;
+  elements.joinView.setAttribute("aria-busy", String(busy));
+  elements.status.classList.toggle("is-loading", busy);
+  if (message) elements.status.textContent = message;
 }
 
 async function request(path, options = {}) {
   if (!config.apiBase) throw new Error("De multiplayer-server is nog niet geconfigureerd.");
-  const response = await fetch(`${config.apiBase.replace(/\/$/, "")}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
-      ...options.headers
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timeoutId = controller
+    ? globalThis.setTimeout?.(() => controller.abort(), ROOM_REQUEST_TIMEOUT_MS)
+    : null;
+  let response;
+  try {
+    response = await fetch(`${config.apiBase.replace(/\/$/, "")}${path}`, {
+      ...options,
+      signal: options.signal ?? controller?.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
+        ...options.headers
+      }
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("De dinoserver deed er te lang over. Probeer het opnieuw; na rust kan de eerste verbinding langer duren.");
     }
-  });
+    throw new Error("De dinoserver is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.");
+  } finally {
+    if (timeoutId !== null) globalThis.clearTimeout?.(timeoutId);
+  }
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || "De roomserver reageert niet goed.");
   return result;
@@ -767,7 +791,8 @@ function showJoin() {
 }
 
 async function createRoom() {
-  setBusy(true);
+  if (roomConnectionBusy) return;
+  setBusy(true, "De dinoserver wordt wakker. De eerste verbinding kan ongeveer een minuut duren...");
   try {
     const result = await request("/api/rooms", { method: "POST", body: JSON.stringify({ name: elements.name.value }) });
     saveSession({ code: result.room.code, token: result.token });
@@ -779,7 +804,8 @@ async function createRoom() {
 }
 
 async function joinRoom() {
-  setBusy(true);
+  if (roomConnectionBusy) return;
+  setBusy(true, "We maken verbinding met de room. Na rust kan de dinoserver ongeveer een minuut nodig hebben...");
   try {
     const code = elements.code.value.trim().toUpperCase();
     const result = await request(`/api/rooms/${encodeURIComponent(code)}/join`, {

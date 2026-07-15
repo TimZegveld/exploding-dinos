@@ -11,6 +11,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 - Healthcheck: `https://exploding-dinos-api.onrender.com/api/health` retourneert `200` met `{"ok":true}`.
 - De frontend gebruikt lokaal `http://localhost:3000` en online automatisch de Render-URL via `src/multiplayer-config.js`.
 - De multiplayerfrontend wordt nu vanaf `main` via GitHub Pages gepubliceerd.
+- De roomlobby toont tijdens een Render-cold-start een laadindicator met uitleg, blokkeert dubbele aanvragen en heeft een begrijpelijke timeoutmelding.
 - Lokale logs (`*.log`) en `pet-runs/` horen niet in commits.
 
 ## Huidige stand
@@ -78,7 +79,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 - [ ] Maak de willekeurige room-servertest deterministisch; `spelacties vereisen de actuele roomversie` kan incidenteel een Meteorietinslag trekken terwijl de test een gewone `DRAW_REVEAL` verwacht.
 - [ ] Bepaal of rooms voor productie persistent moeten worden. Ze staan nu alleen in het geheugen en verdwijnen bij een Render-restart of nieuwe deployment.
-- [ ] Houd rekening met de cold start van het gratis Render-plan; de eerste roomaanvraag na inactiviteit kan merkbaar langer duren.
+- [x] Houd rekening met de cold start van het gratis Render-plan met zichtbare wachtstatus, geblokkeerde dubbele acties en een timeoutmelding.
 
 ## Later, niet blokkerend
 

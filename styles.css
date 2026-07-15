@@ -3027,6 +3027,34 @@ h2 {
   color: var(--muted);
 }
 
+.multiplayer-status.is-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.multiplayer-status.is-loading::before {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 3px solid color-mix(in srgb, var(--accent), transparent 70%);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  content: "";
+  animation: multiplayer-server-spin 800ms linear infinite;
+}
+
+@keyframes multiplayer-server-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .multiplayer-status.is-loading::before {
+    animation-duration: 1600ms;
+  }
+}
+
 .multiplayer-room-code {
   margin-bottom: 12px;
   padding: 14px 16px;

@@ -71,6 +71,61 @@ test("multiplayer opent via een losse knop zonder singleplayer te starten", asyn
   expect(joinButtonBox?.width).toBeCloseTo(joinActionsBox?.width ?? 0, 0);
 });
 
+test("room maken toont uitleg en blokkeert dubbele acties tijdens een cold start", async ({ page }) => {
+  let createRequests = 0;
+  await page.route("https://api.test/api/rooms", async (route) => {
+    createRequests += 1;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({
+        token: "host-token",
+        room: {
+          code: "WACHT1",
+          viewerId: "player-host",
+          isHost: true,
+          players: [{ id: "player-host", name: "Tim" }],
+          game: null
+        }
+      })
+    });
+  });
+  await page.evaluate(() => { window.ExplodingDinosMultiplayerConfig.apiBase = "https://api.test"; });
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#multiplayerName").fill("Tim");
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerStatus")).toHaveClass(/is-loading/);
+  await expect(page.locator("#multiplayerStatus")).toContainText("eerste verbinding");
+  await expect(page.locator("#multiplayerJoinView")).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator("#createRoomButton")).toBeDisabled();
+  await expect(page.locator("#multiplayerName")).toBeDisabled();
+  await page.locator("#createRoomButton").evaluate((button) => button.click());
+
+  await expect(page.locator("#activeRoomCode")).toHaveText("WACHT1");
+  expect(createRequests).toBe(1);
+});
+
+test("roomverbinding geeft na een timeout een begrijpelijke herkansing", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.ExplodingDinosMultiplayerConfig = { apiBase: "https://api.test", requestTimeoutMs: 30 };
+    window.fetch = (_url, options = {}) => new Promise((_resolve, reject) => {
+      options.signal?.addEventListener("abort", () => reject(new DOMException("Afgebroken", "AbortError")));
+    });
+  });
+  await page.reload();
+
+  await page.locator("#openMultiplayerButton").click();
+  await page.locator("#createRoomButton").click();
+
+  await expect(page.locator("#multiplayerStatus")).toContainText("deed er te lang over");
+  await expect(page.locator("#multiplayerStatus")).toContainText("Probeer het opnieuw");
+  await expect(page.locator("#multiplayerStatus")).not.toHaveClass(/is-loading/);
+  await expect(page.locator("#createRoomButton")).toBeEnabled();
+});
+
 test("host start een online potje en ziet alleen de eigen hand", async ({ page }) => {
   const roomBase = {
     code: "KNET42",

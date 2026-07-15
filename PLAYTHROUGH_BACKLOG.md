@@ -15,7 +15,7 @@ Status: `[ ]` open, `[-]` bezig, `[x]` klaar.
 
 ## Multiplayer-lobby en opstartflow
 
-- [ ] **4. Wachtstatus voor de eerste serveropstart toevoegen**  
+- [x] **4. Wachtstatus voor de eerste serveropstart toevoegen**
   Toon een spinner, uitleg over de cold start en duidelijke fout- en timeoutstatussen tijdens maken en deelnemen.
 - [ ] **5. Naam vergrendelen zodra de speler in een room zit**  
   Blokkeer het naamveld en de dobbelknop na maken of deelnemen en ontgrendel ze na het verlaten van de room.
