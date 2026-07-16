@@ -558,7 +558,9 @@ function renderChoice(pending, game) {
     }
     renderStandardOnlineReveal({
       title: pending.type === "ATTACK_REACTION" ? "Reageer op aanval" : "Brul Terug?",
-      text: pending.type === "ATTACK_REACTION" ? `${pending.attackerName} valt je aan. Kies een reactie of doe niets.` : "Speel nog een Brul Terug of laat de keten oplossen.",
+      text: pending.type === "ATTACK_REACTION"
+        ? `${pending.attackerName} valt je aan voor ${pending.attackLoad} volledige beurten. Kies een reactie of doe niets.`
+        : "Speel nog een Brul Terug of laat de keten oplossen.",
       nodes,
       cardClass: "is-attack-reaction",
       primary: { label: pending.type === "ATTACK_REACTION" ? "Niets doen" : "Laat doorgaan", action: { type: pending.type === "ATTACK_REACTION" ? "ATTACK_PASS" : "NOPE_PASS" } }

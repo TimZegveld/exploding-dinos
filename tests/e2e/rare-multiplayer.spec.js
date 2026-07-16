@@ -51,3 +51,60 @@ test("meerdere Brul Terug-kaarten laten een even keten eenmaal doorgaan", async 
     await testRoom.close();
   }
 });
+
+test("een doorgeschoven raptoraanval stapelt volledige beurten en verbruikt er een", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "De echte multi-browserflow draait eenmaal op desktop.");
+  test.setTimeout(60_000);
+  const testRoom = await startTestRoom(["Ayla", "Bram", "Cleo"]);
+  const browserErrors = [];
+
+  try {
+    const [ayla, bram, cleo] = testRoom.sessions;
+    const game = testRoom.room.game;
+    game.currentPlayerId = ayla.playerId;
+    game.pending = {
+      type: "ATTACK_REACTION",
+      playerId: bram.playerId,
+      attackerId: ayla.playerId,
+      targetId: bram.playerId,
+      attackLoad: 2
+    };
+    game.forcedDrawsRemaining = 0;
+    game.discard = [];
+    game.deck = [
+      card("safe-1", "trike", "Triceratops Blik"),
+      card("safe-2", "volcano", "Vulkaan Shuffle")
+    ];
+    game.hands[ayla.playerId] = [];
+    game.hands[bram.playerId] = [card("raptor-b", "raptor", "Raptor Aanval")];
+    game.hands[cleo.playerId] = [];
+
+    const bramBrowser = await openRoomPage(browser, testRoom, bram, browserErrors);
+    const cleoBrowser = await openRoomPage(browser, testRoom, cleo, browserErrors);
+
+    await expect(bramBrowser.page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
+    await expect(bramBrowser.page.locator("#revealText")).toContainText("2 volledige beurten");
+    await bramBrowser.page.locator("#revealCard .draw-reveal__mini-card", { hasText: "Raptor Aanval" }).click();
+
+    await poll(cleoBrowser.page);
+    await expect(cleoBrowser.page.locator("#revealEyebrow")).toHaveText("Reageer op aanval");
+    await expect(cleoBrowser.page.locator("#revealText")).toContainText("4 volledige beurten");
+    await cleoBrowser.page.locator("#revealButton", { hasText: "Niets doen" }).click();
+
+    await poll(cleoBrowser.page);
+    await expect(cleoBrowser.page.locator("#turnStatus")).toContainText("Aanval: nog 4 beurten");
+    await expect(cleoBrowser.page.locator("#playerHint")).toContainText("nog 4 beurten");
+    await expect(cleoBrowser.page.locator("#drawButton")).toHaveAttribute("aria-label", /Nog 4 beurten/);
+    expect(game.currentPlayerId).toBe(cleo.playerId);
+    expect(game.forcedDrawsRemaining).toBe(4);
+
+    await cleoBrowser.page.locator("#drawButton").click();
+    await cleoBrowser.page.locator("#revealButton", { hasText: "daarna nog 3" }).click();
+    await expect(cleoBrowser.page.locator("#turnStatus")).toContainText("Aanval: nog 3 beurten");
+    expect(game.forcedDrawsRemaining).toBe(3);
+    expect(game.discard.map((item) => item.id)).toContain("raptor-b");
+    expect(browserErrors.flat()).toEqual([]);
+  } finally {
+    await testRoom.close();
+  }
+});
