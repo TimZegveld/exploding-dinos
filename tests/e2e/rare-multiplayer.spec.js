@@ -108,3 +108,63 @@ test("een doorgeschoven raptoraanval stapelt volledige beurten en verbruikt er e
     await testRoom.close();
   }
 });
+
+test("meteoriet en Schuilgrot zijn openbaar maar de terugplaatsing blijft geheim", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-chromium", "Deze echte multi-browserflow bewaakt tegelijk de mobiele presentatie.");
+  test.setTimeout(60_000);
+  const testRoom = await startTestRoom(["Ayla", "Bram"]);
+  const browserErrors = [];
+
+  try {
+    const [ayla, bram] = testRoom.sessions;
+    const game = testRoom.room.game;
+    game.currentPlayerId = ayla.playerId;
+    game.pending = null;
+    game.forcedDrawsRemaining = 0;
+    game.discard = [];
+    game.deck = [
+      card("safe-bottom", "trike", "Triceratops Blik"),
+      card("safe-top", "sprint", "Dino Sprint"),
+      card("meteor-1", "meteor", "Meteorietinslag", "danger")
+    ];
+    game.hands[ayla.playerId] = [card("shelter-1", "shelter", "Schuilgrot", "defuse")];
+    game.hands[bram.playerId] = [];
+
+    const mobileViewport = { width: 393, height: 851 };
+    const aylaBrowser = await openRoomPage(browser, testRoom, ayla, browserErrors, mobileViewport);
+    const bramBrowser = await openRoomPage(browser, testRoom, bram, browserErrors, mobileViewport);
+
+    await aylaBrowser.page.locator("#drawButton").click();
+    await poll(bramBrowser.page);
+    await expect(aylaBrowser.page.locator("#revealEyebrow")).toHaveText("Meteorietinslag");
+    await expect(bramBrowser.page.locator("#revealEyebrow")).toHaveText("Meteorietinslag");
+    await expect(bramBrowser.page.locator("#revealCard")).toContainText("Meteorietinslag");
+    await expect(bramBrowser.page.locator("#revealText")).toContainText("heeft een Schuilgrot");
+
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Gebruik Schuilgrot" }).click();
+    await poll(bramBrowser.page);
+    await expect(aylaBrowser.page.locator("#revealEyebrow")).toHaveText("Schuilgrot ingezet");
+    await expect(bramBrowser.page.locator("#revealEyebrow")).toHaveText("Schuilgrot ingezet");
+    await expect(bramBrowser.page.locator("#revealCard")).toContainText("Schuilgrot");
+    await expect(bramBrowser.page.locator("#revealText")).toContainText("blijft geheim");
+
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Meteoriet geheim terugleggen" }).click();
+    await poll(bramBrowser.page);
+    await expect(aylaBrowser.page.locator("#revealEyebrow")).toHaveText("Geheime terugplaatsing");
+    await expect(aylaBrowser.page.locator("#placementControls")).toBeVisible();
+    await expect(bramBrowser.page.locator("#placementControls")).toBeHidden();
+    await expect(bramBrowser.page.locator("#revealText")).not.toContainText("Positie");
+
+    await aylaBrowser.page.locator("#placementSelect").selectOption("2");
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Stop geheim terug" }).click();
+    await poll(bramBrowser.page);
+
+    expect(game.pending).toBeNull();
+    expect(game.deck.map((item) => item.id)).toEqual(["safe-bottom", "meteor-1", "safe-top"]);
+    expect(game.discard.map((item) => item.id)).toEqual(["shelter-1"]);
+    await expect(bramBrowser.page.locator("body")).not.toContainText("Positie 2");
+    expect(browserErrors.flat()).toEqual([]);
+  } finally {
+    await testRoom.close();
+  }
+});

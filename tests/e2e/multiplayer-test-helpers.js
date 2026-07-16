@@ -39,8 +39,8 @@ async function startTestRoom(names) {
   };
 }
 
-async function openRoomPage(browser, testRoom, session, browserErrors) {
-  const context = await browser.newContext({ locale: "nl-NL", viewport: { width: 1280, height: 820 } });
+async function openRoomPage(browser, testRoom, session, browserErrors, viewport = { width: 1280, height: 820 }) {
+  const context = await browser.newContext({ locale: "nl-NL", viewport });
   const page = await context.newPage();
   const errors = [];
   browserErrors.push(errors);
