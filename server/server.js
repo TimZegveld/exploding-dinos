@@ -46,31 +46,31 @@ function createRequestHandler(roomService = rooms) {
       }
       if (request.method === "POST" && url.pathname === "/api/rooms") {
         const body = await readBody(request);
-        return json(response, 201, roomService.createRoom(body.name));
+        return json(response, 201, await roomService.createRoom(body.name));
       }
 
       const match = url.pathname.match(/^\/api\/rooms\/([A-Z0-9]+)(?:\/(join|start|stop|actions))?$/i);
       if (match && request.method === "POST" && match[2] === "join") {
         const body = await readBody(request);
-        return json(response, 200, roomService.joinRoom(match[1], body.name));
+        return json(response, 200, await roomService.joinRoom(match[1], body.name));
       }
       if (match && request.method === "GET" && !match[2]) {
-        return json(response, 200, { room: roomService.viewRoom(match[1], tokenFrom(request)) });
+        return json(response, 200, { room: await roomService.viewRoom(match[1], tokenFrom(request)) });
       }
       if (match && request.method === "POST" && match[2] === "start") {
-        return json(response, 200, { room: roomService.startRoom(match[1], tokenFrom(request)) });
+        return json(response, 200, { room: await roomService.startRoom(match[1], tokenFrom(request)) });
       }
       if (match && request.method === "POST" && match[2] === "stop") {
-        return json(response, 200, { room: roomService.stopRoom(match[1], tokenFrom(request)) });
+        return json(response, 200, { room: await roomService.stopRoom(match[1], tokenFrom(request)) });
       }
       if (match && request.method === "POST" && match[2] === "actions") {
         const body = await readBody(request);
         return json(response, 200, {
-          room: roomService.performAction(match[1], tokenFrom(request), body.action, body.expectedVersion)
+          room: await roomService.performAction(match[1], tokenFrom(request), body.action, body.expectedVersion)
         });
       }
       if (match && request.method === "DELETE" && !match[2]) {
-        return json(response, 200, { room: roomService.leaveRoom(match[1], tokenFrom(request)) });
+        return json(response, 200, { room: await roomService.leaveRoom(match[1], tokenFrom(request)) });
       }
       return json(response, 404, { error: "Endpoint niet gevonden." });
     } catch (error) {
