@@ -1,5 +1,5 @@
 const { test, expect } = require("playwright/test");
-const { card, openRoomPage, poll, startTestRoom } = require("./multiplayer-test-helpers");
+const { card, dismissStartAnnouncement, openRoomPage, poll, startTestRoom } = require("./multiplayer-test-helpers");
 
 test("meerdere Brul Terug-kaarten laten een even keten eenmaal doorgaan", async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "De echte multi-browserflow draait eenmaal op desktop.");
@@ -163,6 +163,73 @@ test("meteoriet en Schuilgrot zijn openbaar maar de terugplaatsing blijft geheim
     expect(game.deck.map((item) => item.id)).toEqual(["safe-bottom", "meteor-1", "safe-top"]);
     expect(game.discard.map((item) => item.id)).toEqual(["shelter-1"]);
     await expect(bramBrowser.page.locator("body")).not.toContainText("Positie 2");
+    expect(browserErrors.flat()).toEqual([]);
+  } finally {
+    await testRoom.close();
+  }
+});
+
+test("reconnect hervat hetzelfde reactievenster zonder dubbele uitvoering", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "De echte multi-browserflow draait eenmaal op desktop.");
+  test.setTimeout(60_000);
+  const testRoom = await startTestRoom(["Ayla", "Bram"]);
+  const browserErrors = [];
+
+  try {
+    const [ayla, bram] = testRoom.sessions;
+    const game = testRoom.room.game;
+    const playedCard = card("peek-reconnect", "trike", "Triceratops Blik");
+    game.currentPlayerId = ayla.playerId;
+    game.discard = [playedCard];
+    game.deck = [card("safe-1", "sprint", "Dino Sprint")];
+    game.hands[ayla.playerId] = [];
+    game.hands[bram.playerId] = [card("nope-reconnect", "nope", "Brul Terug")];
+    game.pending = {
+      type: "ACTION_REACTION",
+      actionId: playedCard.id,
+      actorId: ayla.playerId,
+      playerId: bram.playerId,
+      card: playedCard,
+      context: { oldDiscardChoices: [], fiveSpecies: false, playedIds: [playedCard.id] },
+      nopeCount: 0,
+      lastNopePlayerId: null,
+      passedPlayerIds: [],
+      deadlineAt: Date.now() + 30_000
+    };
+
+    const aylaBrowser = await openRoomPage(browser, testRoom, ayla, browserErrors);
+    const bramBrowser = await openRoomPage(browser, testRoom, bram, browserErrors);
+    await expect(bramBrowser.page.locator("#revealEyebrow")).toHaveText("Brul Terug?");
+    const versionBeforeReaction = testRoom.room.version;
+
+    await Promise.all([aylaBrowser.page.reload(), bramBrowser.page.reload()]);
+    await Promise.all([
+      aylaBrowser.page.waitForFunction(() => globalThis.ExplodingDinosMultiplayer?.isActive()),
+      bramBrowser.page.waitForFunction(() => globalThis.ExplodingDinosMultiplayer?.isActive())
+    ]);
+    await Promise.all([dismissStartAnnouncement(aylaBrowser.page), dismissStartAnnouncement(bramBrowser.page)]);
+    await expect(bramBrowser.page.locator("#revealText")).toContainText("Ayla speelt Triceratops Blik");
+    await bramBrowser.page.locator("#revealCard .draw-reveal__mini-card", { hasText: "Brul Terug" }).click();
+    await expect.poll(() => testRoom.room.version).toBe(versionBeforeReaction + 1);
+
+    const staleResponse = await fetch(`${testRoom.apiBase}/api/rooms/${testRoom.code}/actions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${ayla.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ expectedVersion: versionBeforeReaction, action: { type: "REACTION_PASS" } })
+    });
+    expect(staleResponse.status).toBe(409);
+
+    await aylaBrowser.page.reload();
+    await aylaBrowser.page.waitForFunction(() => globalThis.ExplodingDinosMultiplayer?.isActive());
+    await dismissStartAnnouncement(aylaBrowser.page);
+    await expect(aylaBrowser.page.locator("#revealText")).toContainText("1 Brul Terug");
+    await expect(aylaBrowser.page.locator(".reaction-empty-message")).toContainText("geen Brul Terug");
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Passen" }).click();
+
+    await expect.poll(() => game.pending).toBeNull();
+    expect(game.pending).toBeNull();
+    expect(game.log.filter((entry) => entry.includes("is geblokkeerd na 1 Brul Terug"))).toHaveLength(1);
+    expect(game.log.some((entry) => entry.includes("gaat door na"))).toBe(false);
     expect(browserErrors.flat()).toEqual([]);
   } finally {
     await testRoom.close();

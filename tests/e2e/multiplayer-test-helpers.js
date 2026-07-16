@@ -54,13 +54,17 @@ async function openRoomPage(browser, testRoom, session, browserErrors, viewport 
   }, { apiBase: testRoom.apiBase, code: testRoom.code, token: session.token });
   await page.goto(`${gameUrl}?room=${testRoom.code}`);
   await page.waitForFunction(() => globalThis.ExplodingDinosMultiplayer?.isActive());
+  await dismissStartAnnouncement(page);
+  return { context, page };
+}
+
+async function dismissStartAnnouncement(page) {
   const startAnnouncement = page.locator("#revealEyebrow", { hasText: "De dino-race is beslist!" });
   if (await startAnnouncement.isVisible().catch(() => false)) await page.locator("#revealButton").click();
-  return { context, page };
 }
 
 async function poll(page) {
   await page.evaluate(() => globalThis.ExplodingDinosMultiplayer.pollRoom());
 }
 
-module.exports = { card, openRoomPage, poll, startTestRoom };
+module.exports = { card, dismissStartAnnouncement, openRoomPage, poll, startTestRoom };
