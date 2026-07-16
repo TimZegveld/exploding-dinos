@@ -235,3 +235,78 @@ test("reconnect hervat hetzelfde reactievenster zonder dubbele uitvoering", asyn
     await testRoom.close();
   }
 });
+
+test("een lang deterministisch browserpotje blijft consistent tot de winnaar", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "De lange echte serverflow draait eenmaal op desktop.");
+  test.setTimeout(90_000);
+  const testRoom = await startTestRoom(["Ayla", "Bram"]);
+  const browserErrors = [];
+
+  try {
+    const [ayla, bram] = testRoom.sessions;
+    const game = testRoom.room.game;
+    const safeDraws = Array.from({ length: 6 }, (_, index) => card(`safe-${index + 1}`, index % 2 ? "sprint" : "volcano", index % 2 ? "Dino Sprint" : "Vulkaan Shuffle"));
+    game.currentPlayerId = ayla.playerId;
+    game.pending = null;
+    game.forcedDrawsRemaining = 0;
+    game.discard = [];
+    game.deck = [
+      card("meteor-final", "meteor", "Meteorietinslag", "danger"),
+      ...safeDraws.slice().reverse()
+    ];
+    game.hands[ayla.playerId] = [card("peek-long", "trike", "Triceratops Blik")];
+    game.hands[bram.playerId] = [];
+    const startingVersion = testRoom.room.version;
+
+    const aylaBrowser = await openRoomPage(browser, testRoom, ayla, browserErrors);
+    const bramBrowser = await openRoomPage(browser, testRoom, bram, browserErrors);
+    const players = new Map([
+      [ayla.playerId, aylaBrowser.page],
+      [bram.playerId, bramBrowser.page]
+    ]);
+
+    await aylaBrowser.page.locator("#playerHand .card-button", { hasText: "Triceratops Blik" }).click();
+    await aylaBrowser.page.locator("#revealSecondaryButton", { hasText: "Spelen" }).click();
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Kaart uitvoeren" }).click();
+    await poll(bramBrowser.page);
+    await bramBrowser.page.locator("#revealButton", { hasText: "Passen" }).click();
+    await poll(aylaBrowser.page);
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Sluiten" }).click();
+    await expect.poll(() => game.pending).toBeNull();
+
+    for (let drawIndex = 0; drawIndex < safeDraws.length; drawIndex += 1) {
+      const actorId = game.currentPlayerId;
+      const page = players.get(actorId);
+      await poll(page);
+      await expect(page.locator("#drawButton")).toBeEnabled();
+      const versionBeforeDraw = testRoom.room.version;
+      await page.locator("#drawButton").click();
+      await expect.poll(() => testRoom.room.version).toBe(versionBeforeDraw + 1);
+      await expect(page.locator("#revealEyebrow")).toHaveText("Je trekt");
+      await page.locator("#revealButton", { hasText: "Neem kaart in hand" }).click();
+      await expect.poll(() => game.pending).toBeNull();
+    }
+
+    expect(game.currentPlayerId).toBe(ayla.playerId);
+    await poll(aylaBrowser.page);
+    await aylaBrowser.page.locator("#drawButton").click();
+    await expect(aylaBrowser.page.locator("#revealEyebrow")).toHaveText("Meteorietinslag");
+    await expect(aylaBrowser.page.locator("#revealText")).toContainText("zonder Schuilgrot");
+    await aylaBrowser.page.locator("#revealButton", { hasText: "Laat ontploffen" }).click();
+    await expect.poll(() => testRoom.room.status).toBe("finished");
+    await poll(bramBrowser.page);
+
+    await expect(bramBrowser.page.locator("#revealEyebrow")).toHaveText("Overwinning");
+    await expect(bramBrowser.page.locator("#revealCard")).toContainText("Gefeliciteerd!");
+    expect(game.winnerId).toBe(bram.playerId);
+    expect(game.eliminated[ayla.playerId]).toBe(true);
+    expect(game.deck).toHaveLength(0);
+    expect(game.pending).toBeNull();
+    expect(testRoom.room.version - startingVersion).toBe(18);
+    expect(game.log.filter((entry) => entry.includes("trok een kaart"))).toHaveLength(6);
+    expect(game.log.filter((entry) => entry.includes("is uitgeschakeld"))).toHaveLength(1);
+    expect(browserErrors.flat()).toEqual([]);
+  } finally {
+    await testRoom.close();
+  }
+});
