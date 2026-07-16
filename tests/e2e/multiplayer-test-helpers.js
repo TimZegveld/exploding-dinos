@@ -12,13 +12,13 @@ function card(id, type, name, kind = "action") {
 
 async function startTestRoom(names) {
   const service = createRoomService();
-  const created = service.createRoom(names[0]);
+  const created = await service.createRoom(names[0]);
   const sessions = [{ name: names[0], token: created.token, playerId: created.room.viewerId }];
   for (const name of names.slice(1)) {
-    const joined = service.joinRoom(created.room.code, name);
+    const joined = await service.joinRoom(created.room.code, name);
     sessions.push({ name, token: joined.token, playerId: joined.room.viewerId });
   }
-  service.startRoom(created.room.code, created.token);
+  await service.startRoom(created.room.code, created.token);
 
   const server = http.createServer(createRequestHandler(service));
   await new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ async function startTestRoom(names) {
       server.close((error) => error ? reject(error) : resolve());
     }),
     code: created.room.code,
-    room: service.getRoom(created.room.code),
+    room: await service.getRoom(created.room.code),
     service,
     sessions
   };
