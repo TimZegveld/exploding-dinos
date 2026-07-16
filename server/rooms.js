@@ -97,8 +97,9 @@ function createRoomService({ now = () => Date.now(), roomLifetimeMs = 12 * 60 * 
   async function viewRoom(code, token) {
     return changeRoom(code, (room) => {
       if (!room.players.some((player) => player.token === token)) fail("Je spelerssessie is niet geldig.", 401);
-      if (room.game && advanceExpiredReaction(room.game, now())) room.version += 1;
-      return { room, value: publicRoom(room, token) };
+      const changed = Boolean(room.game && advanceExpiredReaction(room.game, now()));
+      if (changed) room.version += 1;
+      return { room, value: publicRoom(room, token), write: changed };
     });
   }
 

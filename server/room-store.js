@@ -44,6 +44,7 @@ class MemoryRoomStore {
     const current = this.rooms.get(key);
     if (!current) return { found: false, value: null };
     const outcome = update(current);
+    if (outcome.write === false) return { found: true, value: outcome.value };
     if (outcome.room) this.rooms.set(key, outcome.room);
     else this.rooms.delete(key);
     return { found: true, value: outcome.value };
@@ -87,6 +88,10 @@ class RedisRoomStore {
           return { found: false, value: null };
         }
         const outcome = update(current);
+        if (outcome.write === false) {
+          await isolated.unwatch();
+          return { found: true, value: outcome.value };
+        }
         const transaction = isolated.multi();
         if (outcome.room) {
           transaction.set(key, JSON.stringify(outcome.room), { PX: roomTtl(outcome.room, this.now()) });
@@ -103,4 +108,20 @@ class RedisRoomStore {
   }
 }
 
-module.exports = { MemoryRoomStore, RedisRoomStore, ROOM_SCHEMA_VERSION, parseRoom, roomTtl };
+async function createRoomStoreFromEnvironment(env = process.env, logger = console) {
+  const mode = env.ROOM_STORE || (env.REDIS_URL ? "redis" : "memory");
+  if (mode === "memory") {
+    logger.info?.("Roomopslag: tijdelijk geheugen.");
+    return new MemoryRoomStore();
+  }
+  if (mode !== "redis") throw new Error(`Onbekende ROOM_STORE: ${mode}`);
+  if (!env.REDIS_URL) throw new Error("ROOM_STORE=redis vereist REDIS_URL; de server start niet met tijdelijke fallback.");
+  const { createClient } = require("redis");
+  const client = createClient({ url: env.REDIS_URL });
+  client.on("error", (error) => logger.error?.("Redis-roomopslagfout:", error.message));
+  await client.connect();
+  logger.info?.("Roomopslag: Redis/Valkey met TTL.");
+  return new RedisRoomStore(client);
+}
+
+module.exports = { createRoomStoreFromEnvironment, MemoryRoomStore, RedisRoomStore, ROOM_SCHEMA_VERSION, parseRoom, roomTtl };

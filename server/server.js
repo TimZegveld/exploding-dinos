@@ -1,6 +1,7 @@
 const http = require("node:http");
 const { URL } = require("node:url");
 const { createRoomService } = require("./rooms");
+const { createRoomStoreFromEnvironment } = require("./room-store");
 
 const rooms = createRoomService();
 
@@ -79,11 +80,20 @@ function createRequestHandler(roomService = rooms) {
   };
 }
 
-if (require.main === module) {
+async function startServer() {
+  const store = await createRoomStoreFromEnvironment();
+  const roomService = createRoomService({ store });
   const port = Number(process.env.PORT || 3000);
-  http.createServer(createRequestHandler()).listen(port, "0.0.0.0", () => {
+  return http.createServer(createRequestHandler(roomService)).listen(port, "0.0.0.0", () => {
     console.log(`Exploding Dinos roomserver luistert op poort ${port}`);
   });
 }
 
-module.exports = { createRequestHandler };
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Roomserver kon niet starten:", error.message);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { createRequestHandler, startServer };
