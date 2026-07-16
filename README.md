@@ -54,6 +54,8 @@ npm run test:browser
 
 Installeer bij een nieuwe checkout eerst de ontwikkelafhankelijkheden en Chromium met `npm install` en `npx playwright install chromium`. Met `npm run test:all` draaien beide testlagen achter elkaar.
 
+GitHub Actions draait bij iedere pull request naar `main` en iedere push op `main` automatisch de Node-tests en de volledige Playwright-matrix. Bij een mislukte browsertest bewaart de workflow screenshots, traces en overige Playwright-resultaten zeven dagen als artifact. De live-rooktest hieronder blijft bewust een aparte controle na deployment.
+
 Met `npm run test:public` draait een expliciete live-rooktest tegen GitHub Pages en Render. Deze maakt met twee geïsoleerde browsersessies tijdelijk een echte room, start en ververst het potje, speelt indien mogelijk een veilige actiekaart en controleert de openbare Meteorietinslag en Schuilgrot plus de geheime terugplaatsing. De test verwijdert de room na afloop en hoort niet bij de standaard lokale suite.
 
 ## Online zetten

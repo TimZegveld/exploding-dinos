@@ -22,8 +22,9 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 ## Huidige stand
 
 - Iedere speler start met exact 5 kaarten: 1 gegarandeerde Schuilgrot en 4 willekeurige kaarten zonder Meteorietinslag of extra Schuilgrot.
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 93 tests.
-- De volledige Playwright-matrix is groen: 65 tests geslaagd en 3 desktopvarianten van mobiel-specifieke tests bewust overgeslagen.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 96 tests.
+- De volledige Playwright-matrix is groen: 82 tests geslaagd en 22 projectvarianten bewust overgeslagen omdat de echte multi-browserflows gericht eenmaal op desktop of mobiel draaien.
+- GitHub Actions draait de Node- en Playwright-tests automatisch voor pull requests naar `main` en pushes op `main`; mislukte browserruns bewaren hun Playwright-artifacts zeven dagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
 - De beurt-effecten van alle kaarttypes zijn vastgelegd in een regressietest; `Ptero Pret` herschikt de bovenste en onderste kaart en laat de beurt doorgaan.
 - `CARD_RULES_AUDIT.md` vergelijkt kaarttekst, README en singleplayer-/multiplayergedrag en legt open regelbesluiten vast.
@@ -97,8 +98,8 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 
 ## Testdekking
 
-- [ ] Voeg browserflows toe voor zeldzame reactieketens: meerdere `Brul Terug`-kaarten, doorgeschoven raptoraanvallen en meteorietplaatsing.
-- [ ] Voeg een langere gesimuleerde browserflow toe die meerdere opeenvolgende beurten doorloopt.
+- [x] Voeg echte multi-browserflows toe voor meerdere `Brul Terug`-kaarten, doorgeschoven raptoraanvallen, geheime meteorietplaatsing en reconnect tijdens een reactievenster.
+- [x] Voeg een lang deterministisch browserpotje toe dat 18 serveracties doorloopt van actiekaart en veilige trekkingen tot eliminatie en winnaar.
 - [ ] Overweeg een automatische toegankelijkheidscheck zodra daarvoor een kleine, stabiele dependency gewenst is.
 
 ## Technische aandachtspunten
