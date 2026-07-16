@@ -9,3 +9,7 @@ services:
     envVars:
       - key: ALLOWED_ORIGIN
         value: https://timzegveld.github.io
+      - key: ROOM_STORE
+        value: redis
+      - key: REDIS_URL
+        sync: false

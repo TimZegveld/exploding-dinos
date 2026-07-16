@@ -22,7 +22,7 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 ## Huidige stand
 
 - Iedere speler start met exact 5 kaarten: 1 gegarandeerde Schuilgrot en 4 willekeurige kaarten zonder Meteorietinslag of extra Schuilgrot.
-- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 96 tests.
+- `node --test tests/*.test.js` is groen via de gebundelde Node-runtime: 101 tests.
 - De volledige Playwright-matrix is groen: 82 tests geslaagd en 22 projectvarianten bewust overgeslagen omdat de echte multi-browserflows gericht eenmaal op desktop of mobiel draaien.
 - GitHub Actions draait de Node- en Playwright-tests automatisch voor pull requests naar `main` en pushes op `main`; mislukte browserruns bewaren hun Playwright-artifacts zeven dagen.
 - De risicovolste spelregels hebben gerichte regeltests: setup-aantallen, `Meteorietinslag` met/zonder `Schuilgrot`, raptor-stapeling, `Brul Terug`-ketens en soortpaarbeloningen.
@@ -105,7 +105,9 @@ Doel: overdracht en open werk bijhouden, zodat een nieuwe chat direct verder kan
 ## Technische aandachtspunten
 
 - [x] Maak de willekeurige room-servertest deterministisch; `spelacties vereisen de actuele roomversie` gebruikt nu een vaste veilige trekkaart.
-- [ ] Bepaal of rooms voor productie persistent moeten worden. Ze staan nu alleen in het geheugen en verdwijnen bij een Render-restart of nieuwe deployment.
+- [x] Maak rooms persistent via een Redis-/Valkey-opslagadapter met twaalf uur TTL, schema-versie en atomische roomupdates; lokaal blijft een geheugenadapter beschikbaar.
+  - [ ] Maak in Render een Key Value-instance, vul de interne URL als geheime `REDIS_URL` in en voer na deployment een echte herstarttest uit.
+  - Een gratis Key Value-instance overleeft webservice-deployments maar niet noodzakelijk een herstart van de datastore zelf; volledige disk-backed persistentie vereist op Render een betaald plan met `Journal + Snapshot`.
 - [x] Houd rekening met de cold start van het gratis Render-plan met zichtbare wachtstatus, geblokkeerde dubbele acties en een timeoutmelding.
 
 ## Later, niet blokkerend

@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { MemoryRoomStore, RedisRoomStore, ROOM_SCHEMA_VERSION, parseRoom } = require("../server/room-store");
+const { createRoomStoreFromEnvironment, MemoryRoomStore, RedisRoomStore, ROOM_SCHEMA_VERSION, parseRoom } = require("../server/room-store");
 const { createRoomService } = require("../server/rooms");
 
 class FakeRedisClient {
@@ -11,6 +11,7 @@ class FakeRedisClient {
   }
 
   duplicate() { return new FakeRedisClient(this.database, this.clock); }
+  on() { return this; }
   async connect() {}
   destroy() {}
   async watch(key) { this.watched.set(key, this.database.get(key)?.version ?? 0); }
@@ -101,4 +102,12 @@ test("Redis-adapter bewaart schema, TTL en updates", async () => {
 
 test("onbekende opgeslagen schemaversies worden beheerst geweigerd", () => {
   assert.throws(() => parseRoom(JSON.stringify({ schemaVersion: 99 })), /onbekende opslagversie/);
+});
+
+test("productieconfiguratie valt niet stil terug op tijdelijk geheugen", async () => {
+  await assert.rejects(
+    createRoomStoreFromEnvironment({ ROOM_STORE: "redis" }, { info() {}, error() {} }),
+    /vereist REDIS_URL/
+  );
+  assert.ok(await createRoomStoreFromEnvironment({ ROOM_STORE: "memory" }, { info() {} }) instanceof MemoryRoomStore);
 });

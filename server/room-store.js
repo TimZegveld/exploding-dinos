@@ -79,6 +79,7 @@ class RedisRoomStore {
     const key = this.key(code);
     for (let attempt = 0; attempt < this.retries; attempt += 1) {
       const isolated = this.client.duplicate();
+      isolated.on?.("error", () => { /* De hoofdclient logt verbindingsfouten centraal. */ });
       await isolated.connect();
       try {
         await isolated.watch(key);
